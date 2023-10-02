@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+Array.prototype.shuffle = function() {
+ 	var len = this.length;
+	var i = len;
+	 while (i--) {
+	 	var p = parseInt(Math.random()*len);
+		var t = this[i];
+  	this[i] = this[p];
+  	this[p] = t;
+ 	}
+};
+Array.prototype.intsort = function() {
+	this.sort(function(a,b){return a-b});
+};
+
+var players = 3;
+var market = [];
+var futuremarket = [];
+var plants = [3,4,5,6,7,8,9,10,13,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,42,44,46,50];
+var phase = 2;
+var step = 1;
+var stack = [];
+var houses = 0;
+stack = plants;
+
+// init_game(players, map, newplants)
+market = plants.splice(0,4);
+futuremarket = plants.splice(0,4);
+stack = plants.splice(1);
+var toremove = [ 0, 0, 8, 8, 4, 0, 0];
+stack.shuffle();
+stack.splice(-toremove[players]);
+stack.push(99);
+stack.unshift(plants[0]);
+
+function display()
+{
+var tmp = 'Stack: ' + stack.toString() + '<br/>';
+tmp += 'Market: ' + market.toString() + '<br/>';
+tmp += 'Future Market: ' + futuremarket.toString() + '<br/>' + (0xfffffff0&0xffffffff);
+
+document.getElementById("demo").innerHTML=tmp;
+
+};
+function draw() {
+    market = market.concat(futuremarket);
+    if (stack.length) {
+	var plant = stack.shift();
+	if (plant == 99) {
+	    stack.shuffle();
+	}
+	market.push(plant);
+    }
+    market.intsort();
+    if (step < 3)
+	futuremarket = market.splice(4);
+};
+function buy(i)
+{
+    if (market.length > i) {
+	market.splice(i,1);
+	draw();
+    }
+    display();
+};
+function pass()
+{
+    market.shift();
+    draw();
+    display();
+};
+function build()
+{
+    houses++;
+    display();
+};
+function cycle()
+{
+    if (step < 3) {
+	stack.push(futuremarket.pop());
+	draw();
+    } else if (market.length > 0) {
+	market.shift();
+	draw();
+    }
+    display();
+};
+function step3(i)
+{
+    step = 3;
+    market.shift();
+    futuremarket.pop();
+    market = market.concat(futuremarket);
+    futuremarket = [];
+    display();
+};
+</script>
+</head>
+<body onLoad="display()">
+
+<h1>My First JavaScript</h1>
+<p id="demo">This is a paragraph.</p>
+
+<button type="button" onclick="buy(0)">Buy A</button>
+<button type="button" onclick="buy(1)">Buy B</button>
+<button type="button" onclick="buy(2)">Buy C</button>
+<button type="button" onclick="buy(3)">Buy D</button>
+<button type="button" onclick="buy(4)">Buy E</button>
+<button type="button" onclick="buy(5)">Buy F</button>
+<button type="button" onclick="cycle()">Cycle</button>
+<button type="button" onclick="step3()">Step 3</button>
+<button type="button" onclick="build()">Build</button>
+<button type="button" onclick="pass()">Pass</button>
+   <form onSubmit='alerttest(this); return false'>        
+      <input type="text">         
+   </form>
+
+
+   <script language="javascript">
+        function alerttest()
+        {
+        alert("Executing jolly.exe !!!!");
+        // function edited by Inderpreet singh
+        }
+   </script>
+
+</body>
+</html> 
