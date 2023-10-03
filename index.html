@@ -1,7 +1,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+<html manifest="js.manifest">
 <head>
 <meta charset="UTF-8" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="viewport" content="width=1024, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="shortcut icon" href="img/DEC.ico" />
+<link rel="apple-touch-icon" href="img/DEC.jpg" />
+<title>PG Auction</title>
 <style>
 @font-face {
 font-family: KaufmannBold;
@@ -26,9 +31,6 @@ background-color:#6e8c52;
 -o-user-select: none;
 user-select: none;
 
-}
-div {
-background-color:none;
 }
 div.header {
 font-family:KaufmannBold, Helvetica, Arial;
@@ -141,19 +143,37 @@ Array.prototype.extract = function(x) {
 };
 
 // TODO
-// Pass all special action
-// Debug mode display
-//*X Promo cards
+// Debug mode display/report problem
+// X Promo cards
 // Save ui settings
-// GFX
-// - remove stack blink
-// - Espionage
 // Start screen
 // - layout
 // - region randomizer
 // Calculator
 // Rules
 // Languages
+
+// colors:
+// pink: #e2c0d1, efc3d2(neu)
+// violet: #cca2dd
+// yellow: #d0c46a, d5bd73(neu)
+// brown: #b29d7b, c2a688(neu), d2985f(bnx)
+// red: #be7b75, d37a75(neu), c05c4d(bnx)
+// orange: #f1d278, fcb400(neu)
+// green: #9ec37c(neu), 7fa791 (bnx)
+// blue: 7e8395(bnx)
+// gbr: pink, violet, yellow, brown, red, orange
+// neu: pink, yellow, brown, red, orange, green
+// bnx,ceu: violet, blue, red, yellow, brown, blue-green
+// jpn: red, yellow, violet, green, brown
+// rus: red, yellow, violet, pink, green, brown
+
+var lang = '';
+if (navigator.userLanguage) // IE
+    lang = navigator.userLanguage;
+else if (navigator.language) // Others
+    lang = navigator.language;
+lang = lang.match(/[a-z]*/i);
 
 // Game constants
 
@@ -494,6 +514,7 @@ function replay(inlog) {
 	    case 'E': do_endbuild(); break;
 	    case 'T': do_endturn(); break;
 	    case 'P': do_pass(); break;
+	    case 'A': do_passall(); break;
 	    case 'N': do_nospace(); break;
 	    default: do_buy(parseInt(c)); break;
 	}
@@ -505,7 +526,7 @@ function replay(inlog) {
 function market_remove(i) {
     { // DISPLAYEVENT
     var ev = {};
-    ev[market[i]] = [ 2.5, 2.5, 3];
+    ev[market[i]] = [ 2.5, 2.5, 3, 0];
     mvqueue.push(ev);
     }
     market.splice(i,1);
@@ -519,7 +540,7 @@ function market_pop() {
     {
     var ev = {};
     for (var i = 0; i < market.length; i++) {
-	ev[market[i]] = [ i, 0, 3];
+	ev[market[i]] = [ i, 0, 3, 0];
     }
     mvqueue.push(ev);
     }
@@ -528,21 +549,31 @@ function market_to_stack(i) {
     if (i < 0) i = market.length - 1;
     { // DISPLAYEVENT
     var ev = {};
-	ev[market[i]] = [5,1, 1];
+	ev[market[i]] = [5,1, 1, 0];
     mvqueue.push(ev);	
     }
     stack.push(market.splice(i,1)[0]);
 }
+function stack_reveal(p) {
+    if (!stack.length) return;
+    { // DISPLAYEVENT
+    var ev = {};
+	ev[stack[0]] = [5,1, 3, 0,p];
+    mvqueue.push(ev);	
+    }
+}
 
 function draw() {
     if (!stack.length) return;
+    if (stack[0].substr(0,1) == 'X') {
+	stack_reveal(1);
+	stack.shift();
+	draw();
+	return;
+    }
     var plant = stack.shift();
     if (plant == step3) {
 	stack.shuffle(); // skip this for China?
-    }
-    if (plant.substr(0,1) == 'X') {
-	draw();
-	return;
     }
     market.push(plant);
     market.sort();
@@ -551,8 +582,8 @@ function draw() {
     var ev1 = {}, ev2 = {};
     for (var i = 0; i < market.length; i++) {
 	var m = market_availiable();
-	var newpos = [ i % m, i >= m, market[i] != plant ? 3 : 4];
-	ev1[market[i]] = market[i] != plant ? newpos : [5, 1, 3];
+	var newpos = [ i % m, i >= m, market[i] != plant ? 3 : 4, 0];
+	ev1[market[i]] = market[i] != plant ? newpos : [5, 1, 3, 3];
 	ev2[market[i]] = newpos;
     }
     mvqueue.push(ev1);
@@ -595,8 +626,7 @@ function do_buy(i) {
     }
 }
 
-function do_pass() {
-    log_append('P');
+function aucion_pass() {
     playersleft--;
     if ('RUS' == map_id()) {
 	market_shift();
@@ -615,6 +645,18 @@ function do_pass() {
         phase = 4;
     }
 }
+
+function do_pass() {
+    log_append('P');
+    aucion_pass();
+}
+
+function do_passall() {
+    log_append('A');
+    while(playersleft) 
+	aucion_pass();
+}
+
 function do_build() {
     log_append('B');
     houses++;
@@ -725,9 +767,9 @@ function pass() {
     display();
 }
 function passall() {
-    while (phase == 2 && turn > 1) {
+    if (phase == 2 && turn > 1) {
 	flush_events();
-        do_pass();
+        do_passall();
     }
     display();
 }
@@ -799,20 +841,23 @@ function report_mail() {
 document.onkeydown = function(e) {
     if (!ingame) return;
     if (e.keyCode > 48 && e.keyCode < 55) {
-        if (phase == 2) {
-            buy(e.which - 49);
-        } else if (phase == 4) {
-            for (var i = 48; i < e.keyCode; i++)
-                build();
-        }
-        return false;
+        buy(e.which - 49);
     } else if (e.ctrlKey && e.keyCode == 90 && undo_active()) {
         undo();
     } else if (e.keyCode == 78) {
 	nextphase();
+    } else if (e.keyCode == 66) {
+	build();
     } else if (e.keyCode == 27) {
         end_game();
+    } else if (e.keyCode == 80 && pass_active()) {
+        pass();
+    } else if (e.keyCode == 79 && nospace_active()) {
+        nospace();
+    } else {
+	return true;
     }
+    return false;
 }
 
 function ui_set_regions(elem) {
@@ -834,7 +879,7 @@ function ui_set_pos(name,x,y,z) {
 
 var lastpos = {};
 
-function ui_card(name,forsale,topstack) {
+function ui_card(name,forsale) {
     var px = 10 + 160 * lastpos[name][0];
     var py = 10 + 160 * lastpos[name][1];
     var ret ='';
@@ -842,8 +887,6 @@ function ui_card(name,forsale,topstack) {
     ret += 'background: url(img/'+name+'.jpg);';
     ret += 'background-size: cover;'
     ret += 'top:'+py+'px;left:'+px+'px;"';
-    if (topstack)
-	ret += 'z-index:1;"';
     ret += ' id="card' + name + '"';
     if (forsale >= 0) ret += ' onClick="buy('+forsale+')"';
     ret += '>';
@@ -860,7 +903,8 @@ function ui_stack() {
     ret += 'background-size: cover;'
     ret += 'z-index:2;';
     ret += 'top:'+py+'px;left:'+px+'px;"';
-    ret += ' id="cardTOP"';
+    if (has_espionage())
+	ret += ' onclick="stack_reveal(0)"';
     ret += '>';
     ret += '</div>';
     return ret;
@@ -876,7 +920,7 @@ function ui_step() {
     var py = 10 + 160 * 1;
     var alt = alttable;
     var ret ='';
-    ret += '<div style="position:absolute;background-color:none;width:150px;height:150px;'
+    ret += '<div style="position:absolute;width:150px;height:150px;'
     ret += 'border:0px solid black;z-index:0;text-align:center;';
     ret += 'top:'+py+'px;left:'+px+'px;" onClick="ui_alttable()">';
     if (!alt) ret += '<div style="font-size:150%">'+(step?'Step '+step:'Game over')+'</div>';
@@ -935,14 +979,14 @@ function ui_phase(x,y,w,h,name,on) {
 function ui_market() {
     var ret = '<div class="market">';
     var m = market_availiable();
-    for (var i = 0; i < m; i++) ret += ui_card(market[i], phase == 2 ? i : -1, 0);
-    for (var i = m; i < market.length; i++) ret += ui_card(market[i], -1, 0);
-    for (var i = 0; i < stack.length && i < 4; i++) ret += ui_card(stack[i], -1, i == 0);
+    for (var i = 0; i < m; i++) ret += ui_card(market[i], phase == 2 ? i : -1);
+    for (var i = m; i < market.length; i++) ret += ui_card(market[i], -1);
+    for (var i = 0; i < stack.length && i < 4; i++) ret += ui_card(stack[i], -1);
     var p = event_cards();
     for (var i = 0; i < p.length; i++) {
 	var sp = stack.indexOf(p[i]);
 	if (market.indexOf(p[i]) == -1 && (sp >= 4 || sp == -1))
-	    ret += ui_card(p[i], -1, 0);
+	    ret += ui_card(p[i], -1);
     }
 //    for (var i in lastpos) {
 //	var c = phase == 2 ? market.indexOf(i) : -1;
@@ -983,13 +1027,10 @@ function ui_market() {
 	if (order < 2 && (turn == 1 || 'BAD' == map_id())) order ^= 1;
 	ret += ui_phase(order*168,0,168,35,name,bg);
     }
-    if (pass_active()) {
+    if (pass_active())
 	ret += ui_button(1*168,35,168,35,'Pass','pass');
-    }
-    if (nospace_active()) {
+    if (nospace_active())
 	ret += ui_button(3*168,35,168,35,'Out of space','nospace');
-    }
-
     ret += ui_button(900,0,70,35,'Next',nextphase_active()?'nextphase':'');
     ret += ui_button(900,35,70,35,'Undo',undo_active()?'undo':'');
     ret += ui_button(0,35,100,35,'End game','end_game');
@@ -1015,41 +1056,7 @@ function display() {
 	var tmp = '';
 	tmp += '<div class="header">'+maps[map].name+', '+players+' Players</div>';
 	tmp += ui_market();
-//	tmp += 'Market: ' + market.slice(0,m).toString() + '<br/>';
-//	tmp += 'Future Market: ' + market.slice(m).toString() + '<br/>';
-//	tmp += 'Connected cities: ' + houses + ' ';
-//	tmp += 'Step: ' + step + ' ';
-//	tmp += 'Turn: ' + turn + ' ';
-//	tmp += 'Phase: ' + phase + ' ';
-//	tmp += 'Left: ' + playersleft + '<br/>';
-//	tmp += 'Stack: ' + stack.toString() + '<br/>';
-//	tmp += 'Log: ' + gamelog + '<br/>';
-
-	if (phase == 2) {
-//	    for (var i = 0; i < market_availiable(); i++)
-//	    tmp += '<button type="button" onclick="buy('+i+')">Buy '+i+'</button>';
-	    if (turn > 1) {
-//		if (pass_active())
-//		    tmp += '<button type="button" onclick="pass()">Pass</button>';
-//		tmp += '<button type="button" onclick="passall()">Pass All</button>';
-	    }
-	}
-	if (phase == 4) {
-//	    tmp += '<button type="button" onclick="build()">Build</button>';
-	    if (nospace_active()) {
-//		tmp += '<button type="button" onclick="nospace()">Out of Space</button>';
-	    }
-//	    tmp += '<button type="button" onclick="endbuild()">End Build</button>';
-	}
-	if (phase == 5 && step > 0) {
-//	    tmp += '<button type="button" onclick="endturn()">End Turn</button>';
-	}
-//	tmp += '<br/>';
-//	tmp += '<button type="button" onclick="end_game()">End Game</button>';
-	if (undo_active()) {
-//	    tmp += '<button type="button" onclick="undo()">Undo</button>';
-	}
-	tmp += '<br/><a href="' + report_mail() + '"><button>Report a problem</button></a>';
+//	tmp += '<br/><a href="' + report_mail() + '"><button>Report a problem</button></a>';
 	document.getElementById("buttons").innerHTML=tmp;
     } else {
 	var tmp ='';
@@ -1077,23 +1084,33 @@ function display() {
 	}
 	tmp += '</select>';
 	tmp += '<br/>';
-	tmp += '<div style="position:relative;width:970px;height:600px;">';
+	tmp += '<div style="position:relative;width:970px;height:300px;">';
 	tmp += '<div class="market" style="position:absolute;top:30px;left:660px;text-align:left;height:250px;width:300px;">';
 	if (region_select()) {
+	    tmp += 'Regions';
+	    if (region_select()) {
+		var diff = regionsno[players] - chosen_regions();
+		if (diff > 0) tmp += ' (choose ' + diff + ' more)';
+		else if (diff < 0) tmp += ' (choose ' + -diff + ' less)';
+	    }
+	    tmp += ':</br>';
 	    for(var i = 0; i < 6; i++) {
+		var fg = '#777777';
 		tmp += '<input type="checkbox" onChange="set_option('+i+',this.checked);display();"';
-		if (has_option(i)) tmp += ' checked';
-		tmp += '>'+maps[map].regions[i]+'</input>';
+		if (has_option(i)) { tmp += ' checked'; fg = 'black'; }
+		tmp += '><span style="color:'+fg+'">'+maps[map].regions[i]+'</span>'
+		tmp += ' <img style="border:1px solid '+fg+'" src="img/c0.png" width=20 height=20></input>';
 	    tmp += '<br/>';
 	    }
 	}
 	tmp += '</div>';
 	tmp += '<div class="market" style="position:absolute;top:30px;left:0px;text-align:left;font-size:80%;height:250px;width:300px;">';
 	if (!maps[map].nodecks || maps[map].nodecks.search('P') < 0) {
+	    tmp += 'Promo cards:</br>'
 	    for(var i = 0; i < promos.length; i++) {
 		tmp += '<input type="checkbox" onChange="set_option('+promos[i].val+',this.checked);display();"';
 		if (has_option(promos[i].val)) tmp += ' checked';
-		tmp += '>'+promos[i].name+'</input>';
+		tmp += '><span style="color:'+(has_option(promos[i].val)?'black':'#777777')+'">'+promos[i].name+'</span></input>';
 	    tmp += '<br/>';
 	    }
 	}
@@ -1104,12 +1121,6 @@ function display() {
 	    tmp += ui_info('Number of cities chosen on map',bigcitiesno[players]);
 	} else {
 	    var value = regionsno[players];
-	    if (region_select()) {
-		var diff = regionsno[players] - chosen_regions();
-		if (!diff) value += ' OK';
-		else if (diff > 0) value += ' (' + diff + ' more)';
-		else value += ' (' + -diff + ' less)';
-	    }
 	    tmp += ui_info('Number of regions chosen on map',value);
 	}
 	tmp += ui_info('Maximum number of power plants owned',maxplantsno[players]);
@@ -1144,22 +1155,32 @@ function display_event() {
 	var xz = frames/25;
 	var px = src[0]*xz + dst[0]*(1-xz);
 	var py = src[1]*xz + dst[1]*(1-xz);
-	ui_set_pos(c,px,py,frames>0?dst[2]:0);
+	ui_set_pos(c,px,py,frames>0?dst[2]:dst[3]);
     }
+    if (dst[4]) {
+	    var item = document.getElementById("card"+c);
+	    item.onclick = function () { cancel_event(); };
+    } else
     frames--;
     if (frames < 0) {
 	for (var c in curmv)
-	    lastpos[c] = curmv[c];
+	    lastpos[c] = curmv[c].slice(0,2);
 	mvqueue.shift();
 	frames = 25;
     }
 }
-function flush_events() {
+function cancel_event() {
     var e;
-    while (e = mvqueue.shift())
-	for (var c in e)
-	    lastpos[c] = e[c];
+    if (e = mvqueue.shift())
+	for (var c in e) {
+	    ui_set_pos(c,e[c][0],e[c][1],e[c][3]);
+	    lastpos[c] = e[c].slice(0,2);
+	}
     frames = 25;
+}
+function flush_events() {
+    while (mvqueue.length)
+	cancel_event();
 }
 function event_cards() {
     var r = [];
