@@ -4,12 +4,12 @@
 <meta charset="UTF-8" />
 <script>
 
+// Utility functions:
+
 function RNG(seed) {
-  // LCG using GCC's constants
-  this.m = 0x100000000; // 2**32;
+  this.m = 0x100000000;
   this.a = 1103515245;
   this.c = 12345;
-
   this.state = seed === undefined ? Math.floor(Math.random() * (this.m-1)) : seed;
 }
 RNG.prototype.nextInt = function() {
@@ -17,12 +17,9 @@ RNG.prototype.nextInt = function() {
   return this.state;
 }
 RNG.prototype.nextFloat = function() {
-  // returns in range [0,1]
   return this.nextInt() / (this.m - 1);
 }
 RNG.prototype.nextRange = function(start, end) {
-  // returns in range [start, end): including start, excluding end
-  // can't modulu nextInt because of weak randomness in lower bits
   var rangeSize = end - start;
   var randomUnder1 = this.nextInt() / this.m;
   return start + Math.floor(randomUnder1 * rangeSize);
@@ -30,224 +27,469 @@ RNG.prototype.nextRange = function(start, end) {
 RNG.prototype.choice = function(array) {
   return array[this.nextRange(0, array.length)];
 }
-
-
 Array.prototype.shuffle = function() {
- 	var len = this.length;
-	var i = len;
-	 while (i--) {
-	 	var p = rand.nextRange(0,len);
-		var t = this[i];
-  	this[i] = this[p];
-  	this[p] = t;
- 	}
+    var len = this.length;
+    var i = len;
+    while (i--) {
+	var p = rand.nextRange(0,len);
+	var t = this[i];
+	this[i] = this[p];
+	this[p] = t;
+    }
 };
-Array.prototype.intsort = function() {
-	this.sort(function(a,b){return a-b});
+Array.prototype.extract = function(x) {
+    var len = this.length;
+    var res = [];
+    for (var i = 0; i < x.length; i++) {
+	var t = x[i];
+	var p = this.indexOf(t);
+	if (p < 0) continue;
+	res.push(this.splice(p,1)[0]);
+    }
+    return res;
 };
 
-var toremove = [ 0, 0, 8, 8, 4, 0, 0];
-var tostep2 = [ 0, 0, 10, 7, 7, 7, 6 ];
-var toend = [ 0, 0, 21, 17, 17, 15, 14 ];
+// TODO
+// Put state together
+// Add report issue
+// Promo selection
+// Promo handling
+// Display events
+// Restock tables
+// GFX
+
+// Game constants
+
+var regionsno = [ null, null, 3, 3, 4, 5, 5];
+var maxplantsno = [ null, null, 4, 3, 3, 3, 3];
+var bigcitiesno = [ null, null, 24, 24, 32, 40, 42];
+var toremove = [ null, null, 8, 8, 4, 0, 0];
+var limits = [ null, null, [10,21], [7,17], [7,17], [7,15], [6,14]];
+var limitsbig = [ null, null, [12,24], [8,20], [8,20], [8,18], [7,15]];
+var limitsbad = [ null, null, [9,21], [6,17], [6,17], [6,15], [5,14]];
+var decks = [
+{ id: 'S', name: 'Standard Deck' },
+{ id: 'N', name: 'New Deck' },
+{ id: 'M', name: 'Mixed Deck'},
+{ id: 'B', name: 'Big Game Deck' },
+];
+var ukregions = [ 'Ireland', 'Northern Ireland', 'Scotland', 'Wales', 'Southern England', 'Northern England' ];
+var ukcities = [ 7, 5, 7, 6, 8, 7 ];
+var neregions = [ 'Denmark', 'Norway', 'Southern Sweden', 'Northern Sweden', 'Finland', 'Baltic States' ];
+var maps = [
+{ id: 'GER', name: 'Germany', startcost: [1,3,7,14] },
+{ id: 'USA', name: 'USA', startcost: [1,3,7,14] },
+{ id: 'ITA', name: 'Italy', startcost: [1,3,7,14] },
+{ id: 'FRA', name: 'France', startcost: [1,3,7,14] },
+{ id: 'CEU', name: 'Central Europe', startcost: [1,3,7,14] },
+{ id: 'BNX', name: 'Benelux', startcost: [1,3,7,14] },
+{ id: 'KOR', name: 'Korea', startcost: [1,3,7,14] },
+{ id: 'CHN', name: 'China', nodecks: 'MBP', startcost: [1,3,7,14] }, // TODO
+{ id: 'BRA', name: 'Brazil', startcost: [1,3,7,14] },
+{ id: 'IBE', name: 'Spain & Portugal', startcost: [1,3,7,14] },
+{ id: 'JPN', name: 'Japan', nodecks: 'B', startcost: [1,3,7,14] },
+{ id: 'RUS', name: 'Russia', nodecks: 'M', startcost: [1,3,7,14] },
+{ id: 'QUE', name: 'Quebec', startcost: [1,3,7,14] },
+{ id: 'BAD', name: 'Baden-Wuerttemberg', nodecks: 'B', startcost: [1,3,7,14] }, // TODO: Phase order
+{ id: 'GBR', name: 'UK & Ireland', regions: ukregions, cities: ukcities, startcost: [1,3,5,0] },
+{ id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neregions, startcost: [3,3,7,7] },
+];
+var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
+                  '16A','17A','18A','19A','20A','21A','22A','23A','24A','25A','26A','27A','28A',
+                  '29A','30A','31A','32A','33A','34A','35A','36A','37A','38A','39A','40A',
+                  '42A','44A','46A','50A' ];
+var newplants = [ '01B','02B','03B','04B','05B','06B','07B','08B','09B','10B','11B','12B','13B',
+                  '14B','15B','16B','19B','20B','21B','22B','23B','24B','25B','26B','27B','28B',
+                  '29B','30B','31B','32B','33B','34B','35B','36B','37B','38B','39B','40B',
+                  '42B','44B','46B','50B' ];
+var bigplants = [ '52B','54B','57B','60B' ];
+var step3 = '999';
+
+var topdeckplants = [ '13A', '11B' ];
+var ecoplants = [ '13A','18A','22A','27A','33A','37A','44A',
+                  '10B','11B','15B','16B','26B','32B','39B' ];
+var gasplants = [ '06A','14A','19A','24A','30A','38A',
+                  '06B','21B','27B','33B','42B','52B' ];
+var neplants = [
+    [ [ '19A', '26A', '22B', '27B' ], [ '19C', '26C' ]],
+    [ [ '07A', '46A', '07B', '36B' ], [ '07C', '46C' ]],
+    [ [ '10A', '39A', '09B', '38B' ], [ '10C', '39C' ]],
+    [ [ '21A', '25A', '28B', '29B' ], [ '21C', '25C' ]],
+    [ [ '32A', '44A', '25B', '39B' ], [ '32C', '44C' ]],
+    [ [ '18A', '22A', '15B', '16B' ], [ '18C', '22C' ]],
+];
+
+var promos = [
+{ name: 'Flux-Generator', val: 6, card: '33D' },
+{ name: 'Transformer Station', val: 7, card: 'X01' },
+{ name: 'Warehouse', val: 8, card: 'X02' },
+{ name: 'Shortage of Resources', val: 9, card: 'X03' },
+{ name: 'Surplus of Resources', val: 10, card: 'X04' },
+{ name: 'Theme Park', val: 11, card: 'X05' },
+{ name: 'Supply Contract', val: 12, card: 'X06' },
+{ name: 'Industrial Espionage', val: 13 },
+];
+// Game state
+
 
 var players = 3;
-
 var ingame = 0;
+var gamelog = '';
+var deck = 0; // 0-classic, 1-new, 2-mix (variant 2), 3-big (variant 3)
+var map = 0;
+var options = 0; // bitmask: 0-5, regions for GBR, NEU; 6+ promos
 
-// init_game(players, map, newplants)
-function init_game(state) {
-market = [];
-futuremarket = [];
-plants = [3,4,5,6,7,8,9,10,13,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,42,44,46,50];
-phase = 2; // 2->4->5
-step = 1;
-turn = 1;
-stack = [];
-houses = 0;
-playersleft = players;
-sold = 0;
-stack = plants;
-rand = new RNG(0);
-log = '';
-var oldlog = '';
-if (state) {
-    state = state.split(',');
-    rand = new RNG(parseInt(state[0]));
-    oldlog = state[1];
-} else {
-    rand = new RNG();
-}
-log += rand.state + ',';
-
-market = plants.splice(0,4);
-futuremarket = plants.splice(0,4);
-stack = plants.splice(1);
-stack.shuffle();
-stack.splice(-toremove[players]);
-stack.push(99);
-stack.unshift(plants[0]);
-replay(oldlog);
+var storage = sessionStorage;
+if (1) {
+    var saved_players = storage.getItem('players');
+    var saved_deck = storage.getItem('deck');
+    var saved_map = storage.getItem('map');
+    var saved_options = storage.getItem('options');
+    var saved_ingame = storage.getItem('ingame');
+    var saved_gamelog = storage.getItem('gamelog');
+    if (saved_players) players = parseInt(saved_players);
+    if (saved_deck) deck = parseInt(saved_deck);
+    if (saved_map) map = parseInt(saved_map);
+    if (saved_options) options = parseInt(saved_options);
+    if (saved_ingame) ingame = parseInt(saved_ingame);
+    if (saved_gamelog) gamelog = saved_gamelog;
+    if (gamelog) init_game(gamelog);
 }
 
-function replay(inlog) {
-for (var i = 0; i < inlog.length; i++) {
-    var c = inlog.substr(i, 1);
-    switch (c) {
-    case 'B': do_build(); break;
-    case 'E': do_endbuild(); break;
-    case 'T': do_endturn(); break;
-    case 'P': do_pass(); break;
-    default: do_buy(parseInt(c)); break;
+function deck_id() { return decks[deck].id; }
+function map_id() { return maps[map].id; }
+function plant_val(a) { return parseInt(a,10); }
+function get_limits() {
+    if ('B' == deck_id()) return limitsbig[players];
+    if ('BAD' == map_id()) return limitsbad[players];
+    if ('GBR' == map_id() && players == 2) {
+	var c = 0;
+	if (chosen_regions() == regionsno[players]) {
+	    for (var i = 0; i < 6; i++) if (has_option(i)) c += ukcities[i];
+	} else {
+	    c = '?';
+	}
+	return [limits[2][0],c];
     }
+    return limits[players];
 }
+function has_option(v) {
+    return options & (1 << v);
 }
-
-function undo_active()
-{
-return log.substr(-1) != ',';
-}
-function undo()
-{
-init_game(log.substr(0,log.length-1));
-display();
+function chosen_regions() {
+    var ret = 0;
+    for (var i = 0; i < 6; i++) if (has_option(i)) ret++;
+    return ret;
 }
 
-function display()
-{
-if (ingame) {
-var tmp = 'Stack: ' + stack.toString() + '<br/>';
-tmp += 'Market: ' + market.toString() + '<br/>';
-tmp += 'Future Market: ' + futuremarket.toString() + '<br/>';
-tmp += 'Connected cities: ' + houses + '<br/>';
-tmp += 'Step: ' + step + '<br/>';
-tmp += 'Turn: ' + turn + '<br/>';
-tmp += 'Phase: ' + phase + '<br/>';
-tmp += 'Left: ' + playersleft + '<br/>';
-tmp += 'Log: ' + log + '<br/>';
-
-document.getElementById("demo").innerHTML=tmp;
-tmp = '';
-if (phase == 2) {
-for (var i = 0; i < market.length; i++)
-tmp += '<button type="button" onclick="buy('+i+')">Buy '+i+'</button>';
-if (turn > 1) {
-tmp += '<button type="button" onclick="pass()">Pass</button>';
-tmp += '<button type="button" onclick="passall()">Pass All</button>';
-}
-}
-if (phase == 4) {
-tmp += '<button type="button" onclick="build()">Build</button>';
-tmp += '<button type="button" onclick="endbuild()">End Build</button>';
-}
-if (phase == 5 && step > 0) {
-tmp += '<button type="button" onclick="endturn()">End Turn</button>';
-}
-tmp += '<br/>';
-tmp += '<button type="button" onclick="ingame=0;display()">End Game</button>';
-if (undo_active()) {
-tmp += '<button type="button" onclick="undo()">Undo</button>';
-}
-document.getElementById("buttons").innerHTML=tmp;
-} else {
-var tmp = '';
-tmp += '<select name="playersno">';
-for(i = 2; i <= 6; i++) {
-tmp += '<option value="'+i+'"';
-if (i == players) tmp += ' selected';
-tmp += '>'+i+' Players</option>';
-}
-tmp += '</select>';
-document.getElementById("demo").innerHTML=tmp;
-tmp = '';
-tmp += '<button type="button" onclick="ingame=1;init_game();display()">New Game</button>';
-document.getElementById("buttons").innerHTML=tmp;
+function mixplants() {
+    var tmp = plants.concat(newplants);
+    var ret = [];
+    var have = {};
+    tmp.shuffle();
+    for(var i = 0; i < tmp.length; i++) {
+	var val = plant_val(tmp[i]);
+	if (!have[val] && val != 17 && val != 18) {
+	    ret.push(tmp[i]);
+	}
+	have[val] = 1;
+    }
+    ret.sort();
+    return ret;
 }
 
+function init_deck() {
+    var p = plants;
+    var remove = toremove[players];
+    marketsize = 4; // for Russia
+    if ('N' == deck_id()) p = newplants;
+    if ('M' == deck_id()) p = mixplants();
+    if ('B' == deck_id()) {
+	p = p.concat(bigplants, newplants.slice(-2));
+	remove = remove / 4 * 5;
+    }
 
+    stack = p.slice(0);
+    if ('RUS' == map_id()) {
+	stack.extract(['06A','14A','06B','21B'])
+	marketsize = 3;
+    } else if ('CHN' == map_id()) {
+	stack.extract(['03A','04A','33A','01B','02B','32B']);
+	if (players < 5)
+	    stack.extract(['11A','18A','24A','46A','08B','15B','27B','36B']);
+	if (players < 4)
+	    stack.extract(['09A','16A','20A','30A','12B','22B','28B','42B']);
+	market = stack.splice(0,players);
+	var pos = stack.indexOf('S' == deck_id()?'31A':'30B');
+	var tmp1 = stack.splice(pos);
+	pos = tmp1.indexOf('S' == deck_id()?'36A':'35B');
+	var tmp2 = tmp1.splice(pos);
+	tmp1.push(step3);
+	tmp1.shuffle();
+	tmp2.shuffle();
+	stack = stack.concat(tmp1,tmp2);
+	return;
+    } else if ('NEU' == map_id()) {
+	for (var i = 0; i < 6; i++) if (has_option(i)) {
+	    stack.extract(neplants[i][0]);
+	    stack = stack.concat(neplants[i][1]);
+	}
+	stack.sort();
+    }
+    market = stack.splice(0,marketsize * 2);
 
-};
-
-function draw() {
-    market = market.concat(futuremarket);
-    if (stack.length) {
-	var plant = stack.shift();
-	if (plant == 99) {
+    for (var i = 0; i < promos.length; i++) if (has_option(promos[i].val) && promos[i].card) {
+	stack.push(promos[i].card);
+    }
+    var topdeck = [];
+    stack.shuffle();    
+    if ('M' != deck_id()) {
+	topdeck = stack.extract(topdeckplants);
+	if ('FRA' == map_id()) {
+	    topdeck = stack.extract(['11A','19B']);
+	} else if ('BRA' == map_id()) {
+	    topdeck = topdeck.concat(stack.extract(['14A','21B']));
+	} else if ('IBE' == map_id()) {
+	    step2plants = stack.extract(['18A','22A','27A','15B','16B','26B']);
+	} else if ('RUS' == map_id()) {
+	    var tmp = stack.extract(['10A','11A','08B','09B']);
+	    tmp = tmp.concat(stack.splice(-3));
+	    tmp.shuffle();
+	    topdeck = topdeck.concat(tmp);
+	} else if ('QUE' == map_id()) {
+	    topdeck = topdeck.concat(stack.extract(['18A','22A','15B','16B']));
+	}
+    }
+    if (remove) {
+	var save;
+	if ('BRA' == map_id()) save = stack.extract(gasplants);
+	if ('QUE' == map_id()) save = stack.extract(ecoplants);
+	stack.splice(-remove);
+	if (save) {
+	    stack = stack.concat(save);
 	    stack.shuffle();
 	}
-	market.push(plant);
     }
-    market.intsort();
-    if (step < 3)
-	futuremarket = market.splice(4);
-    if(houses >= market[0]) {
-        market.shift();
-        draw();
+    stack.push(step3);
+    if ('GBR' == map_id()) {
+	var tmp = stack.splice(-3,2);
+	stack = stack.concat(tmp);
     }
-};
+    stack = topdeck.concat(stack);
+}
+
+function init_game(state) {
+    var oldlog = '';
+    market = [];
+    phase = 2; // 2->4->5
+    step = 1;
+    turn = 1;
+    stack = [];
+    houses = 0;
+    playersleft = players;
+    sold = 0;
+    step2plants = undefined; // for Spain & Portugal
+    log_clear();
+    if (state) {
+	state = state.split(',');
+	rand = new RNG(parseInt(state[0]));
+	oldlog = state[1];
+    } else {
+	rand = new RNG();
+    }
+    log_append(rand.state + ',');
+    init_deck();
+    if ('B' == deck_id()) {
+	cities = bigcitiesno[players];
+    } else if (maps[map].cities) {
+	cities = 0;
+	for (var i = 0; i < 6; i++) if (has_option(i)) {
+	    cities += maps[map].cities[i];
+	}
+    } else {
+	cities = regionsno[players] * 7;
+    }
+    replay(oldlog);
+}
+
+// State variables modifiers
+function log_clear() {
+    gamelog = '';
+    storage.removeItem('gamelog');
+}
+function log_append(a) {
+    gamelog += a;
+    storage.setItem('gamelog', gamelog);
+}
+function set_players(n) {
+    players = n;
+    storage.setItem('players', players);
+}
+function set_deck(v) {
+    deck = v;
+    storage.setItem('deck', deck);
+}
+function set_map(v) {
+    if (map == v) return;
+    for (var i = 0; i < 6; i++)
+	set_option(i, 0);
+    if(maps[v].nodecks && maps[v].nodecks.search(deck_id()) >= 0)
+	set_deck(0);
+    map = v;
+    storage.setItem('map', map);
+}
+function set_option(o,v) {
+    if (v) {
+	options |= 1 << o;
+    } else {
+	options &= ~(1 << o);
+    }
+    storage.setItem('options', options);
+}
+function set_ingame(v) {
+    ingame = v;
+    storage.setItem('ingame', ingame);
+}
+function replay(inlog) {
+    for (var i = 0; i < inlog.length; i++) {
+	var c = inlog.substr(i, 1);
+	switch (c) {
+	    case 'B': do_build(); break;
+	    case 'E': do_endbuild(); break;
+	    case 'T': do_endturn(); break;
+	    case 'P': do_pass(); break;
+	    case 'N': do_nospace(); break;
+	    default: do_buy(parseInt(c)); break;
+	}
+    }
+}
 
 
-function test_step3()
-{
-    if (market.indexOf(99) < 0 && futuremarket.indexOf(99) < 0) return;
-    step = 3;
+
+function draw() {
+    if (!stack.length) return;
+    var plant = stack.shift();
+    if (plant == step3) {
+	stack.shuffle(); // skip this for china?
+    }
+    // DISPLAYEVENT
+    // HANDLE X PROMOS
+    market.push(plant);
+    market.sort();
+    if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
+    if(houses >= plant_val(market[0])) {
+          market.shift();
+          draw();
+    }
+}
+
+function step2() {
+    if (step2plants)
+	stack = step2plants.concat(stack);
+    // DISPLAYEVENT
     market.shift();
-    futuremarket.pop();
-    market = market.concat(futuremarket);
-    futuremarket = [];
-    display();
-};
-function do_buy(i)
-{
-    log += i;
+    draw();
+    step = 2;
+    test_step3();
+}
+
+function test_step3() {
+    if (market.indexOf(step3) < 0) return;
+    step = 3;
+    // DISPLAYEVENT
+    market.shift();
+    market.pop();
+    if ('CHN' == map_id()) while(market.length < 4) draw();
+}
+
+function do_buy(i) {
+    log_append(i);
     playersleft--;
     sold = 1;
+    // DISPLAYEVENT
     market.splice(i,1);
-    draw();
+    if ('CHN' != map_id() || step == 3)
+	draw();
     if (!playersleft) {
         test_step3();
         phase = 4;
     }
-};
-function do_pass()
-{
-    log += 'P';
+}
+
+function do_pass() {
+    log_append('P');
     playersleft--;
+    if ('RUS' == map_id()) {
+	market.shift();
+	draw();
+    }
     if (!playersleft) {
-        if (!sold) {
+        if (!sold && 'RUS' != map_id() && 'CHN' != map_id()) {
             market.shift();
             draw();
+	    if ('BAD' == map_id()) {
+		market.shift();
+		draw();
+	    }
         }
         test_step3();
         phase = 4;
     }
-};
-function do_build()
-{
-    log += 'B';
+}
+function do_build() {
+    log_append('B');
     houses++;
-    while(houses >= market[0]) {
+    if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
+    while(houses >= plant_val(market[0])) {
         market.shift();
         draw();
     }
 }
 function do_endbuild() {
-    log += 'E';
+    var lim = get_limits();
+    log_append('E');
     test_step3();
-    if (houses >= tostep2[players] && step == 1) {
-        market.shift();
-        draw();
-        step = 2;
+    if (houses >= lim[0] && step == 1) {
+	step2();
     }
-    if (houses >= toend[players]) {
+    if (houses >= lim[1]) {
         step = 0;
     }
     phase = 5;
-};
+}
+function do_nospace() {
+    log_append('N');
+    step2();
+    phase = 5;
+}
 function do_endturn() {
-    log += 'T';
+    log_append('T');
     if (step < 3) {
-        stack.push(futuremarket.pop());
-        draw();
+	if ('CHN' == map_id()) {
+	    var d = [0,0,2,2,3,4,5][players];
+	    var m = [0,0,1,1,2,2,3][players];
+	    var i = d - market.length;
+	    if (i < m) i = m;
+	    while (i--) {
+		draw();
+		if (market.indexOf(step3) >= 0) break;
+		if (market.length > d) market.shift();
+	    }
+	} else if ('QUE' == map_id()) {
+	    var save = market.extract(ecoplants);
+	    if (!market.length) market = save.splice(0);
+	    stack.push(market.pop());
+	    market = market.concat(save);
+	    market.sort();
+	    draw();
+	} else {
+	    stack.push(market.pop());
+	    draw();
+	}
+	if ('BNX' == map_id()) {
+	    market.shift();
+	    draw();
+	}
         test_step3();
     } else if (market.length > 0) {
         market.shift();
@@ -258,31 +500,56 @@ function do_endturn() {
     sold = 0;
     playersleft = players;
 }
-function buy(i)
-{
-    if (market.length > i && phase == 2) {
+
+function market_availiable() {
+    var ret = market.length;
+    if (step < 3 && 'CHN' != map_id() && ret > marketsize) {
+	ret = marketsize;
+	if ('BNX' == map_id() && ecoplants.indexOf(market[ret]) >= 0)
+	    ret++;
+    }
+    return ret;
+}
+function no_more_space() {
+    return step == 1 && players * houses >= cities && houses < get_limits()[0];
+}
+
+function undo_active() {
+    return gamelog.substr(-1) != ',';
+}
+
+function region_select() {
+    return maps[map].regions && 'B' != deck_id();
+}
+// User intrerface functions
+
+function buy(i) {
+    if (market_availiable() > i && phase == 2) {
         do_buy(i);
     }
     display();
-};
-function pass()
-{
+}
+function pass() {
     if (phase == 2 && turn > 1) {
         do_pass();
     }
     display();
-};
-function passall()
-{
+}
+function passall() {
     while (phase == 2 && turn > 1) {
         do_pass();
     }
     display();
-};
-function build()
-{
+}
+function build() {
     if (phase == 4) {
         do_build();
+    }
+    display();
+}
+function nospace() {
+    if (phase == 4 && step == 1) {
+        do_nospace();
     }
     display();
 }
@@ -291,45 +558,170 @@ function endbuild() {
         do_endbuild();
     }
     display();
-};
-function endturn()
-{
+}
+function endturn() {
     if (phase == 5 && step > 0) {
         do_endturn();
     }
     display();
-};
+}
+function start_game() {
+    set_ingame(1);
+    init_game();
+    display();
+}
+
+function end_game() {
+    set_ingame(0);
+    display();
+}
+
+function undo() {
+    init_game(gamelog.substr(0,gamelog.length-1));
+    display();
+}
+
+// User interface
+
+document.onkeydown = function(e) {
+    if (!ingame) return;
+    if (e.keyCode > 48 && e.keyCode < 55) {
+        if (phase == 2) {
+            buy(e.which - 49);
+        } else if (phase == 4) {
+            for (var i = 48; i < e.keyCode; i++)
+                build();
+        }
+        return false;
+    } else if (e.ctrlKey && e.keyCode == 90 && undo_active()) {
+        undo();
+    } else if (e.keyCode == 78) {
+        if (phase == 2) {
+            passall();
+        } else if (phase == 4) {
+            endbuild();
+        } else if (phase == 5) {
+            endturn();
+        }
+    } else if (e.keyCode == 27) {
+        end_game();
+    }
+}
+
+function ui_set_regions(elem) {
+    for (var i = 0; i < 6; i++) {
+	set_option(i, elem.options[i].selected);
+    }
+    display();
+}
+
+function display() {
+    if (ingame) {
+	var m = market_availiable();
+	var tmp = 'Stack: ' + stack.toString() + '<br/>';
+	tmp += 'Market: ' + market.slice(0,m).toString() + '<br/>';
+	tmp += 'Future Market: ' + market.slice(m).toString() + '<br/>';
+	tmp += 'Connected cities: ' + houses + '<br/>';
+	tmp += 'Step: ' + step + '<br/>';
+	tmp += 'Turn: ' + turn + '<br/>';
+	tmp += 'Phase: ' + phase + '<br/>';
+	tmp += 'Left: ' + playersleft + '<br/>';
+	tmp += 'Log: ' + gamelog + '<br/>';
+
+	document.getElementById("demo").innerHTML=tmp;
+	tmp = '';
+	if (phase == 2) {
+	    for (var i = 0; i < market_availiable(); i++)
+	    tmp += '<button type="button" onclick="buy('+i+')">Buy '+i+'</button>';
+	    if (turn > 1) {
+		tmp += '<button type="button" onclick="pass()">Pass</button>';
+		tmp += '<button type="button" onclick="passall()">Pass All</button>';
+	    }
+	}
+	if (phase == 4) {
+	    tmp += '<button type="button" onclick="build()">Build</button>';
+	    if (no_more_space()) {
+		tmp += '<button type="button" onclick="nospace()">Out of Space</button>';
+	    }
+	    tmp += '<button type="button" onclick="endbuild()">End Build</button>';
+	}
+	if (phase == 5 && step > 0) {
+	    tmp += '<button type="button" onclick="endturn()">End Turn</button>';
+	}
+	tmp += '<br/>';
+	tmp += '<button type="button" onclick="end_game()">End Game</button>';
+	if (undo_active()) {
+	    tmp += '<button type="button" onclick="undo()">Undo</button>';
+	}
+	document.getElementById("buttons").innerHTML=tmp;
+    } else {
+	var tmp = '';
+	var lim = get_limits();
+	if (deck_id() == 'B') {
+	    tmp += 'Number of cities chosen on map: ' + bigcitiesno[players]+ '<br/>';
+	} else {
+	    tmp += 'Number of regions chosen on map: ' + regionsno[players];
+	    if (region_select()) {
+		var diff = regionsno[players] - chosen_regions();
+		if (!diff) tmp += ' OK';
+		else if (diff > 0) tmp += ' (choose ' + diff + ' more)';
+		else tmp += ' (choose ' + -diff + ' less)';
+	    }
+	    tmp += '<br/>';
+	}
+	tmp += 'Maximum number of power plants owned: ' + maxplantsno[players] + '<br/>';
+	tmp += 'Number of connected cities to trigger step 2 / game end: ' + lim[0] + ' / ' + lim[1] + '<br/>';
+	tmp += 'Starting money: 50 <br/>';
+	tmp += 'Initial costs: ' + maps[map].startcost[0] + ' / ' + maps[map].startcost[1] + ' / ' + maps[map].startcost[2] + ' / ' + maps[map].startcost[3] + ' <br/>';
+	if (navigator) {
+	    tmp += 'Client: ' + navigator.userAgent + ' / ' + navigator.ventor + ' / ' + navigator.platform + '<br/>';
+	}
+	document.getElementById("demo").innerHTML=tmp;
+	tmp = '';
+	tmp += '<select id="playersno" onChange="set_players(document.getElementById(\'playersno\').value);display();">';
+	for(var i = 2; i <= 6; i++) {
+	    tmp += '<option value="'+i+'"';
+	    if (i == players) tmp += ' selected';
+	    tmp += '>'+i+' Players</option>';
+	}
+	tmp += '</select>';
+	tmp += '<select id="mapno" onChange="set_map(document.getElementById(\'mapno\').value);display();">';
+	for(var i = 0; i < maps.length; i++) {
+	    tmp += '<option value="'+i+'"';
+	    if (i == map) tmp += ' selected';
+	    tmp += '>'+maps[i].name+'</option>';
+	}
+	tmp += '</select>';
+	tmp += '<select id="deckno" onChange="set_deck(document.getElementById(\'deckno\').value);display();">';
+	for(var i = 0; i < decks.length; i++) {
+	    tmp += '<option value="'+i+'"';
+	    if (i == deck) tmp += ' selected';
+	    if (maps[map].nodecks && maps[map].nodecks.search(decks[i].id) >= 0) tmp += ' disabled';
+	    tmp += '>'+decks[i].name+'</option>';
+	}
+	tmp += '</select>';
+	if (region_select()) {
+	    tmp += '<select multiple size="6" id="regionsel" onChange="ui_set_regions(document.getElementById(\'regionsel\'));">';
+	    for(var i = 0; i < 6; i++) {
+		tmp += '<option value="'+i+'"';
+		if (has_option(i)) tmp += ' selected';
+		tmp += '>'+maps[map].regions[i]+'</option>';
+	    }
+	    tmp += '</select>';
+	}
+	if (region_select() && regionsno[players] != chosen_regions())
+	    tmp += '<button disabled type="button" onclick="start_game()">New Game</button>';
+	else
+	    tmp += '<button type="button" onclick="start_game()">New Game</button>';
+	document.getElementById("buttons").innerHTML=tmp;
+    }
+}
+
 </script>
 </head>
 <body onLoad="display()">
-
 <h1>My First JavaScript</h1>
 <p id="demo">Loading...</p>
 <p id="buttons">Loading...</p>
-<!--
-<button type="button" onclick="buy(1)">Buy B</button>
-<button type="button" onclick="buy(2)">Buy C</button>
-<button type="button" onclick="buy(3)">Buy D</button>
-<button type="button" onclick="buy(4)">Buy E</button>
-<button type="button" onclick="buy(5)">Buy F</button>
-<button type="button" onclick="pass()">Pass</button>
-<button type="button" onclick="passall()">Pass All</button>
-<button type="button" onclick="build()">Build</button>
-<button type="button" onclick="endbuild()">End Build</button>
-<button type="button" onclick="endturn()">End Turn</button>
-<button type="button" onclick="step3()">Step 3</button>
-   <form onSubmit='alerttest(this); return false'>        
-      <input type="text">         
-   </form>
-
-
-   <script language="javascript">
-        function alerttest()
-        {
-        alert("Executing jolly.exe !!!!");
-        // function edited by Inderpreet singh
-        }
-   </script>
->
 </body>
 </html> 
