@@ -50,13 +50,9 @@ Array.prototype.extract = function(x) {
 };
 
 // TODO
-// Put state together
-// Add report issue
-// Promo selection
-// Promo handling
 // Display events
-// Restock tables
-// GFX
+// Add Restock tables
+// GFX (Espionage, Baden phase order)
 
 // Game constants
 
@@ -76,23 +72,39 @@ var decks = [
 var ukregions = [ 'Ireland', 'Northern Ireland', 'Scotland', 'Wales', 'Southern England', 'Northern England' ];
 var ukcities = [ 7, 5, 7, 6, 8, 7 ];
 var neregions = [ 'Denmark', 'Norway', 'Southern Sweden', 'Northern Sweden', 'Finland', 'Baltic States' ];
+var stdrefill = [[3,4,3,2,2,4,1,2,3,1,1,1],[4,5,3,2,3,4,1,2,3,1,1,1],[5,6,4,3,4,5,2,3,4,1,2,2],[5,7,5,4,5,6,3,3,5,2,3,2],[7,9,6,5,6,7,3,5,6,2,3,3]];
+/*
+    refill:[[3,4,3,2,2,4,1,2,3,1,1,1],[4,5,3,2,3,4,1,2,3,1,1,1],[5,6,4,3,4,5,2,3,4,1,2,2],[5,7,5,4,5,6,3,3,5,2,3,2],[7,9,6,5,6,7,3,5,6,2,3,3]]
+JPN refill:[[3,4,3,2,2,4,1,2,3,1,1,1],[4,5,3,2,3,4,1,2,3,1,1,1],[5,6,4,3,4,5,2,3,4,1,2,2],[5,7,5,4,5,6,3,3,5,2,3,2],[7,9,6,5,6,7,3,5,6,2,3,3]]
+
+IBE refill:[[3,4,2,2,3,5,1,2,3,0,2,1],[4,5,2,2,4,5,1,2,3,0,2,1],[4,6,3,3,5,6,2,3,4,0,4,1],[4,7,3,4,6,7,3,3,5,0,5,1],[6,8,4,5,7,9,3,5,6,0,5,2]]
+CEU refill:[[4,5,3,1,2,3,1,3,3,1,1,1],[5,6,3,2,2,3,1,3,3,1,1,1],[6,7,5,2,3,4,2,4,4,1,2,1],[7,8,5,3,4,5,3,4,5,2,2,2],[8,10,6,4,5,6,3,6,6,2,3,2]]
+QUE refill:[[3,3,3,2,2,3,1,2,3,1,1,1],[4,4,3,2,3,3,1,2,3,1,1,1],[5,4,4,3,4,4,2,3,4,1,2,2],[5,5,5,4,5,4,3,3,5,2,3,2],[7,6,6,5,6,5,3,5,6,2,3,3]]
+BNX refill:[[2,2,4,3,4,3,1,2,3,1,1,1],[2,3,4,4,5,3,1,2,3,1,1,1],[3,4,5,5,6,4,2,3,4,1,2,2],[4,5,6,5,7,5,3,3,5,2,3,2],[5,6,7,7,9,6,3,5,6,2,3,3]]
+RUS refill:[[2,2,4,3,4,3,2,2,3,1,1,1],[2,3,4,3,4,3,2,2,3,1,1,1],[3,4,5,5,6,4,3,3,4,1,2,2],[4,5,6,5,7,5,4,3,5,2,3,2],[5,6,7,7,9,6,4,5,6,2,3,3]]
+GBR refill:[[3,4,3,2,3,2,1,2,2,1,1,1],[3,5,3,2,4,2,1,2,2,1,2,1],[4,6,4,3,5,3,2,3,3,1,3,1],[4,7,5,4,6,6,3,3,5,2,4,2],[6,8,6,5,7,5,3,5,5,2,4,3]]
+CHN refill:[[4,4,3,2,2,4,2,2,1,1,1,1],[5,5,3,3,3,4,2,2,1,1,1,1],[6,6,4,4,4,5,3,3,2,2,2,2],[7,7,5,5,5,6,3,3,3,3,3,2],[9,9,6,6,6,7,5,5,3,3,3,3]]
+BRA refill:[[1,2,3,3,4,3,2,2,4,1,1,1],[1,2,3,4,5,3,2,3,4,1,1,1],[2,3,4,5,6,4,3,4,5,1,2,2],[3,3,5,5,7,5,4,5,6,2,3,2],[3,5,6,7,9,6,5,6,7,2,3,3]]
+NEU refill:[[2,4,3,1,2,3,1,2,3,1,2,2],[2,4,4,2,2,3,1,2,3,1,2,2],[4,5,5,2,3,4,2,3,4,2,3,2],[4,5,6,3,4,5,3,3,5,2,4,3],[6,8,5,4,5,6,3,5,6,2,4,4]]
+KOR refill:[[12,22,12,11,11,13,1,11,12,1,1,1],[22,23,12,11,12,13,1,11,12,1,1,1],[23,33,22,12,13,23,11,12,22,1,2,2],[23,34,23,13,23,24,12,12,23,2,3,2],[34,45,33,23,24,34,12,23,33,2,3,3]]
+*/
 var maps = [
-{ id: 'GER', name: 'Germany', startcost: [1,3,7,14] },
-{ id: 'USA', name: 'USA', startcost: [1,3,7,14] },
-{ id: 'ITA', name: 'Italy', startcost: [1,3,7,14] },
-{ id: 'FRA', name: 'France', startcost: [1,3,7,14] },
-{ id: 'CEU', name: 'Central Europe', startcost: [1,3,7,14] },
-{ id: 'BNX', name: 'Benelux', startcost: [1,3,7,14] },
+{ id: 'GER', name: 'Germany', startcost: [1,3,7,14], refill: stdrefill},
+{ id: 'USA', name: 'USA', startcost: [1,3,7,14], refill: stdrefill },
+{ id: 'ITA', name: 'Italy', startcost: [3,4,5,14], refill: stdrefill },
+{ id: 'FRA', name: 'France', startcost: [1,3,7,5], refill: stdrefill },
+{ id: 'CEU', name: 'Central Europe', startcost: [1,3,7,8] },
+{ id: 'BNX', name: 'Benelux', startcost: [3,1,7,14] },
 { id: 'KOR', name: 'Korea', startcost: [1,3,7,14] },
-{ id: 'CHN', name: 'China', nodecks: 'MBP', startcost: [1,3,7,14] }, // TODO
+{ id: 'CHN', name: 'China', nodecks: 'MBP', startcost: [5,5,7,0] },
 { id: 'BRA', name: 'Brazil', startcost: [1,3,7,14] },
-{ id: 'IBE', name: 'Spain & Portugal', startcost: [1,3,7,14] },
-{ id: 'JPN', name: 'Japan', nodecks: 'B', startcost: [1,3,7,14] },
-{ id: 'RUS', name: 'Russia', nodecks: 'M', startcost: [1,3,7,14] },
-{ id: 'QUE', name: 'Quebec', startcost: [1,3,7,14] },
-{ id: 'BAD', name: 'Baden-Wuerttemberg', nodecks: 'B', startcost: [1,3,7,14] }, // TODO: Phase order
+{ id: 'IBE', name: 'Spain & Portugal', startcost: [1,3,6,5] },
+{ id: 'JPN', name: 'Japan', nodecks: 'B', startcost: [2,4,6,12], refill: stdrefill },
+{ id: 'RUS', name: 'Russia', nodecks: 'M', startcost: [3,1,0,6] },
+{ id: 'QUE', name: 'Quebec', startcost: [2,2,7,14] },
+{ id: 'BAD', name: 'Baden-Wuerttemberg', nodecks: 'B', startcost: [1,3,7,14], refill: stdrefill },
 { id: 'GBR', name: 'UK & Ireland', regions: ukregions, cities: ukcities, startcost: [1,3,5,0] },
-{ id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neregions, startcost: [3,3,7,7] },
+{ id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neregions, startcost: [3,3,5,7] },
 ];
 var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
                   '16A','17A','18A','19A','20A','21A','22A','23A','24A','25A','26A','27A','28A',
@@ -129,8 +141,9 @@ var promos = [
 { name: 'Supply Contract', val: 12, card: 'X06' },
 { name: 'Industrial Espionage', val: 13 },
 ];
-// Game state
 
+var version = 1;
+// Game state
 
 var players = 3;
 var ingame = 0;
@@ -139,21 +152,31 @@ var deck = 0; // 0-classic, 1-new, 2-mix (variant 2), 3-big (variant 3)
 var map = 0;
 var options = 0; // bitmask: 0-5, regions for GBR, NEU; 6+ promos
 
-var storage = sessionStorage;
-if (1) {
-    var saved_players = storage.getItem('players');
-    var saved_deck = storage.getItem('deck');
-    var saved_map = storage.getItem('map');
-    var saved_options = storage.getItem('options');
-    var saved_ingame = storage.getItem('ingame');
-    var saved_gamelog = storage.getItem('gamelog');
-    if (saved_players) players = parseInt(saved_players);
-    if (saved_deck) deck = parseInt(saved_deck);
-    if (saved_map) map = parseInt(saved_map);
-    if (saved_options) options = parseInt(saved_options);
-    if (saved_ingame) ingame = parseInt(saved_ingame);
-    if (saved_gamelog) gamelog = saved_gamelog;
+function set_state(s) {
+    if (!s) return;
+    var state = s.split(',');
+    if (state[0] != version) {
+	alert('Ignoring old game state');
+	return;
+    }
+    ingame = parseInt(state[1]);
+    players = parseInt(state[2]);
+    deck = parseInt(state[3]);
+    map = parseInt(state[4]);
+    options = parseInt(state[5]);
+    gamelog = state[6];
     if (gamelog) init_game(gamelog);
+}
+function get_state() {
+    return [version,ingame,players,deck,map,options,gamelog].join(',');
+}    
+
+var storage = sessionStorage;
+function load_state() {
+    set_state(storage.getItem('state'));
+}
+function save_state() {
+    storage.setItem('state',get_state());
 }
 
 function deck_id() { return decks[deck].id; }
@@ -181,6 +204,7 @@ function chosen_regions() {
     for (var i = 0; i < 6; i++) if (has_option(i)) ret++;
     return ret;
 }
+function has_espionage() { return has_option(13); }
 
 function mixplants() {
     var tmp = plants.concat(newplants);
@@ -238,11 +262,8 @@ function init_deck() {
     }
     market = stack.splice(0,marketsize * 2);
 
-    for (var i = 0; i < promos.length; i++) if (has_option(promos[i].val) && promos[i].card) {
-	stack.push(promos[i].card);
-    }
     var topdeck = [];
-    stack.shuffle();    
+    var bottomdeck = [];
     if ('M' != deck_id()) {
 	topdeck = stack.extract(topdeckplants);
 	if ('FRA' == map_id()) {
@@ -253,6 +274,7 @@ function init_deck() {
 	    step2plants = stack.extract(['18A','22A','27A','15B','16B','26B']);
 	} else if ('RUS' == map_id()) {
 	    var tmp = stack.extract(['10A','11A','08B','09B']);
+	    stack.shuffle();    
 	    tmp = tmp.concat(stack.splice(-3));
 	    tmp.shuffle();
 	    topdeck = topdeck.concat(tmp);
@@ -260,22 +282,25 @@ function init_deck() {
 	    topdeck = topdeck.concat(stack.extract(['18A','22A','15B','16B']));
 	}
     }
+    if ('GBR' == map_id()) {
+	stack.shuffle();
+	bottomdeck = stack.splice(-2);
+    }
     if (remove) {
 	var save;
 	if ('BRA' == map_id()) save = stack.extract(gasplants);
 	if ('QUE' == map_id()) save = stack.extract(ecoplants);
+	stack.shuffle();
 	stack.splice(-remove);
 	if (save) {
 	    stack = stack.concat(save);
-	    stack.shuffle();
 	}
     }
-    stack.push(step3);
-    if ('GBR' == map_id()) {
-	var tmp = stack.splice(-3,2);
-	stack = stack.concat(tmp);
+    for (var i = 0; i < promos.length; i++) if (has_option(promos[i].val) && promos[i].card) {
+	stack.push(promos[i].card);
     }
-    stack = topdeck.concat(stack);
+    stack.shuffle();
+    stack = topdeck.concat(stack,[step3],bottomdeck);
 }
 
 function init_game(state) {
@@ -291,13 +316,13 @@ function init_game(state) {
     step2plants = undefined; // for Spain & Portugal
     log_clear();
     if (state) {
-	state = state.split(',');
+	state = state.split('|');
 	rand = new RNG(parseInt(state[0]));
 	oldlog = state[1];
     } else {
 	rand = new RNG();
     }
-    log_append(rand.state + ',');
+    log_append(rand.state + '|');
     init_deck();
     if ('B' == deck_id()) {
 	cities = bigcitiesno[players];
@@ -315,28 +340,32 @@ function init_game(state) {
 // State variables modifiers
 function log_clear() {
     gamelog = '';
-    storage.removeItem('gamelog');
+    save_state();
 }
 function log_append(a) {
     gamelog += a;
-    storage.setItem('gamelog', gamelog);
+    save_state();
 }
 function set_players(n) {
     players = n;
-    storage.setItem('players', players);
+    save_state();
 }
 function set_deck(v) {
     deck = v;
-    storage.setItem('deck', deck);
+    save_state();
 }
 function set_map(v) {
     if (map == v) return;
     for (var i = 0; i < 6; i++)
 	set_option(i, 0);
+    if(maps[v].nodecks && maps[v].nodecks.search('P') >= 0) {
+	for (var i = 0; i < promos.length; i++)
+	    set_option(promos[i].val, 0);
+    }
     if(maps[v].nodecks && maps[v].nodecks.search(deck_id()) >= 0)
 	set_deck(0);
     map = v;
-    storage.setItem('map', map);
+    save_state();
 }
 function set_option(o,v) {
     if (v) {
@@ -344,11 +373,11 @@ function set_option(o,v) {
     } else {
 	options &= ~(1 << o);
     }
-    storage.setItem('options', options);
+    save_state();
 }
 function set_ingame(v) {
     ingame = v;
-    storage.setItem('ingame', ingame);
+    save_state();
 }
 function replay(inlog) {
     for (var i = 0; i < inlog.length; i++) {
@@ -370,10 +399,13 @@ function draw() {
     if (!stack.length) return;
     var plant = stack.shift();
     if (plant == step3) {
-	stack.shuffle(); // skip this for china?
+	stack.shuffle(); // skip this for China?
     }
     // DISPLAYEVENT
-    // HANDLE X PROMOS
+    if (plant.substr(0,1) == 'X') {
+	draw();
+	return;
+    }
     market.push(plant);
     market.sort();
     if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
@@ -515,7 +547,7 @@ function no_more_space() {
 }
 
 function undo_active() {
-    return gamelog.substr(-1) != ',';
+    return gamelog.substr(-1) != '|';
 }
 
 function region_select() {
@@ -581,6 +613,15 @@ function undo() {
     display();
 }
 
+function report_mail() {
+    var ret = 'mailto:reports@pgm.org';
+    ret += '?subject=Online report';
+    ret += '&body=Keep this line:%0d';
+    ret += get_state();
+    if (navigator) ret += ' / ' + navigator.userAgent;
+    return ret;
+}
+
 // User interface
 
 document.onkeydown = function(e) {
@@ -615,24 +656,50 @@ function ui_set_regions(elem) {
     display();
 }
 
+function ui_card(name,x,y) {
+    var forsale = !y && phase == 2;
+    var px = 10 + 110 * x;
+    var py = 10 + 110 * y;
+    var ret ='';
+    ret += '<div style="position:absolute;background-color:green;width:100px;height:100px;'
+    ret += 'border:1px solid ' + (forsale ? 'red;' : 'black;');
+    ret += 'top:'+py+'px;left:'+px+'px;"';
+    if (forsale) ret += ' onClick="buy('+x+')"';
+    ret += '>';
+    ret += name;
+    ret += '</div>';
+    return ret;
+}
+
+function ui_market() {
+    var ret = '<div style="border:1px solid black;position:relative;width:670px;height:230px;background-color:yellow">';
+    var m = market_availiable();
+    for (var i = 0; i < m; i++) ret += ui_card(market[i], i, 0);
+    for (var i = m; i < market.length; i++) ret += ui_card(market[i], i-m, 1);
+    ret += '</div>';
+    return ret;
+}
+
 function display() {
     if (ingame) {
 	var m = market_availiable();
-	var tmp = 'Stack: ' + stack.toString() + '<br/>';
-	tmp += 'Market: ' + market.slice(0,m).toString() + '<br/>';
-	tmp += 'Future Market: ' + market.slice(m).toString() + '<br/>';
-	tmp += 'Connected cities: ' + houses + '<br/>';
-	tmp += 'Step: ' + step + '<br/>';
-	tmp += 'Turn: ' + turn + '<br/>';
-	tmp += 'Phase: ' + phase + '<br/>';
+	var tmp = '';
+	tmp += ui_market();
+//	tmp += 'Market: ' + market.slice(0,m).toString() + '<br/>';
+//	tmp += 'Future Market: ' + market.slice(m).toString() + '<br/>';
+	tmp += 'Connected cities: ' + houses + ' ';
+	tmp += 'Step: ' + step + ' ';
+	tmp += 'Turn: ' + turn + ' ';
+	tmp += 'Phase: ' + phase + ' ';
 	tmp += 'Left: ' + playersleft + '<br/>';
+	tmp += 'Stack: ' + stack.toString() + '<br/>';
 	tmp += 'Log: ' + gamelog + '<br/>';
 
 	document.getElementById("demo").innerHTML=tmp;
 	tmp = '';
 	if (phase == 2) {
-	    for (var i = 0; i < market_availiable(); i++)
-	    tmp += '<button type="button" onclick="buy('+i+')">Buy '+i+'</button>';
+//	    for (var i = 0; i < market_availiable(); i++)
+//	    tmp += '<button type="button" onclick="buy('+i+')">Buy '+i+'</button>';
 	    if (turn > 1) {
 		tmp += '<button type="button" onclick="pass()">Pass</button>';
 		tmp += '<button type="button" onclick="passall()">Pass All</button>';
@@ -653,6 +720,7 @@ function display() {
 	if (undo_active()) {
 	    tmp += '<button type="button" onclick="undo()">Undo</button>';
 	}
+	tmp += '<br/><a href="' + report_mail() + '"><button>Report a problem</button></a>';
 	document.getElementById("buttons").innerHTML=tmp;
     } else {
 	var tmp = '';
@@ -673,9 +741,6 @@ function display() {
 	tmp += 'Number of connected cities to trigger step 2 / game end: ' + lim[0] + ' / ' + lim[1] + '<br/>';
 	tmp += 'Starting money: 50 <br/>';
 	tmp += 'Initial costs: ' + maps[map].startcost[0] + ' / ' + maps[map].startcost[1] + ' / ' + maps[map].startcost[2] + ' / ' + maps[map].startcost[3] + ' <br/>';
-	if (navigator) {
-	    tmp += 'Client: ' + navigator.userAgent + ' / ' + navigator.ventor + ' / ' + navigator.platform + '<br/>';
-	}
 	document.getElementById("demo").innerHTML=tmp;
 	tmp = '';
 	tmp += '<select id="playersno" onChange="set_players(document.getElementById(\'playersno\').value);display();">';
@@ -685,41 +750,50 @@ function display() {
 	    tmp += '>'+i+' Players</option>';
 	}
 	tmp += '</select>';
-	tmp += '<select id="mapno" onChange="set_map(document.getElementById(\'mapno\').value);display();">';
+	tmp += '<select id="mapno" onChange="set_map(this.value);display();">';
 	for(var i = 0; i < maps.length; i++) {
 	    tmp += '<option value="'+i+'"';
 	    if (i == map) tmp += ' selected';
 	    tmp += '>'+maps[i].name+'</option>';
 	}
 	tmp += '</select>';
-	tmp += '<select id="deckno" onChange="set_deck(document.getElementById(\'deckno\').value);display();">';
+	tmp += '<select id="deckno" onChange="set_deck(this.value);display();">';
 	for(var i = 0; i < decks.length; i++) {
+	    if (maps[map].nodecks && maps[map].nodecks.search(decks[i].id) >= 0) continue;
 	    tmp += '<option value="'+i+'"';
 	    if (i == deck) tmp += ' selected';
-	    if (maps[map].nodecks && maps[map].nodecks.search(decks[i].id) >= 0) tmp += ' disabled';
 	    tmp += '>'+decks[i].name+'</option>';
 	}
 	tmp += '</select>';
+	tmp += '<br/>';
 	if (region_select()) {
-	    tmp += '<select multiple size="6" id="regionsel" onChange="ui_set_regions(document.getElementById(\'regionsel\'));">';
 	    for(var i = 0; i < 6; i++) {
-		tmp += '<option value="'+i+'"';
-		if (has_option(i)) tmp += ' selected';
-		tmp += '>'+maps[map].regions[i]+'</option>';
+		tmp += '<input type="checkbox" onChange="set_option('+i+',this.checked);display();"';
+		if (has_option(i)) tmp += ' checked';
+		tmp += '>'+maps[map].regions[i]+'</input>';
 	    }
-	    tmp += '</select>';
+	    tmp += '<br/>';
+	}
+	if (!maps[map].nodecks || maps[map].nodecks.search('P') < 0) {
+	    for(var i = 0; i < promos.length; i++) {
+		tmp += '<input type="checkbox" onChange="set_option('+promos[i].val+',this.checked);display();"';
+		if (has_option(promos[i].val)) tmp += ' checked';
+		tmp += '>'+promos[i].name+'</input>';
+	    }
+	    tmp += '<br/>';
 	}
 	if (region_select() && regionsno[players] != chosen_regions())
 	    tmp += '<button disabled type="button" onclick="start_game()">New Game</button>';
 	else
 	    tmp += '<button type="button" onclick="start_game()">New Game</button>';
+	tmp += '<br/><a href="' + report_mail() + '"><button>Report a problem</button></a>';
 	document.getElementById("buttons").innerHTML=tmp;
     }
 }
 
 </script>
 </head>
-<body onLoad="display()">
+<body onLoad="load_state();display()">
 <h1>My First JavaScript</h1>
 <p id="demo">Loading...</p>
 <p id="buttons">Loading...</p>
