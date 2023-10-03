@@ -9,16 +9,18 @@
 <title>PG Auction</title>
 <style>
 @font-face {
-font-family: KaufmannBold;
-src: url('img/Kaufmann-Bold.ttf');
+font-family: Din1451Eng;
+src: url('img/DIN1451Engschrift.ttf');
 }
 @font-face {
-font-family: PowerGrid;
-src: url('img/PowerGrid.ttf');
+font-family: Waldmeister;
+src: url('img/Waldmeister.ttf');
 }
 body {
-font-family:PowerGrid, Helvetica, Arial;
+font-family:Waldmeister, Helvetica, Arial;
 width:1000px;
+height:600px;
+overflow:hidden;
 margin:0px auto;
 text-align:center;
 font-size:24px;
@@ -26,7 +28,8 @@ background-color:#6e8c52;
 position:relative;
 }
 div.header {
-font-family:KaufmannBold, Helvetica, Arial;
+margin:4px 0px;
+font-family:Din1451Eng, Helvetica, Arial;
 font-size:48px;
 }
 div.panel {
@@ -87,6 +90,9 @@ background-color:blue;
 border-radius: 7px;
 color:white;
 }
+small {
+font-size: 80%;
+}
 </style>
 <script>
 
@@ -143,8 +149,7 @@ Array.prototype.extract = function(x) {
 // TODO
 //?X Promo cards
 //?China phase 5 draw (step 1/2)
-//?Save ui settings (refill/lang/calc/debugmode)
-// 2x5 grid
+//?GFX-remove diplay() blink when ui events pendig
 // Rules
 
 // colors:
@@ -179,86 +184,93 @@ Array.prototype.extract = function(x) {
         }
     });
 }*/
-var lang = '';
-if (navigator.userLanguage) // IE
-    lang = navigator.userLanguage;
-else if (navigator.language) // Others
-    lang = navigator.language;
-lang = lang.match(/[a-z]*/i);
+// var xhr= new XMLHttpRequest();
+// xhr.open('GET', 'x.html', true);
+// xhr.onreadystatechange= function() {
+//     if (this.readyState!==4) return;
+//     if (this.status!==200) return; // or whatever error handling you want
+//     document.getElementById('y').innerHTML= this.responseText;
+// };
+// xhr.send();
 
 // Translations:
-var languages = ['en','de'];
+var languages = ['en','de','pl'];
 var dict = {
-'Power Grid Market Aid':{},
+'#Title':{
+    en:'P<small>OWER</small> <small>GRI</small>D: Power Plant Market',
+    de:'F<small>UNKENSLA</small>G: Kraftwerksmarkt',
+    pl:'W<small>YSOKIE</small> <small>NAPIĘCI</small>E: Rynek Elektrowni'
+},
 
-'Step':{de:'Stufe'},
+'Step':{de:'Stufe',pl:'Etap'},
 
-'Player order':{de:'Reihenfolge'},
-'Auction':{de:'Kraftwerke'},
-'Resources':{de:'Rohstoffe kaufen'},
-'Building':{de:'Bauen'},
-'Bureaucracy':{de:'Bürokratie'},
+'Player order':{de:'Reihenfolge',pl:'Kolejność graczy'},
+'Auction':{de:'Kraftwerke',pl:'Licytacja'},
+'Resources':{de:'Rohstoffe kaufen',pl:'Zakup surowców'},
+'Building':{de:'Bauen',pl:'Rozbudowa sieci'},
+'Bureaucracy':{de:'Bürokratie',pl:'Biurokracja'},
 
-'Players':{de:'Spieler'},
-'Build':{},
-'Next':{},
-'Undo':{},
-'Pass':{},
-'Out of space':{},
-'Report a problem':{},
-'End game':{},
-'Exit game?':{},
+'Players':{de:'Spieler',pl:'Graczy'},
+'Build':{pl:'Buduj'},
+'Next':{pl:'Dalej'},
+'Undo':{pl:'Wróć'},
+'Pass':{pl:'Pas'},
+'Out of space':{pl:'Brak miejsca'},
+'Report a problem':{pl:'Zgłoś problem'},
+'Game over':{pl:'Koniec gry'},
+'End game':{pl:'Wyście'},
+'Exit game?':{pl:'Zakończyć grę?'},
 
-'Random regions':{},
-'New game':{},
-'Regions':{de:'Regionen'},
-'choose':{},
-'more':{},
-'less':{},
-'Promo cards':{de:'Promokarten'},
-'Number of regions chosen on map':{de:'Anzahl an Regionen auf der Landkarte'},
-'Number of cities chosen on map':{de:'Anzahl an Städten auf der Landkarte'},
-'Maximum number of power plants owned':{de:'Maximale Anzahl an Kraftwerken im Besitz der Spieler'},
-'Number of connected cities to trigger step 2 / game end':{de:'Anzahl an angeschlossenen Städten für Wechsel zu Stufe 2 / zum Auslösen des Spielendes'},
-'Starting money':{},
-'Initial resource costs':{},
+'Random regions':{pl:'Losowe regiony'},
+'New Game':{pl:'Nowa gra'},
+'Regions':{de:'Regionen',pl:'Regiony'},
+'choose':{pl:'wybierz'},
+'more':{pl:'więcej'},
+'less':{pl:'mniej'},
+'Promo cards':{de:'Promokarten',pl:'Karty promocyjne'},
+'Number of regions chosen on map':{de:'Anzahl an Regionen auf der Landkarte',pl:'Liczba regionów na mapie, które biorą udział w grze'},
+'Number of cities chosen on map':{de:'Anzahl an Städten auf der Landkarte',pl:'Liczba miast na mapie, które biorą udział w grze'},
+'Maximum number of power plants owned':{de:'Maximale Anzahl an Kraftwerken im Besitz der Spieler',pl:'Maksymalna liczba elektrowni w posiadaniu gracza'},
+'Number of connected cities to trigger step 2 / game end':{de:'Anzahl an angeschlossenen Städten für Wechsel zu Stufe 2 / zum Auslösen des Spielendes',pl:'Minimalna liczba miast w sieci powodująca przejście do etapu 2 / koniec gry'},
+'Starting money':{pl:'Elektro na starcie'},
+'Initial resource costs':{pl:'Początkowe koszty zasobów'},
 
 
-'Standard Deck':{},
-'New Deck':{},
-'Mixed Deck':{},
-'Big Game Deck':{},
+'Standard Deck':{pl:'Talia podstawowa'},
+'New Deck':{pl:'Nowa talia'},
+'Mixed Deck':{pl:'Talia mieszana'},
+'Big Game Deck':{pl:'Duża talia'},
 
 //Region names:
 
 
 //Map names:
-'Germany':{de:'Deutschland'},
+'Germany':{de:'Deutschland',pl:'Niemcy'},
 'USA':{},
-'France':{de:'Frankreich'},
-'Italy':{de:'Italien'},
+'France':{de:'Frankreich',pl:'Francja'},
+'Italy':{de:'Italien',pl:'Włochy'},
 'Benelux':{},
-'Central Europe':{de:'Mitteleuropa'},
+'Central Europe':{de:'Mitteleuropa',pl:'Europa Środkowa'},
 'Korea':{},
-'China':{},
-'Brazil':{de:'Brasilien'},
-'Spain & Portugal':{de:'Spanien & Portugal'},
-'Russia':{de:'Russland'},
-'Japan':{},
+'China':{pl:'Chiny'},
+'Brazil':{de:'Brasilien',pl:'Brazylia'},
+'Spain & Portugal':{de:'Spanien & Portugal',pl:'Hiszpania i Portugalia'},
+'Russia':{de:'Russland',pl:'Rosja'},
+'Japan':{pl:'Japonia'},
 'Québec':{},
-'Baden-Württemberg':{},
-'Northern Europe':{de:'Nordeuropa'},
-'United Kingdom & Ireland':{de:'United Kingdom & Irland'},
+'Baden-Württemberg':{pl:'Badenia-Wirtembergia'},
+'Northern Europe':{de:'Nordeuropa',pl:'Północna Europa'},
+'United Kingdom & Ireland':{de:'United Kingdom & Irland',pl:'Wielka Brytania i Irlandia'},
 
 //Promo names:
 'Flux-Generator':{},
-'Transformer Station':{de:'Umspannwerk'},
-'Warehouse':{de:'Lagerhalle'},
-'Shortage of Resources':{de:'Rohstoffmangel'},
-'Surplus of Resources':{de:'Rohstoffüberschuss'},
-'Theme Park':{de:'Freizeitpark'},
-'Supply Contract':{de:'Liefervertrag'},
-'Industrial Espionage':{de:'Industriespionage'},
+'Transformer Station':{de:'Umspannwerk',pl:'Trafostacja'},
+'Warehouse':{de:'Lagerhalle',pl:'Magazyn'},
+'Shortage of Resources':{de:'Rohstoffmangel',pl:'Niedobór zasobów'},
+'Surplus of Resources':{de:'Rohstoffüberschuss',pl:'Nadwyżka zasobów'},
+'Theme Park':{de:'Freizeitpark',pl:'Lunapark'},
+'Supply Contract':{de:'Liefervertrag',pl:'Umowa dostawy'},
+'Industrial Espionage':{de:'Industriespionage',pl:'Wywiad gospodarczy'},
 
 //'':{de:''},
 }
@@ -403,9 +415,23 @@ var options = 0; // bitmask: 0-5, regions for GBR, NEU; 6+ promos
 var debugmode = 0;
 var alttable = 0;
 var lang = 'en';
+var ui_calc = 0;
+var ui_calc_state = [];
+
+function fix_lang() {
+    if (languages.indexOf(lang) < 0) lang = languages[0];
+}
+
+if (navigator.userLanguage) // IE
+    lang = navigator.userLanguage;
+else if (navigator.language) // Others
+    lang = navigator.language;
+lang = lang.match(/[a-z]*/i);
+fix_lang();
 
 function set_lang(x) {
     lang = x;
+    save_state();
 }
 
 function t(x) {
@@ -425,10 +451,18 @@ function set_state(s) {
     map = parseInt(state[4]);
     options = parseInt(state[5]);
     gamelog = state[6];
+    lang = state[7];
+    fix_lang();
     if (gamelog) init_game(gamelog);
+    alttable = parseInt(state[8]);
+    if (!alttable) alttable = 0;
+    debugmode = parseInt(state[9]);
+    if (!debugmode) debugmode = 0;
+    ui_calc = parseInt(state[10]);
+    if (!ui_calc) ui_calc = 0;
 }
 function get_state() {
-    return [version,ingame,players,deck,map,options,gamelog].join(',');
+    return [version,ingame,players,deck,map,options,gamelog,lang,alttable,debugmode,ui_calc].join(',');
 }    
 
 //var storage = sessionStorage;
@@ -759,8 +793,10 @@ function draw() {
 function step2() {
     if (step2plants)
 	stack = step2plants.concat(stack);
-    market_shift();
-    draw();
+    if (market.length) {
+	market_shift();
+	draw();
+    }
     step = 2;
     test_step3();
 }
@@ -1000,7 +1036,8 @@ function report_mail() {
 
 document.onkeydown = function(e) {
     if (e.ctrlKey && e.keyCode == 69) {
-        debugmode = !debugmode;
+        debugmode = debugmode ? 0 : 1;
+	save_state();
 	display();
 	return false;
     }
@@ -1078,7 +1115,8 @@ function ui_stack() {
 }
 
 function ui_alttable() {
-    alttable = !alttable;
+    alttable = 1 - alttable;
+    save_state();
     display();
 }
 
@@ -1091,7 +1129,7 @@ function ui_step() {
     ret += '<div style="position:absolute;width:188px;height:188px;'
     ret += 'border:0px solid black;text-align:center;';
     ret += 'top:'+py+'px;left:'+px+'px;" onClick="ui_alttable()">';
-    if (!alt) ret += '<div style="font-size:44px">'+(step?t('Step')+' '+step:'Game over')+'</div>';
+    if (!alt) ret += '<div style="font-size:44px">'+(step?t('Step')+' '+step:t('Game over'))+'</div>';
     ret += '<table align="center">';
     if (!alt) {
     ret += '<tr>';
@@ -1105,6 +1143,7 @@ function ui_step() {
     for (var s = 1; s <= 3; s++) if (s == step || alt) {
 	var rows = 'KOR' == map_id() ? 2:1;
 	var h = rows == 2 ? 24 : 50;
+	var fh = rows == 2 ? 24 : 30;
 	for (var j = 0; j < rows; j++) {
 	    ret += '</tr>';
 	    for (var i = 1; i <= 4; i++) {
@@ -1112,7 +1151,7 @@ function ui_step() {
 		var fgcol = (i%2?'white':'black');
 		var cost = maps[map].refill[i-1][s-1+(players-2)*3];
 		if (rows > 1) cost = j ? cost % 10 : Math.floor(cost / 10);
-		ret += '<td width="28" height="'+h+'" style="background-color:#'+bgcol+';color:'+fgcol+';">';
+		ret += '<td width="28" height="'+h+'" style="font-size:'+fh+'px;background-color:#'+bgcol+';color:'+fgcol+';">';
 		ret += '<div style="max-height:'+h+'px;line-height:'+h+'px;">'
 		ret += cost;
 		ret += '</div></td>';
@@ -1145,11 +1184,9 @@ function ui_phase(x,y,w,h,name,on) {
 	return ret;
 }
 
-var ui_calc = 0;
-var ui_calc_state = [];
-
 function ui_calc_switch() {
-    ui_calc = !ui_calc;
+    ui_calc = 1 - ui_calc;
+    save_state();
     display();
 }
 
@@ -1270,7 +1307,7 @@ function ui_init_game() {
 }
 
 function display() {
-    var title = t('Power Grid Market Aid')+' v1.0k';
+    var title = t('#Title')+' v1.0i';
     var tmp = '';
     if (ingame) title = t(maps[map].name)+', '+players+' '+t('Players');
     if (debugmode) {
@@ -1281,7 +1318,7 @@ function display() {
     tmp += '<a style="display:none" id="report_mail" href="' + report_mail() + '"></a>';
     tmp += ui_button(900,0,100,20,'Report a problem','document.getElementById(\'report_mail\').click'); 
     for (var i = 0; i < languages.length; i++) {
-	tmp += ui_button(30*i,0,30,20,languages[i],'set_lang(\''+languages[i]+'\');display'); 
+	tmp += ui_button(30*i,0,30,20,languages[i].toUpperCase(),lang == languages[i]?'':'set_lang(\''+languages[i]+'\');display'); 
     }
     tmp += '</div>';
     if (ingame) {
