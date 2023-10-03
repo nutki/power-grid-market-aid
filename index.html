@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html manifest="js.manifest">
+<html>
 <head>
 <meta charset="UTF-8" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="viewport" content="width=1024, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport" content="width=1024, user-scalable=no">
 <link rel="shortcut icon" href="img/DEC.ico" />
 <link rel="apple-touch-icon" href="img/DEC.jpg" />
 <title>PG Auction</title>
@@ -168,6 +168,24 @@ Array.prototype.extract = function(x) {
 // jpn: red, yellow, violet, green, brown
 // rus: red, yellow, violet, pink, green, brown
 
+// 0 - yellow: (yellow) #FFFF00
+// 1 - red: (red) #FF0000
+// 2 - brown: (sienna) #A0522D
+// 3 - violet: (darkviolet) #9400D3
+// 4 - blue: (mediumblue) #0000CD
+// 5 - bluegeen: (seagreen) #2E8B57
+// 6 - green: (limegreen) #32CD32
+// 7 - pink: (pink) 	#FFC0CB
+// 8 - orange  (orange)	#FFA500
+
+// possible = regionset[regionsno].split().extract(map[map_id].regions.badregionsets.split());
+/*if (window.applicationCache) {
+    applicationCache.addEventListener('updateready', function() {
+        if (confirm('An update is available. Reload now?')) {
+            window.location.reload();
+        }
+    });
+}*/
 var lang = '';
 if (navigator.userLanguage) // IE
     lang = navigator.userLanguage;
@@ -190,9 +208,12 @@ var decks = [
 { id: 'M', name: 'Mixed Deck'},
 { id: 'B', name: 'Big Game Deck' },
 ];
-var ukregions = [ 'Ireland', 'Northern Ireland', 'Scotland', 'Wales', 'Southern England', 'Northern England' ];
-var ukcities = [ 7, 5, 7, 6, 8, 7 ];
-var neregions = [ 'Denmark', 'Norway', 'Southern Sweden', 'Northern Sweden', 'Finland', 'Baltic States' ];
+var gbrregions = { select:true, colors:'682017',
+    names: [ 'Ireland', 'Northern Ireland', 'Scotland', 'Wales', 'Southern England', 'Northern England' ],
+    cities:[ 7, 5, 7, 6, 8, 7 ] };
+var neuregions = { select:true, colors:'813027',
+    names: [ 'Denmark', 'Norway', 'Southern Sweden', 'Northern Sweden', 'Finland', 'Baltic States' ] };
+var xregions = {};
 var std0 = [3,4,3,4,5,3,5,6,4,5,7,5,7,9,6];
 var std1 = [2,2,4,2,3,4,3,4,5,4,5,6,5,6,7];
 var std2 = [1,2,3,1,2,3,2,3,4,3,3,5,3,5,6];
@@ -210,22 +231,22 @@ var neurefill = [[2,4,3,2,4,4,4,5,5,4,5,6,6,8,5],[1,2,3,2,2,3,2,3,4,3,4,5,4,5,6]
 var korrefill = [[12,22,12,22,23,12,23,33,22,23,34,23,34,45,33],[11,11,13,11,12,13,12,13,23,13,23,24,23,24,34],[1,11,12,1,11,12,11,12,22,12,12,23,12,23,33],std3];
 
 var maps = [
-{ id: 'GER', name: 'Germany', startcost: [1,3,7,14], refill: stdrefill},
-{ id: 'USA', name: 'USA', startcost: [1,3,7,14], refill: stdrefill },
-{ id: 'ITA', name: 'Italy', startcost: [3,4,5,14], refill: stdrefill },
-{ id: 'FRA', name: 'France', startcost: [1,3,7,5], refill: stdrefill },
-{ id: 'CEU', name: 'Central Europe', startcost: [1,3,7,8], refill: ceurefill },
-{ id: 'BNX', name: 'Benelux', startcost: [3,1,7,14], refill: bnxrefill },
-{ id: 'KOR', name: 'Korea', startcost: [1,3,7,14], refill: korrefill },
-{ id: 'CHN', name: 'China', nodecks: 'MBP', startcost: [5,5,7,'-'], refill: chnrefill },
-{ id: 'BRA', name: 'Brazil', startcost: [1,3,7,14], refill: brarefill },
-{ id: 'IBE', name: 'Spain & Portugal', startcost: [1,3,6,5], refill: iberefill },
-{ id: 'JPN', name: 'Japan', nodecks: 'B', startcost: [2,4,6,12], refill: stdrefill },
-{ id: 'RUS', name: 'Russia', nodecks: 'M', startcost: [3,1,'-',6], refill: rusrefill },
-{ id: 'QUE', name: 'Quebec', startcost: [2,2,7,14], refill: querefill },
-{ id: 'BAD', name: 'Baden-Wuerttemberg', nodecks: 'B', startcost: [1,3,7,14], refill: stdrefill },
-{ id: 'GBR', name: 'UK & Ireland', regions: ukregions, cities: ukcities, startcost: [1,3,5,'-'], refill:gbrrefill },
-{ id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neregions, startcost: [3,3,5,7], refill:neurefill },
+{ id: 'GER', name: 'Germany', regions: xregions, startcost: [1,3,7,14], refill: stdrefill},
+{ id: 'USA', name: 'USA', regions: xregions, startcost: [1,3,7,14], refill: stdrefill },
+{ id: 'ITA', name: 'Italy', regions: xregions, startcost: [3,4,5,14], refill: stdrefill },
+{ id: 'FRA', name: 'France', regions: xregions, startcost: [1,3,7,5], refill: stdrefill },
+{ id: 'CEU', name: 'Central Europe', regions: xregions, startcost: [1,3,7,8], refill: ceurefill },
+{ id: 'BNX', name: 'Benelux', regions: xregions, startcost: [3,1,7,14], refill: bnxrefill },
+{ id: 'KOR', name: 'Korea', regions: xregions, startcost: [1,3,7,14], refill: korrefill },
+{ id: 'CHN', name: 'China', nodecks: 'MBP', regions: xregions, startcost: [5,5,7,'-'], refill: chnrefill },
+{ id: 'BRA', name: 'Brazil', regions: xregions, startcost: [1,3,7,14], refill: brarefill },
+{ id: 'IBE', name: 'Spain & Portugal', regions: xregions, startcost: [1,3,6,5], refill: iberefill },
+{ id: 'JPN', name: 'Japan', nodecks: 'B', regions: xregions, startcost: [2,4,6,12], refill: stdrefill },
+{ id: 'RUS', name: 'Russia', nodecks: 'M', regions: xregions, startcost: [3,1,'-',6], refill: rusrefill },
+{ id: 'QUE', name: 'Quebec', regions: xregions, startcost: [2,2,7,14], refill: querefill },
+{ id: 'BAD', name: 'Baden-Wuerttemberg', nodecks: 'B', regions: xregions, startcost: [1,3,7,14], refill: stdrefill },
+{ id: 'GBR', name: 'UK & Ireland', regions: gbrregions, startcost: [1,3,5,'-'], refill:gbrrefill },
+{ id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neuregions, startcost: [3,3,5,7], refill:neurefill },
 ];
 var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
                   '16A','17A','18A','19A','20A','21A','22A','23A','24A','25A','26A','27A','28A',
@@ -296,7 +317,8 @@ function get_state() {
     return [version,ingame,players,deck,map,options,gamelog].join(',');
 }    
 
-var storage = sessionStorage;
+//var storage = sessionStorage;
+var storage = localStorage;
 function load_state() {
     set_state(storage.getItem('state'));
 }
@@ -451,10 +473,10 @@ function init_game(state) {
     init_deck();
     if ('B' == deck_id()) {
 	cities = bigcitiesno[players];
-    } else if (maps[map].cities) {
+    } else if (maps[map].regions.cities) {
 	cities = 0;
 	for (var i = 0; i < 6; i++) if (has_option(i)) {
-	    cities += maps[map].cities[i];
+	    cities += maps[map].regions.cities[i];
 	}
     } else {
 	cities = regionsno[players] * 7;
@@ -745,7 +767,7 @@ function nextphase_active() {
 }
 
 function region_select() {
-    return maps[map].regions && 'B' != deck_id();
+    return maps[map].regions.select && 'B' != deck_id();
 }
 function pass_active() {
     return phase == 2 && turn > 1 && 'RUS' == map_id();
@@ -1060,7 +1082,7 @@ function display() {
 	document.getElementById("buttons").innerHTML=tmp;
     } else {
 	var tmp ='';
-	tmp += '<div class="header">Power Grid Market Aid</div>';
+	tmp += '<div class="header">Power Grid Market Aid v1.0g</div>';
 	tmp += '<select id="playersno" onChange="set_players(document.getElementById(\'playersno\').value);display();">';
 	for(var i = 2; i <= 6; i++) {
 	    tmp += '<option value="'+i+'"';
@@ -1098,8 +1120,8 @@ function display() {
 		var fg = '#777777';
 		tmp += '<input type="checkbox" onChange="set_option('+i+',this.checked);display();"';
 		if (has_option(i)) { tmp += ' checked'; fg = 'black'; }
-		tmp += '><span style="color:'+fg+'">'+maps[map].regions[i]+'</span>'
-		tmp += ' <img style="border:1px solid '+fg+'" src="img/c0.png" width=20 height=20></input>';
+		tmp += '><span style="color:'+fg+'">'+maps[map].regions.names[i]+'</span>'
+		tmp += ' <img style="border:1px solid '+fg+'" src="img/c'+maps[map].regions.colors.charAt(i)+'.png" width=20 height=20></input>';
 	    tmp += '<br/>';
 	    }
 	}
