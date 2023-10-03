@@ -50,9 +50,13 @@ Array.prototype.extract = function(x) {
 };
 
 // TODO
-// Display events
+// Pass all special action
 // Add Restock tables
-// GFX (Espionage, Baden phase order)
+// X Promo cards
+// Espionage
+// GFX
+// Rules
+// Languages
 
 // Game constants
 
@@ -336,6 +340,7 @@ function init_game(state) {
     }
     ui_init_game();
     replay(oldlog);
+    flush_events();
 }
 
 // State variables modifiers
@@ -399,7 +404,7 @@ function replay(inlog) {
 function market_remove(i) {
     { // DISPLAYEVENT
     var ev = {};
-    ev[market[i]] = [ 2.5, 2.5];
+    ev[market[i]] = [ 2.5, 2.5, 3];
     mvqueue.push(ev);
     }
     market.splice(i,1);
@@ -409,14 +414,23 @@ function market_shift() {
 }
 function market_pop() {
     market_remove(market.length - 1);
+    // DISPLAYEVENT
+    {
+    var ev = {};
+    for (var i = 0; i < market.length; i++) {
+	ev[market[i]] = [ i, 0, 3];
+    }
+    mvqueue.push(ev);
+    }
 }
-function market_to_stack() {
+function market_to_stack(i) {
+    if (i < 0) i = market.length - 1;
     { // DISPLAYEVENT
     var ev = {};
-	ev[market[market.length - 1]] = [5,1];
+	ev[market[i]] = [5,1, 1];
     mvqueue.push(ev);	
     }
-    stack.push(market.pop());
+    stack.push(market.splice(i,1)[0]);
 }
 
 function draw() {
@@ -436,8 +450,8 @@ function draw() {
     var ev1 = {}, ev2 = {};
     for (var i = 0; i < market.length; i++) {
 	var m = market_availiable();
-	var newpos = [ i % m, i >= m];
-	ev1[market[i]] = market[i] != plant ? newpos : [5, 1];
+	var newpos = [ i % m, i >= m, market[i] != plant ? 3 : 4];
+	ev1[market[i]] = market[i] != plant ? newpos : [5, 1, 3];
 	ev2[market[i]] = newpos;
     }
     mvqueue.push(ev1);
@@ -540,14 +554,14 @@ function do_endturn() {
 		if (market.length > d) market_shift();
 	    }
 	} else if ('QUE' == map_id()) {
-	    var save = market.extract(ecoplants);
-	    if (!market.length) market = save.splice(0);
-	    stack.push(market.pop());
-	    market = market.concat(save);
-	    market.sort();
+	    var i;
+	    for (i = market.length - 1; i >= 0; i++) {
+		if (ecoplants.indexOf(market[i]) < 0) break;
+	    }
+	    market_to_stack(i);
 	    draw();
 	} else {
-	    market_to_stack();
+	    market_to_stack(-1);
 	    draw();
 	}
 	if ('BNX' == map_id()) {
@@ -574,16 +588,23 @@ function market_availiable() {
     }
     return ret;
 }
-function no_more_space() {
-    return step == 1 && players * houses >= cities && houses < get_limits()[0];
+function nospace_active() {
+    return step == 1 && phase == 4 && players * houses >= cities && houses < get_limits()[0];
 }
 
 function undo_active() {
     return gamelog.substr(-1) != '|';
 }
+function nextphase_active() {
+    if (phase == 2 && turn == 1) return 0;
+    return step > 0;
+}
 
 function region_select() {
     return maps[map].regions && 'B' != deck_id();
+}
+function pass_active() {
+    return phase == 2 && turn > 1 && 'RUS' == map_id();
 }
 // User intrerface functions
 
@@ -629,6 +650,15 @@ function endturn() {
     }
     display();
 }
+function nextphase() {
+    if (phase == 2) {
+	passall();
+    } else if (phase == 4) {
+	endbuild();
+    } else if (phase == 5) {
+	endturn();
+    }
+}
 function start_game() {
     set_ingame(1);
     init_game();
@@ -636,7 +666,8 @@ function start_game() {
 }
 
 function end_game() {
-    set_ingame(0);
+    if (confirm('Exit game?'))
+	set_ingame(0);
     display();
 }
 
@@ -669,13 +700,7 @@ document.onkeydown = function(e) {
     } else if (e.ctrlKey && e.keyCode == 90 && undo_active()) {
         undo();
     } else if (e.keyCode == 78) {
-        if (phase == 2) {
-            passall();
-        } else if (phase == 4) {
-            endbuild();
-        } else if (phase == 5) {
-            endturn();
-        }
+	nextphase();
     } else if (e.keyCode == 27) {
         end_game();
     }
@@ -714,15 +739,27 @@ function ui_card(name,forsale) {
     ret += '</div>';
     return ret;
 }
-function ui_stack(name) {
+function ui_stack() {
     var px = 10 + 110 * 5;
     var py = 10 + 110 * 1;
     var ret ='';
     ret += '<div style="position:absolute;background-color:gray;width:100px;height:100px;'
-    ret += 'border:1px solid black;z-index:5;';
+    ret += 'border:1px solid black;z-index:2;';
     ret += 'top:'+py+'px;left:'+px+'px;"';
     ret += '>';
     ret += '</div>';
+    return ret;
+}
+function ui_step() {
+    var px = 10 + 110 * 4;
+    var py = 10 + 110 * 1;
+    var ret ='';
+    ret += '<div style="position:absolute;background-color:yellow;width:100px;height:100px;'
+    ret += 'border:0px solid black;z-index:0;text-align:center;';
+    ret += 'top:'+py+'px;left:'+px+'px;"';
+    ret += '><h2>Step ';
+    ret += step;
+    ret += '</h2></div>';
     return ret;
 }
 
@@ -737,7 +774,72 @@ function ui_market() {
 	if (c >= m) c = -1;
 	ret += ui_card(i, c);
     }
-    ret += ui_stack();
+    ret += ui_stack() + ui_step();
+    ret += '</div>';
+    ret += '\n';
+    ret += '<div style="position:relative;width:670px;height:25px;">';
+    var lim = get_limits();
+    for (i = 0; i < cities && i < 24; i++) {
+	var bg = 'white';
+	if (i == lim[0] - 1) bg = 'pink';
+	if (i == lim[1] - 1) bg = 'pink';
+	if (houses > i) bg = 'blue';
+	ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:'+i*25+'px;width:25px;height:25px;background-color:'+bg+'">';
+	ret += i + 1;
+	ret += '</div>';
+    }
+    var bg = phase == 4 ? 'green' : 'white';
+    ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:620px;width:50px;height:25px;background-color:'+bg+';"';
+    if (phase == 4) ret +=  ' onClick="build()"'
+    ret += '>';
+    ret += '+';
+    ret += '</div>';
+    ret += '</div>';
+    ret += '\n';
+    ret += '<div style="position:relative;width:670px;height:50px;">';
+    for (i = 0; i < 5; i++) {
+	var phasenames = ['Player order','Auction','Resources','Building','Bureaucracy'];
+	var name = phasenames[i];
+	var bg = 'white';
+	var order = i;
+	if (i == phase - 1) {
+	    bg = 'blue';
+	    if (phase == 2) {
+		name += ': ' + (players - playersleft + 1) + '/' + players;
+	    }
+	}
+	if (order < 2 && (turn == 1 || 'BAD' == map_id())) order ^= 1;
+	ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:'+order*120+'px;width:120px;height:25px;background-color:'+bg+'">';
+	ret += name;
+	ret += '</div>';
+    }
+    if (pass_active()) {
+	ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:'+1*120+'px;top:26px;width:120px;height:25px;background-color:green" onClick="pass()">';
+	ret += 'Pass';
+	ret += '</div>';
+    }
+    if (nospace_active()) {
+	ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:'+3*120+'px;top:26px;width:120px;height:25px;background-color:green" onClick="nospace()">';
+	ret += 'Out of space';
+	ret += '</div>';
+    }
+
+
+    var bg = nextphase_active() ? 'green' : 'white';
+    ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:620px;width:50px;height:25px;background-color:'+bg+';"';
+    if (nextphase_active()) ret +=  ' onClick="nextphase()"'
+    ret += '>→</div>';
+
+    var bg = undo_active() ? 'green' : 'white';
+    ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:620px;top:26px;width:50px;height:25px;background-color:'+bg+';"';
+    if (undo_active()) ret +=  ' onClick="undo()"'
+    ret += '>↺</div>';
+
+    ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:0px;top:26px;width:90px;height:25px;background-color:green;"';
+    ret +=  ' onClick="end_game()"'
+    ret += '>End game</div>';
+
+
     ret += '</div>';
     return ret;
 }
@@ -755,16 +857,17 @@ function display() {
     if (ingame) {
 	var m = market_availiable();
 	var tmp = '';
+	tmp += '<h2>'+maps[map].name+', '+players+' Players</h2>';
 	tmp += ui_market();
 //	tmp += 'Market: ' + market.slice(0,m).toString() + '<br/>';
 //	tmp += 'Future Market: ' + market.slice(m).toString() + '<br/>';
-	tmp += 'Connected cities: ' + houses + ' ';
-	tmp += 'Step: ' + step + ' ';
-	tmp += 'Turn: ' + turn + ' ';
-	tmp += 'Phase: ' + phase + ' ';
-	tmp += 'Left: ' + playersleft + '<br/>';
-	tmp += 'Stack: ' + stack.toString() + '<br/>';
-	tmp += 'Log: ' + gamelog + '<br/>';
+//	tmp += 'Connected cities: ' + houses + ' ';
+//	tmp += 'Step: ' + step + ' ';
+//	tmp += 'Turn: ' + turn + ' ';
+//	tmp += 'Phase: ' + phase + ' ';
+//	tmp += 'Left: ' + playersleft + '<br/>';
+//	tmp += 'Stack: ' + stack.toString() + '<br/>';
+//	tmp += 'Log: ' + gamelog + '<br/>';
 
 	document.getElementById("demo").innerHTML=tmp;
 	tmp = '';
@@ -772,24 +875,25 @@ function display() {
 //	    for (var i = 0; i < market_availiable(); i++)
 //	    tmp += '<button type="button" onclick="buy('+i+')">Buy '+i+'</button>';
 	    if (turn > 1) {
-		tmp += '<button type="button" onclick="pass()">Pass</button>';
-		tmp += '<button type="button" onclick="passall()">Pass All</button>';
+//		if (pass_active())
+//		    tmp += '<button type="button" onclick="pass()">Pass</button>';
+//		tmp += '<button type="button" onclick="passall()">Pass All</button>';
 	    }
 	}
 	if (phase == 4) {
-	    tmp += '<button type="button" onclick="build()">Build</button>';
-	    if (no_more_space()) {
-		tmp += '<button type="button" onclick="nospace()">Out of Space</button>';
+//	    tmp += '<button type="button" onclick="build()">Build</button>';
+	    if (nospace_active()) {
+//		tmp += '<button type="button" onclick="nospace()">Out of Space</button>';
 	    }
-	    tmp += '<button type="button" onclick="endbuild()">End Build</button>';
+//	    tmp += '<button type="button" onclick="endbuild()">End Build</button>';
 	}
 	if (phase == 5 && step > 0) {
-	    tmp += '<button type="button" onclick="endturn()">End Turn</button>';
+//	    tmp += '<button type="button" onclick="endturn()">End Turn</button>';
 	}
-	tmp += '<br/>';
-	tmp += '<button type="button" onclick="end_game()">End Game</button>';
+//	tmp += '<br/>';
+//	tmp += '<button type="button" onclick="end_game()">End Game</button>';
 	if (undo_active()) {
-	    tmp += '<button type="button" onclick="undo()">Undo</button>';
+//	    tmp += '<button type="button" onclick="undo()">Undo</button>';
 	}
 	tmp += '<br/><a href="' + report_mail() + '"><button>Report a problem</button></a>';
 	document.getElementById("buttons").innerHTML=tmp;
@@ -857,40 +961,42 @@ function display() {
 	    tmp += '<button disabled type="button" onclick="start_game()">New Game</button>';
 	else
 	    tmp += '<button type="button" onclick="start_game()">New Game</button>';
-	tmp += '<br/><a href="' + report_mail() + '"><button>Report a problem</button></a>';
 	document.getElementById("buttons").innerHTML=tmp;
     }
 }
-var frames = 50;
+var frames = 25;
 var mvqueue = [];
 function display_event() {
-//    if (!ingame) return;
+    setTimeout('display_event()', 1000/25);
+    if (!ingame) return;
     var curmv = mvqueue[0];
-    if (curmv) {
-	for (var c in curmv) {
-	    var src = lastpos[c];
-	    var dst = curmv[c];
-	    var xz = frames/50;
-	    var px = src[0]*xz + dst[0]*(1-xz);
-	    var py = src[1]*xz + dst[1]*(1-xz);
-//	    alert(c);
-	    ui_set_pos(c,px,py,frames>0?10:0);
-	}
-	frames--;
-	if (frames < 0) {
-	    for (var c in curmv)
-		lastpos[c] = curmv[c];
-	    mvqueue.shift();
-	    frames = 50;
-	}
+    if (!curmv) return;
+    for (var c in curmv) {
+	var src = lastpos[c];
+	var dst = curmv[c];
+	var xz = frames/25;
+	var px = src[0]*xz + dst[0]*(1-xz);
+	var py = src[1]*xz + dst[1]*(1-xz);
+	ui_set_pos(c,px,py,frames>0?dst[2]:0);
     }
-    setTimeout('display_event()', 1000/50);
+    frames--;
+    if (frames < 0) {
+	for (var c in curmv)
+	    lastpos[c] = curmv[c];
+	mvqueue.shift();
+	frames = 25;
+    }
 }
-
+function flush_events() {
+    var e;
+    while (e = mvqueue.shift())
+	for (var c in e)
+	    lastpos[c] = e[c];
+    frames = 25;
+}
 </script>
 </head>
 <body onLoad="load_state();display();display_event();">
-<h1>My First JavaScript</h1>
 <p id="demo">Loading...</p>
 <p id="buttons">Loading...</p>
 </body>
