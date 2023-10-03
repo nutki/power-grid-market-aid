@@ -243,6 +243,7 @@ var dict = {
 'Big Game Deck':{pl:'Duża talia'},
 
 //Region names:
+'Australia':{},
 'Austria':{},
 'Baltic States':{pl:'Kraje Bałtyckie'},
 'Central':{pl:'Centralny'},
@@ -252,15 +253,18 @@ var dict = {
 'Czech Republic':{pl:'Czechy'},
 'Denmark':{pl:'Dania'},
 'East':{pl:'Wschodni'},
+'East / Bangladesh':{pl: 'Wschód / Bangladesz'},
 'Eastern Poland':{pl:'Wschodnia Polska'},
 'Finland':{pl:'Finlandia'},
 'Flanders / Brussels':{pl:'Flandria / Bruksela'},
 'Holland / Utrecht':{pl:'Holandia / Utrecht'},
 'Hungary':{pl:'Węgry'},
+'Indian Subcontinent':{pl:'Subkontynent Indyjski'},
 'Ireland':{pl:'Irlandia'},
 'Kansai / Chubu':{},
 'Kanto':{},
 'Kyushu':{},
+'New South Wales':{pl:'Nowa Południowa Walia'},
 'Netherlands East':{pl:'Wschodnie Niderlandy'},
 'Netherlands South':{pl:'Południowe Niderlandy'},
 'North':{pl:'Północny'},
@@ -269,11 +273,14 @@ var dict = {
 'Northern England':{pl:'Północna Anglia'},
 'Northern Ireland':{pl:'Północna Irlandia'},
 'Northern Sweden':{pl:'Północna Szwecja'},
+'Northern Territory / South':{pl:'Terytorium Płn. / Południe'},
+'North / Nepal':{pl:'Północ / Nepal'},
 'North West':{pl:'Północno-Zachodni'},
 'Northwestern':{pl:'Północno-Zachódni'},
 'Norway':{pl:'Norwegia'},
 'Portugal':{pl:'Portugalia'},
 'Quebec':{},
+'Queensland':{},
 'Scotland':{pl:'Szkocja'},
 'Siberian':{pl:'Syberyjski'},
 'Slovakia':{pl:'Słowacja'},
@@ -287,12 +294,13 @@ var dict = {
 'South West':{pl:'Południowo-Zachodni'},
 'Tohoku / Hokkaido':{},
 'Ural':{},
+'Victoria / Tasmania':{pl:'Wiktoria / Tasmania'},
 'Volga':{pl:'Wołga'},
 'Wales':{pl:'Walia'},
 'Wallonia / Luxemburg':{pl:'Walonia / Luksemburg'},
 'West':{pl:'Zachodni'},
+'Western Australia':{pl:'Australia Zachodnia'},
 'Western Poland':{pl:'Zachodnia Polska'},
-
 
 //Map names:
 'Germany':{de:'Deutschland',pl:'Niemcy'},
@@ -379,6 +387,10 @@ var gbrregions = { select:true, colors:'682017', bad:'MUNV\\OW]^_',
     cities:[ 7, 5, 7, 6, 8, 7 ] };
 var neuregions = { select:true, colors:'813027', bad:'cUYiqVfjky',
     names: [ 'Denmark', 'Norway', 'Southern Sweden', 'Northern Sweden', 'Finland', 'Baltic States' ] };
+var indregions = { colors:'876102', bad:'cMYiqrsy',
+    names: [ 'North West', 'Central West', 'North / Nepal', 'South', 'Central East', 'East / Bangladesh' ] };
+var ausregions = { colors:'10627', bad:'',
+    names: [ 'Western Australia', 'Northern Territory / South', 'Queensland', 'New South Wales', 'Victoria / Tasmania' ] };
 
 var std0 = [3,4,3,4,5,3,5,6,4,5,7,5,7,9,6];
 var std1 = [2,2,4,2,3,4,3,4,5,4,5,6,5,6,7];
@@ -395,6 +407,8 @@ var chnrefill = [[4,4,3,5,5,3,6,6,4,7,7,5,9,9,6],[2,2,4,3,3,4,4,4,5,5,5,6,6,6,7]
 var brarefill = [std2,std0,std1,std3];
 var neurefill = [[2,4,3,2,4,4,4,5,5,4,5,6,6,8,5],[1,2,3,2,2,3,2,3,4,3,4,5,4,5,6],std2,[1,2,2,1,2,2,2,3,2,2,4,3,2,4,4]];
 var korrefill = [[12,22,12,22,23,12,23,33,22,23,34,23,34,45,33],[11,11,13,11,12,13,12,13,23,13,23,24,23,24,34],[1,11,12,1,11,12,11,12,22,12,12,23,12,23,33],std3];
+var ausrefill = [[3,5,4,4,6,4,4,7,5,5,9,6,7,10,7],std2,std2,[-1,-2,-3,-1,-2,-3,-2,-2,-4,-2,-3,-5,-3,-3,-6]];
+var indrefill = [[4,5,4,5,6,4,6,7,5,7,8,6,8,10,7],[1,2,2,2,2,2,2,3,3,3,4,4,4,5,5],[1,3,4,1,3,4,3,4,6,4,5,7,4,7,9],[1,1,1,1,1,1,1,2,1,2,2,2,2,3,2]];
 
 var maps = [
 { id: 'GER', name: 'Germany', regions: gerregions, startcost: [1,3,7,14], refill: stdrefill},
@@ -413,6 +427,8 @@ var maps = [
 { id: 'BAD', name: 'Baden-Württemberg', nodecks: 'B', regions: badregions, startcost: [1,3,7,14], refill: stdrefill },
 { id: 'GBR', name: 'United Kingdom & Ireland', regions: gbrregions, startcost: [1,3,5,'-'], refill:gbrrefill },
 { id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neuregions, startcost: [3,3,5,7], refill:neurefill },
+{ id: 'AUS', name: 'Australia', regions: ausregions, startcost: [1,3,4,'-'], refill: ausrefill },
+{ id: 'IND', name: 'Indian Subcontinent', regions: indregions, startcost: [1,2,2,6], refill: indrefill },
 ];
 var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
                   '16A','17A','18A','19A','20A','21A','22A','23A','24A','25A','26A','27A','28A',
@@ -617,6 +633,8 @@ function init_deck() {
 	    stack = stack.concat(neplants[i][1]);
 	}
 	stack.sort();
+    } else if ('IND' == map_id()) {
+	stack.extract(['11A','19B']);
     }
     market = stack.splice(0,marketsize * 2);
 
