@@ -194,24 +194,25 @@ Array.prototype.extract = function(x) {
 // xhr.send();
 
 // Translations:
-var languages = ['en','de','pl'];
+var languages = ['en','de','pl','nl'];
 var dict = {
 '#Title':{
     en:'P<small>OWER</small> <small>GRI</small>D: Power Plant Market',
     de:'F<small>UNKENSLA</small>G: Kraftwerksmarkt',
     pl:'W<small>YSOKIE</small> <small>NAPIĘCI</small>E: Rynek Elektrowni',
     fr:'M<small>ÉGAWATT</small>S: Marché de Centrales Électriques',
+    nl:'H<small>OOGSPANNIN</small>G: Centralemarkt',
 },
 
-'Step':{de:'Stufe',pl:'Etap'},
+'Step':{de:'Stufe',pl:'Etap',nl:'Periode'},
 
 'Player order':{de:'Reihenfolge',pl:'Kolejność graczy'},
-'Auction':{de:'Kraftwerke',pl:'Licytacja'},
-'Resources':{de:'Rohstoffe kaufen',pl:'Zakup surowców'},
-'Building':{de:'Bauen',pl:'Rozbudowa sieci'},
-'Bureaucracy':{de:'Bürokratie',pl:'Biurokracja'},
+'Auction':{de:'Kraftwerke',pl:'Licytacja',nl:'Centrales'},
+'Resources':{de:'Rohstoffe kaufen',pl:'Zakup surowców',nl:'Brandstoffen'},
+'Building':{de:'Bauen',pl:'Rozbudowa sieci',nl:'Bouwen'},
+'Bureaucracy':{de:'Bürokratie',pl:'Biurokracja',nl:'Bureaucratie'},
 
-'Players':{de:'Spieler',pl:'Graczy'},
+'Players':{de:'Spieler',pl:'Graczy',nl:'Spelers'},
 'Build':{pl:'Buduj'},
 'Next':{pl:'Dalej'},
 'Undo':{pl:'Wróć'},
@@ -224,7 +225,7 @@ var dict = {
 
 'Random regions':{pl:'Losowe regiony'},
 'New Game':{pl:'Nowa gra'},
-'Regions':{de:'Regionen',pl:'Regiony'},
+'Regions':{de:'Regionen',pl:'Regiony',nl:'Gebiden'},
 'choose':{pl:'wybierz'},
 'more':{pl:'więcej'},
 'less':{pl:'mniej'},
@@ -243,7 +244,6 @@ var dict = {
 'Big Game Deck':{pl:'Duża talia'},
 
 //Region names:
-'Australia':{},
 'Austria':{},
 'Baltic States':{pl:'Kraje Bałtyckie'},
 'Central':{pl:'Centralny'},
@@ -259,7 +259,6 @@ var dict = {
 'Flanders / Brussels':{pl:'Flandria / Bruksela'},
 'Holland / Utrecht':{pl:'Holandia / Utrecht'},
 'Hungary':{pl:'Węgry'},
-'Indian Subcontinent':{pl:'Subkontynent Indyjski'},
 'Ireland':{pl:'Irlandia'},
 'Kansai / Chubu':{},
 'Kanto':{},
@@ -319,6 +318,8 @@ var dict = {
 'Baden-Württemberg':{pl:'Badenia-Wirtembergia'},
 'Northern Europe':{de:'Nordeuropa',pl:'Północna Europa'},
 'United Kingdom & Ireland':{de:'United Kingdom & Irland',pl:'Wielka Brytania i Irlandia'},
+'Australia':{de:'Australien'},
+'Indian Subcontinent':{de:'Indischer Subkontinent',pl:'Subkontynent Indyjski'},
 
 //Promo names:
 'Flux-Generator':{},
@@ -427,8 +428,8 @@ var maps = [
 { id: 'BAD', name: 'Baden-Württemberg', nodecks: 'B', regions: badregions, startcost: [1,3,7,14], refill: stdrefill },
 { id: 'GBR', name: 'United Kingdom & Ireland', regions: gbrregions, startcost: [1,3,5,'-'], refill:gbrrefill },
 { id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neuregions, startcost: [3,3,5,7], refill:neurefill },
-{ id: 'AUS', name: 'Australia', regions: ausregions, startcost: [1,3,4,'-'], refill: ausrefill },
-{ id: 'IND', name: 'Indian Subcontinent', regions: indregions, startcost: [1,2,2,6], refill: indrefill },
+{ id: 'AUS', name: 'Australia', regions: ausregions, startcost: [1,3,4,1], refill: ausrefill },
+{ id: 'IND', name: 'Indian Subcontinent', regions: indregions, startcost: [1,3,2,6], refill: indrefill },
 ];
 var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
                   '16A','17A','18A','19A','20A','21A','22A','23A','24A','25A','26A','27A','28A',
@@ -1218,6 +1219,7 @@ function ui_step() {
 		var bgcol = s == step ? (i%2?'3e6e3e':'a7bc95') : (i%2?'4e4e4e':'a8a8a8');
 		var fgcol = (i%2?'white':'black');
 		var cost = maps[map].refill[i-1][s-1+(players-2)*3];
+		if (cost < 0 && s == step) bgcol = 'ef7c6a';
 		if (rows > 1) cost = j ? cost % 10 : Math.floor(cost / 10);
 		ret += '<td width="28" height="'+h+'" style="font-size:'+fh+'px;background-color:#'+bgcol+';color:'+fgcol+';">';
 		ret += '<div style="max-height:'+h+'px;line-height:'+h+'px;">'
