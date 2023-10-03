@@ -26,8 +26,14 @@ text-align:center;
 font-size:24px;
 background-color:#6e8c52;
 position:relative;
--moz-user-select:-moz-none;
+user-select:none;
+-moz-user-select:none;
+-webkit-user-select:none;
 cursor:default;
+}
+div.copyright {
+font-family:Arial;
+font-size:10px;
 }
 div.header {
 margin:4px 0px;
@@ -75,7 +81,6 @@ position:absolute;
 background-color:#3e6e3e;
 border-radius: 7px;
 color:white;
-cursor:pointer;
 }
 div.button1:hover {
 background-color:#a7bc95;
@@ -227,6 +232,7 @@ var dict = {
 'Exit game?':{pl:'Zakończyć grę?'},
 
 'Random regions':{pl:'Losowe regiony'},
+'Clear regions':{pl:'Kasuj regiony'},
 'New Game':{pl:'Nowa gra'},
 'Regions':{de:'Regionen',pl:'Regiony',nl:'Gebiden'},
 'choose':{pl:'wybierz'},
@@ -572,6 +578,11 @@ function chosen_regions() {
 function has_espionage() { return has_option(13); }
 
 function random_regions() {
+    if (chosen_regions()) {
+	for (var i = 0; i < 6; i++)
+	    set_option(i, 0);
+	return;	
+    }
     var possible = regionchoice[maps[map].regions.names.length][regionsno[players]].split('');
     possible.extract(maps[map].regions.bad.split(''));
     var r = Math.floor(Math.random() * possible.length);
@@ -1380,7 +1391,7 @@ function ui_init_game() {
 }
 
 function display() {
-    var title = t('#Title')+' v1.0i';
+    var title = t('#Title')+' v1.0l';
     var tmp = '';
     if (ingame) title = t(maps[map].name)+', '+players+' '+t('Players');
     if (debugmode) {
@@ -1471,9 +1482,10 @@ function display() {
 	tmp += ui_info('Starting money',[50]);
 	tmp += '</table></div>';
 	tmp += ui_button(450,270,100,36,'New Game',region_select() && regionsno[players] != chosen_regions() ? '' : 'start_game');
-	tmp += ui_button(790,273,120,30,'Random regions','B' != deck_id() ? 'random_regions();display' : '');
+	tmp += ui_button(790,273,120,30,chosen_regions()?'Clear regions':'Random regions','B' != deck_id() ? 'random_regions();display' : '');
 	tmp += '</div>';
     }
+    tmp += '<div class="copyright">Images ©2F-Spiele. This website is not created by nor affiliated with 2F-Spiele.</div>'
     document.getElementById("buttons").innerHTML=tmp;
 }
 function ui_info(name,value) {
