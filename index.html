@@ -2,7 +2,98 @@
 <html>
 <head>
 <meta charset="UTF-8" />
+<style>
+@font-face {
+font-family: KaufmannBold;
+src: url('img/Kaufmann-Bold.ttf');
+src: url('img/Kaufmann-Bold.otf');
+}
+@font-face {
+font-family: PowerGrid;
+src: url('img/PowerGrid.ttf');
+}
+body {
+font-family:PowerGrid, Helvetica, Arial;
+width:970px;
+margin:0px auto;
+text-align:center;
+font-size:150%;
+background-color:#6e8c52;
+
+-webkit-user-select: none; /* Chrome/Safari */        
+-moz-user-select: none; /* Firefox */
+-ms-user-select: none; /* IE10+ */
+-o-user-select: none;
+user-select: none;
+
+}
+div {
+background-color:none;
+}
+div.header {
+font-family:KaufmannBold, Helvetica, Arial;
+font-size:200%;
+}
+div.card0 {
+position:absolute;
+width:149px;height:149px;
+background-size: cover;
+border:1px solid black;
+border-radius: 10px;
+}
+div.card1 {
+position:absolute;
+width:148px;height:148px;
+background-size: cover;
+border:2px solid red;
+border-radius: 10px;
+}
+div.card1:hover {
+border:2px solid orange;
+}
+div.market {
+border:2px solid white;
+position:relative;
+width:966px;
+height:330px;
+background-color:#d8dec2;
+overflow:hidden;
+}
+div.button0 {
+position:absolute;
+background-color:#8e8e8e;
+border-radius: 7px;
+color:white;
+}
+div.button1 {
+position:absolute;
+background-color:#3e6e3e;
+border-radius: 7px;
+color:white;
+}
+div.button1:hover {
+background-color:#a7bc95;
+color:black;
+}
+div.phase0 {
+position:absolute;
+background-color:#8e8e8e;
+border-radius: 7px;
+color:white;
+}
+div.phase1 {
+position:absolute;
+background-color:blue;
+border-radius: 7px;
+color:white;
+}
+</style>
 <script>
+
+// #6e8c52 - dark green background
+// #d8dec2 - light green background
+// #3e6e3e - dark green banner
+// #a7bc95 - light green banner
 
 // Utility functions:
 
@@ -51,10 +142,16 @@ Array.prototype.extract = function(x) {
 
 // TODO
 // Pass all special action
-// Add Restock tables
-// X Promo cards
-// Espionage
+// Debug mode display
+//*X Promo cards
+// Save ui settings
 // GFX
+// - remove stack blink
+// - Espionage
+// Start screen
+// - layout
+// - region randomizer
+// Calculator
 // Rules
 // Languages
 
@@ -76,39 +173,39 @@ var decks = [
 var ukregions = [ 'Ireland', 'Northern Ireland', 'Scotland', 'Wales', 'Southern England', 'Northern England' ];
 var ukcities = [ 7, 5, 7, 6, 8, 7 ];
 var neregions = [ 'Denmark', 'Norway', 'Southern Sweden', 'Northern Sweden', 'Finland', 'Baltic States' ];
-var stdrefill = [[3,4,3,2,2,4,1,2,3,1,1,1],[4,5,3,2,3,4,1,2,3,1,1,1],[5,6,4,3,4,5,2,3,4,1,2,2],[5,7,5,4,5,6,3,3,5,2,3,2],[7,9,6,5,6,7,3,5,6,2,3,3]];
-/*
-    refill:[[3,4,3,2,2,4,1,2,3,1,1,1],[4,5,3,2,3,4,1,2,3,1,1,1],[5,6,4,3,4,5,2,3,4,1,2,2],[5,7,5,4,5,6,3,3,5,2,3,2],[7,9,6,5,6,7,3,5,6,2,3,3]]
-JPN refill:[[3,4,3,2,2,4,1,2,3,1,1,1],[4,5,3,2,3,4,1,2,3,1,1,1],[5,6,4,3,4,5,2,3,4,1,2,2],[5,7,5,4,5,6,3,3,5,2,3,2],[7,9,6,5,6,7,3,5,6,2,3,3]]
+var std0 = [3,4,3,4,5,3,5,6,4,5,7,5,7,9,6];
+var std1 = [2,2,4,2,3,4,3,4,5,4,5,6,5,6,7];
+var std2 = [1,2,3,1,2,3,2,3,4,3,3,5,3,5,6];
+var std3 = [1,1,1,1,1,1,1,2,2,2,3,2,2,3,3];
+var stdrefill = [std0,std1,std2,std3];
+var iberefill = [[3,4,2,4,5,2,4,6,3,4,7,3,6,8,4],[2,3,5,2,4,5,3,5,6,4,6,7,5,7,9],std2,[0,2,1,0,2,1,0,4,1,0,5,1,0,5,2]];
+var ceurefill = [[4,5,3,5,6,3,6,7,5,7,8,5,8,10,6],[1,2,3,2,2,3,2,3,4,3,4,5,4,5,6],[1,3,3,1,3,3,2,4,4,3,4,5,3,6,6],[1,1,1,1,1,1,1,2,1,2,2,2,2,3,2]];
+var querefill = [[3,3,3,4,4,3,5,4,4,5,5,5,7,6,6],[2,2,3,2,3,3,3,4,4,4,5,4,5,6,5],std2,std3];
+var bnxrefill = [std1,std0,std2,std3];
+var rusrefill = [std1,[3,4,3,3,4,3,5,6,4,5,7,5,7,9,6],[2,2,3,2,2,3,3,3,4,4,3,5,4,5,6],std3];
+var gbrrefill = [[3,4,3,3,5,3,4,6,4,4,7,5,6,8,6],[2,3,2,2,4,2,3,5,3,4,6,6,5,7,5],[1,2,2,1,2,2,2,3,3,3,3,5,3,5,5],[1,1,1,1,2,1,1,3,1,2,4,2,2,4,3]];
+var chnrefill = [[4,4,3,5,5,3,6,6,4,7,7,5,9,9,6],[2,2,4,3,3,4,4,4,5,5,5,6,6,6,7],[2,2,1,2,2,1,3,3,2,3,3,3,5,5,3],[1,1,1,1,1,1,2,2,2,3,3,2,3,3,3]];
+var brarefill = [std2,std0,std1,std3];
+var neurefill = [[2,4,3,2,4,4,4,5,5,4,5,6,6,8,5],[1,2,3,2,2,3,2,3,4,3,4,5,4,5,6],std2,[1,2,2,1,2,2,2,3,2,2,4,3,2,4,4]];
+var korrefill = [[12,22,12,22,23,12,23,33,22,23,34,23,34,45,33],[11,11,13,11,12,13,12,13,23,13,23,24,23,24,34],[1,11,12,1,11,12,11,12,22,12,12,23,12,23,33],std3];
 
-IBE refill:[[3,4,2,2,3,5,1,2,3,0,2,1],[4,5,2,2,4,5,1,2,3,0,2,1],[4,6,3,3,5,6,2,3,4,0,4,1],[4,7,3,4,6,7,3,3,5,0,5,1],[6,8,4,5,7,9,3,5,6,0,5,2]]
-CEU refill:[[4,5,3,1,2,3,1,3,3,1,1,1],[5,6,3,2,2,3,1,3,3,1,1,1],[6,7,5,2,3,4,2,4,4,1,2,1],[7,8,5,3,4,5,3,4,5,2,2,2],[8,10,6,4,5,6,3,6,6,2,3,2]]
-QUE refill:[[3,3,3,2,2,3,1,2,3,1,1,1],[4,4,3,2,3,3,1,2,3,1,1,1],[5,4,4,3,4,4,2,3,4,1,2,2],[5,5,5,4,5,4,3,3,5,2,3,2],[7,6,6,5,6,5,3,5,6,2,3,3]]
-BNX refill:[[2,2,4,3,4,3,1,2,3,1,1,1],[2,3,4,4,5,3,1,2,3,1,1,1],[3,4,5,5,6,4,2,3,4,1,2,2],[4,5,6,5,7,5,3,3,5,2,3,2],[5,6,7,7,9,6,3,5,6,2,3,3]]
-RUS refill:[[2,2,4,3,4,3,2,2,3,1,1,1],[2,3,4,3,4,3,2,2,3,1,1,1],[3,4,5,5,6,4,3,3,4,1,2,2],[4,5,6,5,7,5,4,3,5,2,3,2],[5,6,7,7,9,6,4,5,6,2,3,3]]
-GBR refill:[[3,4,3,2,3,2,1,2,2,1,1,1],[3,5,3,2,4,2,1,2,2,1,2,1],[4,6,4,3,5,3,2,3,3,1,3,1],[4,7,5,4,6,6,3,3,5,2,4,2],[6,8,6,5,7,5,3,5,5,2,4,3]]
-CHN refill:[[4,4,3,2,2,4,2,2,1,1,1,1],[5,5,3,3,3,4,2,2,1,1,1,1],[6,6,4,4,4,5,3,3,2,2,2,2],[7,7,5,5,5,6,3,3,3,3,3,2],[9,9,6,6,6,7,5,5,3,3,3,3]]
-BRA refill:[[1,2,3,3,4,3,2,2,4,1,1,1],[1,2,3,4,5,3,2,3,4,1,1,1],[2,3,4,5,6,4,3,4,5,1,2,2],[3,3,5,5,7,5,4,5,6,2,3,2],[3,5,6,7,9,6,5,6,7,2,3,3]]
-NEU refill:[[2,4,3,1,2,3,1,2,3,1,2,2],[2,4,4,2,2,3,1,2,3,1,2,2],[4,5,5,2,3,4,2,3,4,2,3,2],[4,5,6,3,4,5,3,3,5,2,4,3],[6,8,5,4,5,6,3,5,6,2,4,4]]
-KOR refill:[[12,22,12,11,11,13,1,11,12,1,1,1],[22,23,12,11,12,13,1,11,12,1,1,1],[23,33,22,12,13,23,11,12,22,1,2,2],[23,34,23,13,23,24,12,12,23,2,3,2],[34,45,33,23,24,34,12,23,33,2,3,3]]
-*/
 var maps = [
 { id: 'GER', name: 'Germany', startcost: [1,3,7,14], refill: stdrefill},
 { id: 'USA', name: 'USA', startcost: [1,3,7,14], refill: stdrefill },
 { id: 'ITA', name: 'Italy', startcost: [3,4,5,14], refill: stdrefill },
 { id: 'FRA', name: 'France', startcost: [1,3,7,5], refill: stdrefill },
-{ id: 'CEU', name: 'Central Europe', startcost: [1,3,7,8] },
-{ id: 'BNX', name: 'Benelux', startcost: [3,1,7,14] },
-{ id: 'KOR', name: 'Korea', startcost: [1,3,7,14] },
-{ id: 'CHN', name: 'China', nodecks: 'MBP', startcost: [5,5,7,0] },
-{ id: 'BRA', name: 'Brazil', startcost: [1,3,7,14] },
-{ id: 'IBE', name: 'Spain & Portugal', startcost: [1,3,6,5] },
+{ id: 'CEU', name: 'Central Europe', startcost: [1,3,7,8], refill: ceurefill },
+{ id: 'BNX', name: 'Benelux', startcost: [3,1,7,14], refill: bnxrefill },
+{ id: 'KOR', name: 'Korea', startcost: [1,3,7,14], refill: korrefill },
+{ id: 'CHN', name: 'China', nodecks: 'MBP', startcost: [5,5,7,'-'], refill: chnrefill },
+{ id: 'BRA', name: 'Brazil', startcost: [1,3,7,14], refill: brarefill },
+{ id: 'IBE', name: 'Spain & Portugal', startcost: [1,3,6,5], refill: iberefill },
 { id: 'JPN', name: 'Japan', nodecks: 'B', startcost: [2,4,6,12], refill: stdrefill },
-{ id: 'RUS', name: 'Russia', nodecks: 'M', startcost: [3,1,0,6] },
-{ id: 'QUE', name: 'Quebec', startcost: [2,2,7,14] },
+{ id: 'RUS', name: 'Russia', nodecks: 'M', startcost: [3,1,'-',6], refill: rusrefill },
+{ id: 'QUE', name: 'Quebec', startcost: [2,2,7,14], refill: querefill },
 { id: 'BAD', name: 'Baden-Wuerttemberg', nodecks: 'B', startcost: [1,3,7,14], refill: stdrefill },
-{ id: 'GBR', name: 'UK & Ireland', regions: ukregions, cities: ukcities, startcost: [1,3,5,0] },
-{ id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neregions, startcost: [3,3,5,7] },
+{ id: 'GBR', name: 'UK & Ireland', regions: ukregions, cities: ukcities, startcost: [1,3,5,'-'], refill:gbrrefill },
+{ id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neregions, startcost: [3,3,5,7], refill:neurefill },
 ];
 var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
                   '16A','17A','18A','19A','20A','21A','22A','23A','24A','25A','26A','27A','28A',
@@ -156,6 +253,10 @@ var deck = 0; // 0-classic, 1-new, 2-mix (variant 2), 3-big (variant 3)
 var map = 0;
 var options = 0; // bitmask: 0-5, regions for GBR, NEU; 6+ promos
 
+// UI state
+
+var alttable = 0;
+
 function set_state(s) {
     if (!s) return;
     var state = s.split(',');
@@ -194,7 +295,7 @@ function get_limits() {
 	if (chosen_regions() == regionsno[players]) {
 	    for (var i = 0; i < 6; i++) if (has_option(i)) c += ukcities[i];
 	} else {
-	    c = '?';
+	    c = 'x';
 	}
 	return [limits[2][0],c];
     }
@@ -555,17 +656,18 @@ function do_endturn() {
 	    }
 	} else if ('QUE' == map_id()) {
 	    var i;
-	    for (i = market.length - 1; i >= 0; i++) {
+	    for (i = market.length - 1; i >= 0; i--) {
 		if (ecoplants.indexOf(market[i]) < 0) break;
 	    }
 	    market_to_stack(i);
 	    draw();
+	} else if ('BNX' == map_id()) {
+	    market_to_stack(-1);
+	    market_shift();
+	    draw();
+	    draw();
 	} else {
 	    market_to_stack(-1);
-	    draw();
-	}
-	if ('BNX' == map_id()) {
-	    market_shift();
 	    draw();
 	}
         test_step3();
@@ -610,42 +712,49 @@ function pass_active() {
 
 function buy(i) {
     if (market_availiable() > i && phase == 2) {
+	flush_events();
         do_buy(i);
     }
     display();
 }
 function pass() {
     if (phase == 2 && turn > 1) {
+	flush_events();
         do_pass();
     }
     display();
 }
 function passall() {
     while (phase == 2 && turn > 1) {
+	flush_events();
         do_pass();
     }
     display();
 }
 function build() {
     if (phase == 4) {
+	flush_events();
         do_build();
     }
     display();
 }
 function nospace() {
     if (phase == 4 && step == 1) {
+	flush_events();
         do_nospace();
     }
     display();
 }
 function endbuild() {
     if (phase == 4) {
+	flush_events();
         do_endbuild();
     }
     display();
 }
 function endturn() {
     if (phase == 5 && step > 0) {
+	flush_events();
         do_endturn();
     }
     display();
@@ -666,7 +775,7 @@ function start_game() {
 }
 
 function end_game() {
-    if (confirm('Exit game?'))
+    if (!step || confirm('Exit game?'))
 	set_ingame(0);
     display();
 }
@@ -714,8 +823,8 @@ function ui_set_regions(elem) {
 }
 
 function ui_set_pos(name,x,y,z) {
-    var px = Math.round(10 + 110 * x);
-    var py = Math.round(10 + 110 * y);
+    var px = Math.round(10 + 160 * x);
+    var py = Math.round(10 + 160 * y);
     var item = document.getElementById("card"+name);
     if (!item) return;
     item.style.left = px + 'px';
@@ -725,120 +834,165 @@ function ui_set_pos(name,x,y,z) {
 
 var lastpos = {};
 
-function ui_card(name,forsale) {
-    var px = 10 + 110 * lastpos[name][0];
-    var py = 10 + 110 * lastpos[name][1];
+function ui_card(name,forsale,topstack) {
+    var px = 10 + 160 * lastpos[name][0];
+    var py = 10 + 160 * lastpos[name][1];
     var ret ='';
-    ret += '<div style="position:absolute;background-color:green;width:100px;height:100px;'
-    ret += 'border:1px solid ' + (forsale >= 0 ? 'red;' : 'black;');
+    ret += '<div class="card'+(forsale >=0 ? 1:0)+'" style="';
+    ret += 'background: url(img/'+name+'.jpg);';
+    ret += 'background-size: cover;'
     ret += 'top:'+py+'px;left:'+px+'px;"';
+    if (topstack)
+	ret += 'z-index:1;"';
     ret += ' id="card' + name + '"';
     if (forsale >= 0) ret += ' onClick="buy('+forsale+')"';
     ret += '>';
-    ret += name;
+//    ret += name;
     ret += '</div>';
     return ret;
 }
 function ui_stack() {
-    var px = 10 + 110 * 5;
-    var py = 10 + 110 * 1;
+    var px = 10 + 160 * 5;
+    var py = 10 + 160 * 1;
     var ret ='';
-    ret += '<div style="position:absolute;background-color:gray;width:100px;height:100px;'
-    ret += 'border:1px solid black;z-index:2;';
+    ret += '<div class="card0" style="'
+    ret += 'background: url(img/DEC.jpg);';
+    ret += 'background-size: cover;'
+    ret += 'z-index:2;';
     ret += 'top:'+py+'px;left:'+px+'px;"';
+    ret += ' id="cardTOP"';
     ret += '>';
     ret += '</div>';
-    return ret;
-}
-function ui_step() {
-    var px = 10 + 110 * 4;
-    var py = 10 + 110 * 1;
-    var ret ='';
-    ret += '<div style="position:absolute;background-color:yellow;width:100px;height:100px;'
-    ret += 'border:0px solid black;z-index:0;text-align:center;';
-    ret += 'top:'+py+'px;left:'+px+'px;"';
-    ret += '><h2>Step ';
-    ret += step;
-    ret += '</h2></div>';
     return ret;
 }
 
-function ui_market() {
-    var ret = '<div style="border:1px solid black;position:relative;width:670px;height:230px;background-color:yellow;overflow:hidden">';
-    var m = market_availiable();
-//    for (var i = 0; i < m; i++) ret += ui_card(market[i], phase == 2 ? i : -1);
-//    for (var i = m; i < market.length; i++) ret += ui_card(market[i], -1);
-//    for (var i = 0; i < stack.length; i++) ret += ui_card(stack[i], -1);
-    for (var i in lastpos) {
-	var c = phase == 2 ? market.indexOf(i) : -1;
-	if (c >= m) c = -1;
-	ret += ui_card(i, c);
+function ui_alttable() {
+    alttable = !alttable;
+    display();
+}
+
+function ui_step() {
+    var px = 10 + 160 * 4;
+    var py = 10 + 160 * 1;
+    var alt = alttable;
+    var ret ='';
+    ret += '<div style="position:absolute;background-color:none;width:150px;height:150px;'
+    ret += 'border:0px solid black;z-index:0;text-align:center;';
+    ret += 'top:'+py+'px;left:'+px+'px;" onClick="ui_alttable()">';
+    if (!alt) ret += '<div style="font-size:150%">'+(step?'Step '+step:'Game over')+'</div>';
+    ret += '<table align="center">';
+    if (!alt) {
+    ret += '<tr>';
+    for (var i = 1; i <= 4; i++) {
+	ret += '<td width="25" height="40">';
+	ret += '<img src="img/R'+i+'.png" height="31">';
+	ret += '</td>';
     }
-    ret += ui_stack() + ui_step();
+    ret += '</tr>';
+    }
+    for (var s = 1; s <= 3; s++) if (s == step || alt) {
+	var rows = 'KOR' == map_id() ? 2:1;
+	var h = rows == 2 ? 20 : 40;
+	for (var j = 0; j < rows; j++) {
+	    ret += '</tr>';
+	    for (var i = 1; i <= 4; i++) {
+		var bgcol = s == step ? (i%2?'3e6e3e':'a7bc95') : (i%2?'4e4e4e':'a8a8a8');
+		var fgcol = (i%2?'white':'black');
+		var cost = maps[map].refill[i-1][s-1+(players-2)*3];
+		if (rows > 1) cost = j ? cost % 10 : Math.floor(cost / 10);
+		ret += '<td width="25" height="'+h+'" style="background-color:#'+bgcol+';color:'+fgcol+';">';
+		ret += '<div style="max-height:'+h+'px;line-height:'+h+'px;">'
+		ret += cost;
+		ret += '</div></td>';
+	    }
+	    ret += '</tr>';
+	}
+    }
+    ret += '</table>';
+    ret += '</div>';
+    return ret;
+}
+function ui_button(x,y,w,h,name,func) {
+	var ret = '';
+	x++; y++; w-=2; h-=2;
+	ret += '<div class="button'+(func?1:0)+'" style="line-height:'+h+'px;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;"';
+	ret += ' onClick="'+func+'()"';
+	ret += '>';
+	ret += name;
+	ret += '</div>';
+	return ret;
+}
+
+function ui_phase(x,y,w,h,name,on) {
+	var ret = '';
+	x++; y++; w-=2; h-=2;
+	ret += '<div class="phase'+(on?1:0)+'" style="line-height:'+h+'px;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;">';
+	ret += name;
+	ret += '</div>';
+	return ret;
+}
+
+function ui_market() {
+    var ret = '<div class="market">';
+    var m = market_availiable();
+    for (var i = 0; i < m; i++) ret += ui_card(market[i], phase == 2 ? i : -1, 0);
+    for (var i = m; i < market.length; i++) ret += ui_card(market[i], -1, 0);
+    for (var i = 0; i < stack.length && i < 4; i++) ret += ui_card(stack[i], -1, i == 0);
+    var p = event_cards();
+    for (var i = 0; i < p.length; i++) {
+	var sp = stack.indexOf(p[i]);
+	if (market.indexOf(p[i]) == -1 && (sp >= 4 || sp == -1))
+	    ret += ui_card(p[i], -1, 0);
+    }
+//    for (var i in lastpos) {
+//	var c = phase == 2 ? market.indexOf(i) : -1;
+//	if (c >= m) c = -1;
+//	ret += ui_card(i, c, stack.length && i == stack[0]);
+//    }
+    if (stack.length > 0)
+	ret += ui_stack();
+    ret += ui_step();
     ret += '</div>';
     ret += '\n';
-    ret += '<div style="position:relative;width:670px;height:25px;">';
+    ret += '<div style="position:relative;width:970px;height:36px;">';
     var lim = get_limits();
     for (i = 0; i < cities && i < 24; i++) {
-	var bg = 'white';
-	if (i == lim[0] - 1) bg = 'pink';
-	if (i == lim[1] - 1) bg = 'pink';
-	if (houses > i) bg = 'blue';
-	ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:'+i*25+'px;width:25px;height:25px;background-color:'+bg+'">';
+	var bg = 'a';
+	if (i == lim[0] - 1) bg = '2';
+	if (i == lim[1] - 1) bg = '2';
+	if (houses > i) bg = '3';
+	ret += '<div style="line-height:35px;position:absolute;left:'+i*35+'px;width:35px;height:35px;background: url(img/house'+bg+'.png);background-size: cover;">';
 	ret += i + 1;
 	ret += '</div>';
     }
-    var bg = phase == 4 ? 'green' : 'white';
-    ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:620px;width:50px;height:25px;background-color:'+bg+';"';
-    if (phase == 4) ret +=  ' onClick="build()"'
-    ret += '>';
-    ret += '+';
-    ret += '</div>';
+    ret += ui_button(900,0,70,35,'Build',phase == 4?'build':'');
     ret += '</div>';
     ret += '\n';
-    ret += '<div style="position:relative;width:670px;height:50px;">';
+    ret += '<div style="position:relative;width:970px;height:72px;">';
     for (i = 0; i < 5; i++) {
 	var phasenames = ['Player order','Auction','Resources','Building','Bureaucracy'];
 	var name = phasenames[i];
-	var bg = 'white';
+	var bg = 0;
 	var order = i;
 	if (i == phase - 1) {
-	    bg = 'blue';
+	    bg = 1;
 	    if (phase == 2) {
 		name += ': ' + (players - playersleft + 1) + '/' + players;
 	    }
 	}
 	if (order < 2 && (turn == 1 || 'BAD' == map_id())) order ^= 1;
-	ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:'+order*120+'px;width:120px;height:25px;background-color:'+bg+'">';
-	ret += name;
-	ret += '</div>';
+	ret += ui_phase(order*168,0,168,35,name,bg);
     }
     if (pass_active()) {
-	ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:'+1*120+'px;top:26px;width:120px;height:25px;background-color:green" onClick="pass()">';
-	ret += 'Pass';
-	ret += '</div>';
+	ret += ui_button(1*168,35,168,35,'Pass','pass');
     }
     if (nospace_active()) {
-	ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:'+3*120+'px;top:26px;width:120px;height:25px;background-color:green" onClick="nospace()">';
-	ret += 'Out of space';
-	ret += '</div>';
+	ret += ui_button(3*168,35,168,35,'Out of space','nospace');
     }
 
-
-    var bg = nextphase_active() ? 'green' : 'white';
-    ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:620px;width:50px;height:25px;background-color:'+bg+';"';
-    if (nextphase_active()) ret +=  ' onClick="nextphase()"'
-    ret += '>→</div>';
-
-    var bg = undo_active() ? 'green' : 'white';
-    ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:620px;top:26px;width:50px;height:25px;background-color:'+bg+';"';
-    if (undo_active()) ret +=  ' onClick="undo()"'
-    ret += '>↺</div>';
-
-    ret += '<div style="border:1px solid black;text-align:center;position:absolute;left:0px;top:26px;width:90px;height:25px;background-color:green;"';
-    ret +=  ' onClick="end_game()"'
-    ret += '>End game</div>';
-
+    ret += ui_button(900,0,70,35,'Next',nextphase_active()?'nextphase':'');
+    ret += ui_button(900,35,70,35,'Undo',undo_active()?'undo':'');
+    ret += ui_button(0,35,100,35,'End game','end_game');
 
     ret += '</div>';
     return ret;
@@ -851,13 +1005,15 @@ function ui_init_game() {
     for (var i = 0; i < m; i++) lastpos[market[i]] = [i, 0];
     for (var i = m; i < market.length; i++) lastpos[market[i]] = [i-m, 1];
     for (var i = 0; i < stack.length; i++) lastpos[stack[i]] = [5, 1];
+    if (step2plants)
+	for (var i = 0; i < step2plants.length; i++) lastpos[step2plants[i]] = [5, 1];
 }
 
 function display() {
     if (ingame) {
 	var m = market_availiable();
 	var tmp = '';
-	tmp += '<h2>'+maps[map].name+', '+players+' Players</h2>';
+	tmp += '<div class="header">'+maps[map].name+', '+players+' Players</div>';
 	tmp += ui_market();
 //	tmp += 'Market: ' + market.slice(0,m).toString() + '<br/>';
 //	tmp += 'Future Market: ' + market.slice(m).toString() + '<br/>';
@@ -869,8 +1025,6 @@ function display() {
 //	tmp += 'Stack: ' + stack.toString() + '<br/>';
 //	tmp += 'Log: ' + gamelog + '<br/>';
 
-	document.getElementById("demo").innerHTML=tmp;
-	tmp = '';
 	if (phase == 2) {
 //	    for (var i = 0; i < market_availiable(); i++)
 //	    tmp += '<button type="button" onclick="buy('+i+')">Buy '+i+'</button>';
@@ -898,26 +1052,8 @@ function display() {
 	tmp += '<br/><a href="' + report_mail() + '"><button>Report a problem</button></a>';
 	document.getElementById("buttons").innerHTML=tmp;
     } else {
-	var tmp = '';
-	var lim = get_limits();
-	if (deck_id() == 'B') {
-	    tmp += 'Number of cities chosen on map: ' + bigcitiesno[players]+ '<br/>';
-	} else {
-	    tmp += 'Number of regions chosen on map: ' + regionsno[players];
-	    if (region_select()) {
-		var diff = regionsno[players] - chosen_regions();
-		if (!diff) tmp += ' OK';
-		else if (diff > 0) tmp += ' (choose ' + diff + ' more)';
-		else tmp += ' (choose ' + -diff + ' less)';
-	    }
-	    tmp += '<br/>';
-	}
-	tmp += 'Maximum number of power plants owned: ' + maxplantsno[players] + '<br/>';
-	tmp += 'Number of connected cities to trigger step 2 / game end: ' + lim[0] + ' / ' + lim[1] + '<br/>';
-	tmp += 'Starting money: 50 <br/>';
-	tmp += 'Initial costs: ' + maps[map].startcost[0] + ' / ' + maps[map].startcost[1] + ' / ' + maps[map].startcost[2] + ' / ' + maps[map].startcost[3] + ' <br/>';
-	document.getElementById("demo").innerHTML=tmp;
-	tmp = '';
+	var tmp ='';
+	tmp += '<div class="header">Power Grid Market Aid</div>';
 	tmp += '<select id="playersno" onChange="set_players(document.getElementById(\'playersno\').value);display();">';
 	for(var i = 2; i <= 6; i++) {
 	    tmp += '<option value="'+i+'"';
@@ -941,28 +1077,59 @@ function display() {
 	}
 	tmp += '</select>';
 	tmp += '<br/>';
+	tmp += '<div style="position:relative;width:970px;height:600px;">';
+	tmp += '<div class="market" style="position:absolute;top:30px;left:660px;text-align:left;height:250px;width:300px;">';
 	if (region_select()) {
 	    for(var i = 0; i < 6; i++) {
 		tmp += '<input type="checkbox" onChange="set_option('+i+',this.checked);display();"';
 		if (has_option(i)) tmp += ' checked';
 		tmp += '>'+maps[map].regions[i]+'</input>';
-	    }
 	    tmp += '<br/>';
+	    }
 	}
+	tmp += '</div>';
+	tmp += '<div class="market" style="position:absolute;top:30px;left:0px;text-align:left;font-size:80%;height:250px;width:300px;">';
 	if (!maps[map].nodecks || maps[map].nodecks.search('P') < 0) {
 	    for(var i = 0; i < promos.length; i++) {
 		tmp += '<input type="checkbox" onChange="set_option('+promos[i].val+',this.checked);display();"';
 		if (has_option(promos[i].val)) tmp += ' checked';
 		tmp += '>'+promos[i].name+'</input>';
-	    }
 	    tmp += '<br/>';
+	    }
 	}
+	tmp += '</div>';
+	var lim = get_limits();
+	tmp += '<div class="market" style="position:absolute;top:30px;left:330px;height:250px;width:300px;"><table>';
+	if (deck_id() == 'B') {
+	    tmp += ui_info('Number of cities chosen on map',bigcitiesno[players]);
+	} else {
+	    var value = regionsno[players];
+	    if (region_select()) {
+		var diff = regionsno[players] - chosen_regions();
+		if (!diff) value += ' OK';
+		else if (diff > 0) value += ' (' + diff + ' more)';
+		else value += ' (' + -diff + ' less)';
+	    }
+	    tmp += ui_info('Number of regions chosen on map',value);
+	}
+	tmp += ui_info('Maximum number of power plants owned',maxplantsno[players]);
+	tmp += ui_info('Number of connected cities to trigger step 2 / game end',lim.join(' / '));
+	tmp += ui_info('Starting money',50);
+	tmp += ui_info('Initial resource costs',maps[map].startcost.join(', '));
+	tmp += '</table></div>';
 	if (region_select() && regionsno[players] != chosen_regions())
 	    tmp += '<button disabled type="button" onclick="start_game()">New Game</button>';
 	else
 	    tmp += '<button type="button" onclick="start_game()">New Game</button>';
+	tmp += '</div>';
 	document.getElementById("buttons").innerHTML=tmp;
     }
+}
+function ui_info(name,value) {
+    var ret = '<tr><td style="text-align:right;line-height:16px;width:200px;font-size:70%">';
+    ret += name + '</td><td style="width:100px;line-height:42px;background-color:#a7bc95;">';
+    ret += value + '</td></tr>';
+    return ret;
 }
 var frames = 25;
 var mvqueue = [];
@@ -994,10 +1161,17 @@ function flush_events() {
 	    lastpos[c] = e[c];
     frames = 25;
 }
+function event_cards() {
+    var r = [];
+    for (var i = 0; i < mvqueue.length; i++)
+	for (var c in mvqueue[i])
+	    if (r.indexOf(c) == -1)
+		r.push(c);
+    return r;
+}
 </script>
 </head>
 <body onLoad="load_state();display();display_event();">
-<p id="demo">Loading...</p>
-<p id="buttons">Loading...</p>
+<div id="buttons">Loading...</div>
 </body>
 </html> 
