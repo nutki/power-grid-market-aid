@@ -24,13 +24,7 @@ margin:0px auto;
 text-align:center;
 font-size:150%;
 background-color:#6e8c52;
-
--webkit-user-select: none; /* Chrome/Safari */        
--moz-user-select: none; /* Firefox */
--ms-user-select: none; /* IE10+ */
--o-user-select: none;
-user-select: none;
-
+position:relative;
 }
 div.header {
 font-family:KaufmannBold, Helvetica, Arial;
@@ -143,15 +137,11 @@ Array.prototype.extract = function(x) {
 };
 
 // TODO
-// Debug mode display/report problem
-// X Promo cards
-// Save ui settings
-// Start screen
-// - layout
-// - region randomizer
-// Calculator
+//?X Promo cards
+//?China phase 5 draw (step 1/2)
+//?Save ui settings (refill/lang/calc/debugmode)
+// 2x5 grid
 // Rules
-// Languages
 
 // colors:
 // pink: #e2c0d1, efc3d2(neu)
@@ -178,7 +168,6 @@ Array.prototype.extract = function(x) {
 // 7 - pink: (pink) 	#FFC0CB
 // 8 - orange  (orange)	#FFA500
 
-// possible = regionset[regionsno].split().extract(map[map_id].regions.badregionsets.split());
 /*if (window.applicationCache) {
     applicationCache.addEventListener('updateready', function() {
         if (confirm('An update is available. Reload now?')) {
@@ -192,6 +181,84 @@ if (navigator.userLanguage) // IE
 else if (navigator.language) // Others
     lang = navigator.language;
 lang = lang.match(/[a-z]*/i);
+
+// Translations:
+var languages = ['en','de'];
+var dict = {
+'Power Grid Market Aid':{},
+
+'Step':{de:'Stufe'},
+
+'Player order':{de:'Reihenfolge'},
+'Auction':{de:'Kraftwerke'},
+'Resources':{de:'Rohstoffe kaufen'},
+'Building':{de:'Bauen'},
+'Bureaucracy':{de:'Bürokratie'},
+
+'Players':{de:'Spieler'},
+'Build':{},
+'Next':{},
+'Undo':{},
+'Pass':{},
+'Out of space':{},
+'Report a problem':{},
+'End game':{},
+'Exit game?':{},
+
+'Random regions':{},
+'New game':{},
+'Regions':{de:'Regionen'},
+'choose':{},
+'more':{},
+'less':{},
+'Promo cards':{de:'Promokarten'},
+'Number of regions chosen on map':{de:'Anzahl an Regionen auf der Landkarte'},
+'Number of cities chosen on map':{de:'Anzahl an Städten auf der Landkarte'},
+'Maximum number of power plants owned':{de:'Maximale Anzahl an Kraftwerken im Besitz der Spieler'},
+'Number of connected cities to trigger step 2 / game end':{de:'Anzahl an angeschlossenen Städten für Wechsel zu Stufe 2 / zum Auslösen des Spielendes'},
+'Starting money':{},
+'Initial resources':{},
+
+
+'Standard Deck':{},
+'New Deck':{},
+'Mixed Deck':{},
+'Big Game Deck':{},
+
+//Region names:
+
+
+//Map names:
+'Germany':{de:'Deutschland'},
+'USA':{},
+'France':{de:'Frankreich'},
+'Italy':{de:'Italien'},
+'Benelux':{},
+'Central Europe':{de:'Mitteleuropa'},
+'Korea':{},
+'China':{},
+'Brazil':{de:'Brasilien'},
+'Spain & Portugal':{de:'Spanien & Portugal'},
+'Russia':{de:'Russland'},
+'Japan':{},
+'Québec':{},
+'Baden-Württemberg':{},
+'Northern Europe':{de:'Nordeuropa'},
+'United Kingdom & Ireland':{de:'United Kingdom & Irland'},
+
+//Promo names:
+'Flux-Generator':{},
+'Transformer Station':{de:'Umspannwerk'},
+'Warehouse':{de:'Lagerhalle'},
+'Shortage of Resources':{de:'Rohstoffmangel'},
+'Surplus of Resources':{de:'Rohstoffüberschuss'},
+'Theme Park':{de:'Freizeitpark'},
+'Supply Contract':{de:'Liefervertrag'},
+'Industrial Espionage':{de:'Industriespionage'},
+
+//'':{de:''},
+}
+
 
 // Game constants
 
@@ -208,12 +275,45 @@ var decks = [
 { id: 'M', name: 'Mixed Deck'},
 { id: 'B', name: 'Big Game Deck' },
 ];
-var gbrregions = { select:true, colors:'682017',
+var regionchoice = {
+6:{3:'GKScMUeYiqNVfZjr\\ltx',4:'OWg[ks]muy^nvz|',5:'_ow{}~'},
+5:{3:'GKSMUYNVZ\\',4:'OW[]^',5:'_'}
+};
+var gerregions = { colors:'521043', bad:'SceqVfrgsv',
+    names: [ 'North West', 'North East', 'Central West', 'Central East', 'South West', 'South' ] };
+var usaregions = { colors:'350126', bad:'ScYqVfZr[sv',
+    names: [ 'North West', 'South West', 'North Central', 'South Central', 'North East', 'South East' ] };
+var fraregions = { colors:'405132', bad:'VZjlt',
+    names: [ 'Central', 'East', 'South East', 'South West', 'North West', 'North East' ] };
+var itaregions = { colors:'231045', bad:'KScMUeYiqVZjrW[ks]muyz{}',
+    names: [ 'South / Sicily', 'South Central', 'Central', 'North Central', 'North West', 'North East' ] };
+var ceuregions = { colors:'035214', bad:'ScYqVfZr[sv',
+    names: [ 'Austria', 'Hungary', 'Czech Republic', 'Slovakia', 'Western Poland', 'Eastern Poland' ] };
+var bnxregions = { colors:'2501A', bad:'KSYZ[',
+    names: [ 'Holland / Utrecht', 'Netherlands East', 'Netherlands South', 'Flanders / Brussels', 'Wallonia / Luxemburg' ] };
+var korregions = { colors:'603271', bad:'ScYqVfZr[sv',
+    names: [ 'South West', 'South East', 'Central West', 'Central East', 'North West', 'North East' ] };
+var chnregions = { colors:'621073', bad:'ScYqVfZrx[syvz{',
+    names: [ 'East', 'South East', 'North', 'South West', 'North East', 'North West' ] };
+var braregions = { colors:'260317', bad:'SceqVfrgsv',
+    names: [ 'South', 'South East', 'North West', 'Central', 'North', 'North East' ] };
+var iberegions = { colors:'016327', bad:'SceqVfrgsv',
+    names: [ 'Portugal', 'South', 'North West', 'Central', 'North', 'East' ] };
+var jpnregions = { colors:'10362', bad:'KSMUYVZW[]',
+    names: [ 'Kyushu', 'Chugoku / Shikoku', 'Kansai / Chubu', 'Kanto', 'Tohoku / Hokkaido' ] };
+//    names: [ 'Kyushu (Fukuoka)', 'Chugoku / Shikoku (Kobe)', 'Kansai / Chubu (Osaka)', 'Kanto (Tokyo / Yokohama)', 'Tohoku / Hokkaido (Sapporo)' ] };
+var rusregions = { colors:'273601', bad:'SceiqVfjrlgksmnvo',
+    names: [ 'Southern', 'Central', 'Volga', 'Northwestern', 'Ural', 'Siberian' ] };
+var queregions = { colors:'137026', bad:'GScYqVfZrxWg[syvzw{',
+    names: [ 'South', 'West', 'Quebec', 'Central', 'East', 'North' ] };
+var badregions = { colors:'53041', bad:'SV',
+    names: [ 'South West', 'South East', 'Central West', 'Central East', 'North' ] };
+var gbrregions = { select:true, colors:'682017', bad:'MUNV\\OW]^_',
     names: [ 'Ireland', 'Northern Ireland', 'Scotland', 'Wales', 'Southern England', 'Northern England' ],
     cities:[ 7, 5, 7, 6, 8, 7 ] };
-var neuregions = { select:true, colors:'813027',
+var neuregions = { select:true, colors:'813027', bad:'cUYiqVfjky',
     names: [ 'Denmark', 'Norway', 'Southern Sweden', 'Northern Sweden', 'Finland', 'Baltic States' ] };
-var xregions = {};
+
 var std0 = [3,4,3,4,5,3,5,6,4,5,7,5,7,9,6];
 var std1 = [2,2,4,2,3,4,3,4,5,4,5,6,5,6,7];
 var std2 = [1,2,3,1,2,3,2,3,4,3,3,5,3,5,6];
@@ -231,21 +331,21 @@ var neurefill = [[2,4,3,2,4,4,4,5,5,4,5,6,6,8,5],[1,2,3,2,2,3,2,3,4,3,4,5,4,5,6]
 var korrefill = [[12,22,12,22,23,12,23,33,22,23,34,23,34,45,33],[11,11,13,11,12,13,12,13,23,13,23,24,23,24,34],[1,11,12,1,11,12,11,12,22,12,12,23,12,23,33],std3];
 
 var maps = [
-{ id: 'GER', name: 'Germany', regions: xregions, startcost: [1,3,7,14], refill: stdrefill},
-{ id: 'USA', name: 'USA', regions: xregions, startcost: [1,3,7,14], refill: stdrefill },
-{ id: 'ITA', name: 'Italy', regions: xregions, startcost: [3,4,5,14], refill: stdrefill },
-{ id: 'FRA', name: 'France', regions: xregions, startcost: [1,3,7,5], refill: stdrefill },
-{ id: 'CEU', name: 'Central Europe', regions: xregions, startcost: [1,3,7,8], refill: ceurefill },
-{ id: 'BNX', name: 'Benelux', regions: xregions, startcost: [3,1,7,14], refill: bnxrefill },
-{ id: 'KOR', name: 'Korea', regions: xregions, startcost: [1,3,7,14], refill: korrefill },
-{ id: 'CHN', name: 'China', nodecks: 'MBP', regions: xregions, startcost: [5,5,7,'-'], refill: chnrefill },
-{ id: 'BRA', name: 'Brazil', regions: xregions, startcost: [1,3,7,14], refill: brarefill },
-{ id: 'IBE', name: 'Spain & Portugal', regions: xregions, startcost: [1,3,6,5], refill: iberefill },
-{ id: 'JPN', name: 'Japan', nodecks: 'B', regions: xregions, startcost: [2,4,6,12], refill: stdrefill },
-{ id: 'RUS', name: 'Russia', nodecks: 'M', regions: xregions, startcost: [3,1,'-',6], refill: rusrefill },
-{ id: 'QUE', name: 'Quebec', regions: xregions, startcost: [2,2,7,14], refill: querefill },
-{ id: 'BAD', name: 'Baden-Wuerttemberg', nodecks: 'B', regions: xregions, startcost: [1,3,7,14], refill: stdrefill },
-{ id: 'GBR', name: 'UK & Ireland', regions: gbrregions, startcost: [1,3,5,'-'], refill:gbrrefill },
+{ id: 'GER', name: 'Germany', regions: gerregions, startcost: [1,3,7,14], refill: stdrefill},
+{ id: 'USA', name: 'USA', regions: usaregions, startcost: [1,3,7,14], refill: stdrefill },
+{ id: 'ITA', name: 'Italy', regions: itaregions, startcost: [3,4,5,14], refill: stdrefill },
+{ id: 'FRA', name: 'France', regions: fraregions, startcost: [1,3,7,5], refill: stdrefill },
+{ id: 'CEU', name: 'Central Europe', regions: ceuregions, startcost: [1,3,7,8], refill: ceurefill },
+{ id: 'BNX', name: 'Benelux', regions: bnxregions, startcost: [3,1,7,14], refill: bnxrefill },
+{ id: 'KOR', name: 'Korea', regions: korregions, startcost: [1,3,7,14], refill: korrefill },
+{ id: 'CHN', name: 'China', nodecks: 'MB', regions: chnregions, startcost: [5,5,7,'-'], refill: chnrefill },
+{ id: 'BRA', name: 'Brazil', regions: braregions, startcost: [1,3,7,14], refill: brarefill },
+{ id: 'IBE', name: 'Spain & Portugal', regions: iberegions, startcost: [1,3,6,5], refill: iberefill },
+{ id: 'JPN', name: 'Japan', nodecks: 'B', regions: jpnregions, startcost: [2,4,6,12], refill: stdrefill },
+{ id: 'RUS', name: 'Russia', nodecks: 'M', regions: rusregions, startcost: [3,1,'-',6], refill: rusrefill },
+{ id: 'QUE', name: 'Québec', regions: queregions, startcost: [2,2,7,14], refill: querefill },
+{ id: 'BAD', name: 'Baden-Württemberg', nodecks: 'B', regions: badregions, startcost: [1,3,7,14], refill: stdrefill },
+{ id: 'GBR', name: 'United Kingdom & Ireland', regions: gbrregions, startcost: [1,3,5,'-'], refill:gbrrefill },
 { id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neuregions, startcost: [3,3,5,7], refill:neurefill },
 ];
 var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
@@ -296,7 +396,17 @@ var options = 0; // bitmask: 0-5, regions for GBR, NEU; 6+ promos
 
 // UI state
 
+var debugmode = 0;
 var alttable = 0;
+var lang = 'en';
+
+function set_lang(x) {
+    lang = x;
+}
+
+function t(x) {
+    return dict[x] && dict[x][lang] ? dict[x][lang] : x;
+}
 
 function set_state(s) {
     if (!s) return;
@@ -335,7 +445,7 @@ function get_limits() {
     if ('GBR' == map_id() && players == 2) {
 	var c = 0;
 	if (chosen_regions() == regionsno[players]) {
-	    for (var i = 0; i < 6; i++) if (has_option(i)) c += ukcities[i];
+	    for (var i = 0; i < 6; i++) if (has_option(i)) c += maps[map].regions.cities[i];
 	} else {
 	    c = 'x';
 	}
@@ -352,6 +462,15 @@ function chosen_regions() {
     return ret;
 }
 function has_espionage() { return has_option(13); }
+
+function random_regions() {
+    var possible = regionchoice[maps[map].regions.names.length][regionsno[players]].split('');
+    possible.extract(maps[map].regions.bad.split(''));
+    var r = Math.floor(Math.random() * possible.length);
+    var r = 0x3f & possible[r].charCodeAt(0);
+    for (var i = 0; i < 6; i++)
+	set_option(i, r & (1<<i) ? 1 : 0);
+}
 
 function mixplants() {
     var tmp = plants.concat(newplants);
@@ -396,9 +515,13 @@ function init_deck() {
 	pos = tmp1.indexOf('S' == deck_id()?'36A':'35B');
 	var tmp2 = tmp1.splice(pos);
 	tmp1.push(step3);
+	if (has_option(promos[0].val)) tmp1.push(promos[0].card); // Flux generator
 	tmp1.shuffle();
 	tmp2.shuffle();
 	stack = stack.concat(tmp1,tmp2);
+	for (var i = 1; i < promos.length; i++) if (has_option(promos[i].val) && promos[i].card) {
+	    stack.splice(rand.nextRange(0,stack.length+1),0,promos[i].card);
+	}
 	return;
     } else if ('NEU' == map_id()) {
 	for (var i = 0; i < 6; i++) if (has_option(i)) {
@@ -497,10 +620,15 @@ function log_append(a) {
 }
 function set_players(n) {
     players = n;
+    for (var i = 0; i < 6; i++)
+	set_option(i, 0);
     save_state();
 }
 function set_deck(v) {
     deck = v;
+    if ('B' == deck_id())
+    for (var i = 0; i < 6; i++)
+	set_option(i, 0);
     save_state();
 }
 function set_map(v) {
@@ -562,7 +690,8 @@ function market_pop() {
     {
     var ev = {};
     for (var i = 0; i < market.length; i++) {
-	ev[market[i]] = [ i, 0, 3, 0];
+	var m = ui_market_width();
+	ev[market[i]] = [  i % m, i >= m, 3, 0];
     }
     mvqueue.push(ev);
     }
@@ -580,7 +709,7 @@ function stack_reveal(p) {
     if (!stack.length) return;
     { // DISPLAYEVENT
     var ev = {};
-	ev[stack[0]] = [5,1, 3, 0,p];
+	ev[stack[0]] = [5,1, 3, p?3:0,p];
     mvqueue.push(ev);	
     }
 }
@@ -589,13 +718,18 @@ function draw() {
     if (!stack.length) return;
     if (stack[0].substr(0,1) == 'X') {
 	stack_reveal(1);
+	{ // DISPLAYEVENT
+	var ev = {};
+	    ev[stack[0]] = [2.5,2.5, 3, 0];
+	mvqueue.push(ev);	
+	}
 	stack.shift();
 	draw();
 	return;
     }
     var plant = stack.shift();
-    if (plant == step3) {
-	stack.shuffle(); // skip this for China?
+    if (plant == step3 && 'CHN' != map_id()) {
+	stack.shuffle();
     }
     market.push(plant);
     market.sort();
@@ -603,7 +737,7 @@ function draw() {
     {
     var ev1 = {}, ev2 = {};
     for (var i = 0; i < market.length; i++) {
-	var m = market_availiable();
+	var m = ui_market_width();
 	var newpos = [ i % m, i >= m, market[i] != plant ? 3 : 4, 0];
 	ev1[market[i]] = market[i] != plant ? newpos : [5, 1, 3, 3];
 	ev2[market[i]] = newpos;
@@ -839,7 +973,7 @@ function start_game() {
 }
 
 function end_game() {
-    if (!step || confirm('Exit game?'))
+    if (!step || confirm(t('Exit game?')))
 	set_ingame(0);
     display();
 }
@@ -850,7 +984,7 @@ function undo() {
 }
 
 function report_mail() {
-    var ret = 'mailto:reports@pgm.org';
+    var ret = 'mailto:pgmarketaid@gmail.com';
     ret += '?subject=Online report';
     ret += '&body=Keep this line:%0d';
     ret += get_state();
@@ -861,6 +995,11 @@ function report_mail() {
 // User interface
 
 document.onkeydown = function(e) {
+    if (e.ctrlKey && e.keyCode == 69) {
+        debugmode = !debugmode;
+	display();
+	return false;
+    }
     if (!ingame) return;
     if (e.keyCode > 48 && e.keyCode < 55) {
         buy(e.which - 49);
@@ -870,8 +1009,10 @@ document.onkeydown = function(e) {
 	nextphase();
     } else if (e.keyCode == 66) {
 	build();
+    } else if (e.keyCode == 67) {
+	ui_calc_switch();
     } else if (e.keyCode == 27) {
-        end_game();
+	if (ui_calc) ui_calc_switch(); else end_game();
     } else if (e.keyCode == 80 && pass_active()) {
         pass();
     } else if (e.keyCode == 79 && nospace_active()) {
@@ -938,14 +1079,15 @@ function ui_alttable() {
 }
 
 function ui_step() {
-    var px = 10 + 160 * 4;
-    var py = 10 + 160 * 1;
+    var pos = ui_market_width() > 4 ? [3,1] : [4,0];
+    var px = 10 + 160 * pos[0];
+    var py = 10 + 160 * pos[1];
     var alt = alttable;
     var ret ='';
     ret += '<div style="position:absolute;width:150px;height:150px;'
     ret += 'border:0px solid black;z-index:0;text-align:center;';
     ret += 'top:'+py+'px;left:'+px+'px;" onClick="ui_alttable()">';
-    if (!alt) ret += '<div style="font-size:150%">'+(step?'Step '+step:'Game over')+'</div>';
+    if (!alt) ret += '<div style="font-size:150%">'+(step?t('Step')+' '+step:'Game over')+'</div>';
     ret += '<table align="center">';
     if (!alt) {
     ret += '<tr>';
@@ -981,10 +1123,11 @@ function ui_step() {
 function ui_button(x,y,w,h,name,func) {
 	var ret = '';
 	x++; y++; w-=2; h-=2;
-	ret += '<div class="button'+(func?1:0)+'" style="line-height:'+h+'px;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;"';
+	var hf = Math.ceil(h*.7);
+	ret += '<div class="button'+(func?1:0)+'" style="font-size:'+hf+'px;line-height:'+h+'px;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;"';
 	ret += ' onClick="'+func+'()"';
 	ret += '>';
-	ret += name;
+	ret += t(name);
 	ret += '</div>';
 	return ret;
 }
@@ -996,6 +1139,51 @@ function ui_phase(x,y,w,h,name,on) {
 	ret += name;
 	ret += '</div>';
 	return ret;
+}
+
+var ui_calc = 0;
+var ui_calc_state = [];
+
+function ui_calc_switch() {
+    ui_calc = !ui_calc;
+    display();
+}
+
+function ui_calc_house(v,s) {
+    return '<span style="color:black;vertical-align:middle;position:relative;width:'+s+'px;height:'+s+'px;font-size:'+s+'px;text-align:center;">'+
+    '<img src="img/housea.png" height="'+s+'" width="'+s+'"/>'+
+    '<span style="position:absolute;top:0px;left:0px;width:'+s+'px;height:'+s+'px;font-size:30px">'+v+'</span></span>';
+}
+
+function ui_calculator() {
+    var tmp = '';
+    if (!ui_calc) return tmp;
+    var sum = 0;
+    tmp += '<div class="market" style="position:absolute;top:90px;left:175px;height:335px;width:620px;z-index:20;">';
+    tmp += '<div style="position:absolute;top:10px;left:10px;height:315px;width:600px;z-index:20;">';
+    for (var i = 0; i < 10; i++) {
+	for (var j = 0; j < 3; j++) {
+	    var a = j*10+i+1;
+	    tmp += ui_button(i*50,j*50,50,50,a,'ui_calc_state.push('+a+');display');
+	}
+    }
+    tmp += ui_button(11*50,1*50,50,50,'C',ui_calc_state.length?'ui_calc_state.pop();display':'');
+    tmp += ui_button(11*50,2*50,50,50,'CA',ui_calc_state.length?'ui_calc_state=[];display':'');
+    tmp += ui_button(11*50,0*50,50,50,'x','ui_calc_switch');
+    for (var i = 0; i < step; i++)
+    tmp += ui_button(10*50,i*50,50,50,ui_calc_house(i*5 + 10,48),'ui_calc_state.push(-'+(i*5+10)+');display');
+    tmp += '<div style="position:absolute;font-size:50px;line-height:55px;text-align:right;top:150px;left:0px;height:165px;width:600px;">&nbsp';
+    var r = [];
+    for (var i = 0; i < ui_calc_state.length; i++) {
+	var v = ui_calc_state[i];
+	r.push(v < 0 ? ui_calc_house(-v,50) : v);
+	sum += Math.abs(v);
+    }
+    tmp += r.join(', ');
+    tmp += '<br\>= ' + sum;
+    tmp += '</div>';
+    tmp += '</div></div>';
+    return tmp;
 }
 
 function ui_market() {
@@ -1027,7 +1215,7 @@ function ui_market() {
 	if (i == lim[0] - 1) bg = '2';
 	if (i == lim[1] - 1) bg = '2';
 	if (houses > i) bg = '3';
-	ret += '<div style="line-height:35px;position:absolute;left:'+i*35+'px;width:35px;height:35px;background: url(img/house'+bg+'.png);background-size: cover;">';
+	ret += '<div style="font-size:18px;line-height:35px;position:absolute;left:'+i*35+'px;width:35px;height:35px;background: url(img/house'+bg+'.png);background-size: cover;">';
 	ret += i + 1;
 	ret += '</div>';
     }
@@ -1037,7 +1225,7 @@ function ui_market() {
     ret += '<div style="position:relative;width:970px;height:72px;">';
     for (i = 0; i < 5; i++) {
 	var phasenames = ['Player order','Auction','Resources','Building','Bureaucracy'];
-	var name = phasenames[i];
+	var name = t(phasenames[i]);
 	var bg = 0;
 	var order = i;
 	if (i == phase - 1) {
@@ -1056,13 +1244,21 @@ function ui_market() {
     ret += ui_button(900,0,70,35,'Next',nextphase_active()?'nextphase':'');
     ret += ui_button(900,35,70,35,'Undo',undo_active()?'undo':'');
     ret += ui_button(0,35,100,35,'End game','end_game');
+    ret += ui_button(805,35,35,35,'C','ui_calc_switch');
 
     ret += '</div>';
     return ret;
 }
 
+function ui_market_width() {
+    if ('CHN' == map_id()) return 4;
+    if (step < 3) return market_availiable();
+    if ('RUS' == map_id()) return 2;
+    return 3;
+}
+
 function ui_init_game() {
-    var m = market_availiable();
+    var m = ui_market_width();
     lastpos = {};
     mvqueue = [];
     for (var i = 0; i < m; i++) lastpos[market[i]] = [i, 0];
@@ -1073,28 +1269,35 @@ function ui_init_game() {
 }
 
 function display() {
-    if (ingame) {
-	var m = market_availiable();
-	var tmp = '';
-	tmp += '<div class="header">'+maps[map].name+', '+players+' Players</div>';
-	tmp += ui_market();
-//	tmp += '<br/><a href="' + report_mail() + '"><button>Report a problem</button></a>';
-	document.getElementById("buttons").innerHTML=tmp;
+    var title = t('Power Grid Market Aid')+' v1.0j';
+    var tmp = '';
+    if (ingame) title = t(maps[map].name)+', '+players+' '+t('Players');
+    if (debugmode) {
+	tmp += '<input style="width:960px" type="text" onChange="set_state(this.value);display();" value="'+get_state()+'"/><br/>';
     } else {
-	var tmp ='';
-	tmp += '<div class="header">Power Grid Market Aid v1.0g</div>';
+	tmp += '<a style="display:none" id="report_mail" href="' + report_mail() + '"></a>';
+	tmp += ui_button(870,0,100,20,'Report a problem','document.getElementById(\'report_mail\').click'); 
+    }
+    for (var i = 0; i < languages.length; i++) {
+	tmp += ui_button(30*i,0,30,20,languages[i],'set_lang(\''+languages[i]+'\');display'); 
+    }
+    tmp += '<div class="header">'+title+'</div>';
+    if (ingame) {
+	tmp += ui_market();
+	tmp += ui_calculator();
+    } else {
 	tmp += '<select id="playersno" onChange="set_players(document.getElementById(\'playersno\').value);display();">';
 	for(var i = 2; i <= 6; i++) {
 	    tmp += '<option value="'+i+'"';
 	    if (i == players) tmp += ' selected';
-	    tmp += '>'+i+' Players</option>';
+	    tmp += '>'+i+' '+t('Players')+'</option>';
 	}
 	tmp += '</select>';
 	tmp += '<select id="mapno" onChange="set_map(this.value);display();">';
 	for(var i = 0; i < maps.length; i++) {
 	    tmp += '<option value="'+i+'"';
 	    if (i == map) tmp += ' selected';
-	    tmp += '>'+maps[i].name+'</option>';
+	    tmp += '>'+t(maps[i].name)+'</option>';
 	}
 	tmp += '</select>';
 	tmp += '<select id="deckno" onChange="set_deck(this.value);display();">';
@@ -1102,66 +1305,72 @@ function display() {
 	    if (maps[map].nodecks && maps[map].nodecks.search(decks[i].id) >= 0) continue;
 	    tmp += '<option value="'+i+'"';
 	    if (i == deck) tmp += ' selected';
-	    tmp += '>'+decks[i].name+'</option>';
+	    tmp += '>'+t(decks[i].name)+'</option>';
 	}
 	tmp += '</select>';
-	tmp += '<br/>';
 	tmp += '<div style="position:relative;width:970px;height:300px;">';
 	tmp += '<div class="market" style="position:absolute;top:30px;left:660px;text-align:left;height:250px;width:300px;">';
-	if (region_select()) {
-	    tmp += 'Regions';
+	if (region_select() || chosen_regions()) {
+	    tmp += t('Regions');
 	    if (region_select()) {
 		var diff = regionsno[players] - chosen_regions();
-		if (diff > 0) tmp += ' (choose ' + diff + ' more)';
-		else if (diff < 0) tmp += ' (choose ' + -diff + ' less)';
+		if (diff > 0) tmp += ' ('+t('choose')+' ' + diff + (chosen_regions() ? ' '+t('more') : '') + ')';
+		else if (diff < 0) tmp += ' ('+t('choose')+' ' + -diff + ' '+t('less')+')';
 	    }
 	    tmp += ':</br>';
-	    for(var i = 0; i < 6; i++) {
-		var fg = '#777777';
-		tmp += '<input type="checkbox" onChange="set_option('+i+',this.checked);display();"';
-		if (has_option(i)) { tmp += ' checked'; fg = 'black'; }
-		tmp += '><span style="color:'+fg+'">'+maps[map].regions.names[i]+'</span>'
-		tmp += ' <img style="border:1px solid '+fg+'" src="img/c'+maps[map].regions.colors.charAt(i)+'.png" width=20 height=20></input>';
-	    tmp += '<br/>';
+	    for(var i = 0; i < 6; i++) if (region_select() || has_option(i)) {
+		var fg = has_option(i) ? 'black' : '#777777';
+		if (region_select()) {
+		    tmp += '<input type="checkbox" onChange="set_option('+i+',this.checked);display();"';
+		    if (has_option(i)) tmp += ' checked';
+		    tmp += '>';
+		}
+		tmp += '<span style="color:'+fg+';';
+		if (!region_select()) tmp+= 'margin-left:20px;';
+		tmp += '">'+t(maps[map].regions.names[i])+'</span>'
+		tmp += ' <img style="border:1px solid '+fg+'" src="img/c'+maps[map].regions.colors.charAt(i)+'.png" width=20 height=20>';
+		tmp += region_select() ? '</input><br/>' : '<br/>';
 	    }
 	}
 	tmp += '</div>';
 	tmp += '<div class="market" style="position:absolute;top:30px;left:0px;text-align:left;font-size:80%;height:250px;width:300px;">';
 	if (!maps[map].nodecks || maps[map].nodecks.search('P') < 0) {
-	    tmp += 'Promo cards:</br>'
+	    tmp += t('Promo cards')+':</br>'
 	    for(var i = 0; i < promos.length; i++) {
 		tmp += '<input type="checkbox" onChange="set_option('+promos[i].val+',this.checked);display();"';
 		if (has_option(promos[i].val)) tmp += ' checked';
-		tmp += '><span style="color:'+(has_option(promos[i].val)?'black':'#777777')+'">'+promos[i].name+'</span></input>';
+		tmp += '><span style="color:'+(has_option(promos[i].val)?'black':'#777777')+'">'+t(promos[i].name)+'</span></input>';
 	    tmp += '<br/>';
 	    }
 	}
 	tmp += '</div>';
-	var lim = get_limits();
 	tmp += '<div class="market" style="position:absolute;top:30px;left:330px;height:250px;width:300px;"><table>';
+//	tmp += ui_info('',[1,2,3,4].map(function (a) {return '<img height="30" src="img/R'+a+'.png"/>'}));
+	tmp += ui_info('Initial resource costs',maps[map].startcost);
 	if (deck_id() == 'B') {
-	    tmp += ui_info('Number of cities chosen on map',bigcitiesno[players]);
+	    tmp += ui_info('Number of cities chosen on map',[bigcitiesno[players]]);
 	} else {
 	    var value = regionsno[players];
-	    tmp += ui_info('Number of regions chosen on map',value);
+	    tmp += ui_info('Number of regions chosen on map',[value]);
 	}
-	tmp += ui_info('Maximum number of power plants owned',maxplantsno[players]);
-	tmp += ui_info('Number of connected cities to trigger step 2 / game end',lim.join(' / '));
-	tmp += ui_info('Starting money',50);
-	tmp += ui_info('Initial resource costs',maps[map].startcost.join(', '));
+	tmp += ui_info('Maximum number of power plants owned',[maxplantsno[players]]);
+	tmp += ui_info('Number of connected cities to trigger step 2 / game end',get_limits());
+	tmp += ui_info('Starting money',[50]);
 	tmp += '</table></div>';
-	if (region_select() && regionsno[players] != chosen_regions())
-	    tmp += '<button disabled type="button" onclick="start_game()">New Game</button>';
-	else
-	    tmp += '<button type="button" onclick="start_game()">New Game</button>';
-	tmp += '</div>';
-	document.getElementById("buttons").innerHTML=tmp;
+	tmp += ui_button(435,300,100,36,'New Game',region_select() && regionsno[players] != chosen_regions() ? '' : 'start_game');
+	tmp += ui_button(770,303,120,30,'Random regions','B' != deck_id() ? 'random_regions();display' : '');
     }
+    document.getElementById("buttons").innerHTML=tmp;
 }
 function ui_info(name,value) {
-    var ret = '<tr><td style="text-align:right;line-height:16px;width:200px;font-size:70%">';
-    ret += name + '</td><td style="width:100px;line-height:42px;background-color:#a7bc95;">';
-    ret += value + '</td></tr>';
+    var l = value.length;
+    var ret = '<tr><td style="text-align:right;line-height:16px;width:180px;font-size:70%">';
+    ret += t(name) + '</td>';
+    for(var i = 0; i < l; i++) {
+	ret += '<td colspan="'+4/l+'" style="width:'+100/l+'px;line-height:42px;background-color:#a7bc95;">';
+	ret += value[i] + '</td>';
+    }
+    ret += '</tr>';
     return ret;
 }
 var frames = 25;
