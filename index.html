@@ -334,6 +334,7 @@ function init_game(state) {
     } else {
 	cities = regionsno[players] * 7;
     }
+    ui_init_game();
     replay(oldlog);
 }
 
@@ -394,6 +395,29 @@ function replay(inlog) {
 }
 
 
+// Market/stack manipulation:
+function market_remove(i) {
+    { // DISPLAYEVENT
+    var ev = {};
+    ev[market[i]] = [ 2.5, 2.5];
+    mvqueue.push(ev);
+    }
+    market.splice(i,1);
+}
+function market_shift() {
+    market_remove(0);
+}
+function market_pop() {
+    market_remove(market.length - 1);
+}
+function market_to_stack() {
+    { // DISPLAYEVENT
+    var ev = {};
+	ev[market[market.length - 1]] = [5,1];
+    mvqueue.push(ev);	
+    }
+    stack.push(market.pop());
+}
 
 function draw() {
     if (!stack.length) return;
@@ -401,16 +425,27 @@ function draw() {
     if (plant == step3) {
 	stack.shuffle(); // skip this for China?
     }
-    // DISPLAYEVENT
     if (plant.substr(0,1) == 'X') {
 	draw();
 	return;
     }
     market.push(plant);
     market.sort();
+    // DISPLAYEVENT
+    {
+    var ev1 = {}, ev2 = {};
+    for (var i = 0; i < market.length; i++) {
+	var m = market_availiable();
+	var newpos = [ i % m, i >= m];
+	ev1[market[i]] = market[i] != plant ? newpos : [5, 1];
+	ev2[market[i]] = newpos;
+    }
+    mvqueue.push(ev1);
+    mvqueue.push(ev2);
+    }
     if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
     if(houses >= plant_val(market[0])) {
-          market.shift();
+          market_shift();
           draw();
     }
 }
@@ -418,8 +453,7 @@ function draw() {
 function step2() {
     if (step2plants)
 	stack = step2plants.concat(stack);
-    // DISPLAYEVENT
-    market.shift();
+    market_shift();
     draw();
     step = 2;
     test_step3();
@@ -428,9 +462,8 @@ function step2() {
 function test_step3() {
     if (market.indexOf(step3) < 0) return;
     step = 3;
-    // DISPLAYEVENT
-    market.shift();
-    market.pop();
+    market_shift();
+    market_pop();
     if ('CHN' == map_id()) while(market.length < 4) draw();
 }
 
@@ -438,8 +471,7 @@ function do_buy(i) {
     log_append(i);
     playersleft--;
     sold = 1;
-    // DISPLAYEVENT
-    market.splice(i,1);
+    market_remove(i);
     if ('CHN' != map_id() || step == 3)
 	draw();
     if (!playersleft) {
@@ -452,15 +484,15 @@ function do_pass() {
     log_append('P');
     playersleft--;
     if ('RUS' == map_id()) {
-	market.shift();
+	market_shift();
 	draw();
     }
     if (!playersleft) {
         if (!sold && 'RUS' != map_id() && 'CHN' != map_id()) {
-            market.shift();
+            market_shift();
             draw();
 	    if ('BAD' == map_id()) {
-		market.shift();
+		market_shift();
 		draw();
 	    }
         }
@@ -473,7 +505,7 @@ function do_build() {
     houses++;
     if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
     while(houses >= plant_val(market[0])) {
-        market.shift();
+        market_shift();
         draw();
     }
 }
@@ -505,7 +537,7 @@ function do_endturn() {
 	    while (i--) {
 		draw();
 		if (market.indexOf(step3) >= 0) break;
-		if (market.length > d) market.shift();
+		if (market.length > d) market_shift();
 	    }
 	} else if ('QUE' == map_id()) {
 	    var save = market.extract(ecoplants);
@@ -515,16 +547,16 @@ function do_endturn() {
 	    market.sort();
 	    draw();
 	} else {
-	    stack.push(market.pop());
+	    market_to_stack();
 	    draw();
 	}
 	if ('BNX' == map_id()) {
-	    market.shift();
+	    market_shift();
 	    draw();
 	}
         test_step3();
     } else if (market.length > 0) {
-        market.shift();
+        market_shift();
         draw();
     }
     turn++;
@@ -656,28 +688,67 @@ function ui_set_regions(elem) {
     display();
 }
 
-function ui_card(name,x,y) {
-    var forsale = !y && phase == 2;
-    var px = 10 + 110 * x;
-    var py = 10 + 110 * y;
+function ui_set_pos(name,x,y,z) {
+    var px = Math.round(10 + 110 * x);
+    var py = Math.round(10 + 110 * y);
+    var item = document.getElementById("card"+name);
+    if (!item) return;
+    item.style.left = px + 'px';
+    item.style.top = py + 'px';
+    item.style.zIndex = z;
+}
+
+var lastpos = {};
+
+function ui_card(name,forsale) {
+    var px = 10 + 110 * lastpos[name][0];
+    var py = 10 + 110 * lastpos[name][1];
     var ret ='';
     ret += '<div style="position:absolute;background-color:green;width:100px;height:100px;'
-    ret += 'border:1px solid ' + (forsale ? 'red;' : 'black;');
+    ret += 'border:1px solid ' + (forsale >= 0 ? 'red;' : 'black;');
     ret += 'top:'+py+'px;left:'+px+'px;"';
-    if (forsale) ret += ' onClick="buy('+x+')"';
+    ret += ' id="card' + name + '"';
+    if (forsale >= 0) ret += ' onClick="buy('+forsale+')"';
     ret += '>';
     ret += name;
     ret += '</div>';
     return ret;
 }
-
-function ui_market() {
-    var ret = '<div style="border:1px solid black;position:relative;width:670px;height:230px;background-color:yellow">';
-    var m = market_availiable();
-    for (var i = 0; i < m; i++) ret += ui_card(market[i], i, 0);
-    for (var i = m; i < market.length; i++) ret += ui_card(market[i], i-m, 1);
+function ui_stack(name) {
+    var px = 10 + 110 * 5;
+    var py = 10 + 110 * 1;
+    var ret ='';
+    ret += '<div style="position:absolute;background-color:gray;width:100px;height:100px;'
+    ret += 'border:1px solid black;z-index:5;';
+    ret += 'top:'+py+'px;left:'+px+'px;"';
+    ret += '>';
     ret += '</div>';
     return ret;
+}
+
+function ui_market() {
+    var ret = '<div style="border:1px solid black;position:relative;width:670px;height:230px;background-color:yellow;overflow:hidden">';
+    var m = market_availiable();
+//    for (var i = 0; i < m; i++) ret += ui_card(market[i], phase == 2 ? i : -1);
+//    for (var i = m; i < market.length; i++) ret += ui_card(market[i], -1);
+//    for (var i = 0; i < stack.length; i++) ret += ui_card(stack[i], -1);
+    for (var i in lastpos) {
+	var c = phase == 2 ? market.indexOf(i) : -1;
+	if (c >= m) c = -1;
+	ret += ui_card(i, c);
+    }
+    ret += ui_stack();
+    ret += '</div>';
+    return ret;
+}
+
+function ui_init_game() {
+    var m = market_availiable();
+    lastpos = {};
+    mvqueue = [];
+    for (var i = 0; i < m; i++) lastpos[market[i]] = [i, 0];
+    for (var i = m; i < market.length; i++) lastpos[market[i]] = [i-m, 1];
+    for (var i = 0; i < stack.length; i++) lastpos[stack[i]] = [5, 1];
 }
 
 function display() {
@@ -790,10 +861,35 @@ function display() {
 	document.getElementById("buttons").innerHTML=tmp;
     }
 }
+var frames = 50;
+var mvqueue = [];
+function display_event() {
+//    if (!ingame) return;
+    var curmv = mvqueue[0];
+    if (curmv) {
+	for (var c in curmv) {
+	    var src = lastpos[c];
+	    var dst = curmv[c];
+	    var xz = frames/50;
+	    var px = src[0]*xz + dst[0]*(1-xz);
+	    var py = src[1]*xz + dst[1]*(1-xz);
+//	    alert(c);
+	    ui_set_pos(c,px,py,frames>0?10:0);
+	}
+	frames--;
+	if (frames < 0) {
+	    for (var c in curmv)
+		lastpos[c] = curmv[c];
+	    mvqueue.shift();
+	    frames = 50;
+	}
+    }
+    setTimeout('display_event()', 1000/50);
+}
 
 </script>
 </head>
-<body onLoad="load_state();display()">
+<body onLoad="load_state();display();display_event();">
 <h1>My First JavaScript</h1>
 <p id="demo">Loading...</p>
 <p id="buttons">Loading...</p>
