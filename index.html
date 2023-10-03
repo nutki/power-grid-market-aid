@@ -11,7 +11,6 @@
 @font-face {
 font-family: KaufmannBold;
 src: url('img/Kaufmann-Bold.ttf');
-src: url('img/Kaufmann-Bold.otf');
 }
 @font-face {
 font-family: PowerGrid;
@@ -19,39 +18,44 @@ src: url('img/PowerGrid.ttf');
 }
 body {
 font-family:PowerGrid, Helvetica, Arial;
-width:970px;
+width:1000px;
 margin:0px auto;
 text-align:center;
-font-size:150%;
+font-size:24px;
 background-color:#6e8c52;
 position:relative;
 }
 div.header {
 font-family:KaufmannBold, Helvetica, Arial;
-font-size:200%;
+font-size:48px;
+}
+div.panel {
+width:1000px;
+position:relative;
+overflow:hidden;
 }
 div.card0 {
 position:absolute;
-width:149px;height:149px;
+width:186px;height:186px;
 background-size: cover;
 border:1px solid black;
 border-radius: 10px;
 }
 div.card1 {
 position:absolute;
-width:148px;height:148px;
+width:184px;height:184px;
 background-size: cover;
 border:2px solid red;
 border-radius: 10px;
 }
 div.card1:hover {
-border:2px solid orange;
+border:2px solid yellow;
 }
 div.market {
 border:2px solid white;
-position:relative;
-width:966px;
-height:330px;
+position:static;
+width:auto;
+height:auto;
 background-color:#d8dec2;
 overflow:hidden;
 }
@@ -217,7 +221,7 @@ var dict = {
 'Maximum number of power plants owned':{de:'Maximale Anzahl an Kraftwerken im Besitz der Spieler'},
 'Number of connected cities to trigger step 2 / game end':{de:'Anzahl an angeschlossenen Städten für Wechsel zu Stufe 2 / zum Auslösen des Spielendes'},
 'Starting money':{},
-'Initial resources':{},
+'Initial resource costs':{},
 
 
 'Standard Deck':{},
@@ -676,7 +680,7 @@ function replay(inlog) {
 function market_remove(i) {
     { // DISPLAYEVENT
     var ev = {};
-    ev[market[i]] = [ 2.5, 2.5, 3, 0];
+    ev[market[i]] = [ 1.5, 2.5, 3, 1];
     mvqueue.push(ev);
     }
     market.splice(i,1);
@@ -691,7 +695,7 @@ function market_pop() {
     var ev = {};
     for (var i = 0; i < market.length; i++) {
 	var m = ui_market_width();
-	ev[market[i]] = [  i % m, i >= m, 3, 0];
+	ev[market[i]] = [  i % m, i >= m, 3, 1];
     }
     mvqueue.push(ev);
     }
@@ -700,7 +704,7 @@ function market_to_stack(i) {
     if (i < 0) i = market.length - 1;
     { // DISPLAYEVENT
     var ev = {};
-	ev[market[i]] = [5,1, 1, 0];
+	ev[market[i]] = [4,1, 1, 1];
     mvqueue.push(ev);	
     }
     stack.push(market.splice(i,1)[0]);
@@ -709,7 +713,7 @@ function stack_reveal(p) {
     if (!stack.length) return;
     { // DISPLAYEVENT
     var ev = {};
-	ev[stack[0]] = [5,1, 3, p?3:0,p];
+	ev[stack[0]] = [4,1, 3, p?3:1,p];
     mvqueue.push(ev);	
     }
 }
@@ -720,7 +724,7 @@ function draw() {
 	stack_reveal(1);
 	{ // DISPLAYEVENT
 	var ev = {};
-	    ev[stack[0]] = [2.5,2.5, 3, 0];
+	    ev[stack[0]] = [1.5,2.5, 3, 1];
 	mvqueue.push(ev);	
 	}
 	stack.shift();
@@ -738,8 +742,8 @@ function draw() {
     var ev1 = {}, ev2 = {};
     for (var i = 0; i < market.length; i++) {
 	var m = ui_market_width();
-	var newpos = [ i % m, i >= m, market[i] != plant ? 3 : 4, 0];
-	ev1[market[i]] = market[i] != plant ? newpos : [5, 1, 3, 3];
+	var newpos = [ i % m, i >= m, market[i] != plant ? 3 : 4, 1];
+	ev1[market[i]] = market[i] != plant ? newpos : [4, 1, 3, 3];
 	ev2[market[i]] = newpos;
     }
     mvqueue.push(ev1);
@@ -1031,8 +1035,8 @@ function ui_set_regions(elem) {
 }
 
 function ui_set_pos(name,x,y,z) {
-    var px = Math.round(10 + 160 * x);
-    var py = Math.round(10 + 160 * y);
+    var px = Math.round(10 + 198 * x);
+    var py = Math.round(10 + 198 * y);
     var item = document.getElementById("card"+name);
     if (!item) return;
     item.style.left = px + 'px';
@@ -1043,13 +1047,13 @@ function ui_set_pos(name,x,y,z) {
 var lastpos = {};
 
 function ui_card(name,forsale) {
-    var px = 10 + 160 * lastpos[name][0];
-    var py = 10 + 160 * lastpos[name][1];
+    var px = 10 + 198 * lastpos[name][0];
+    var py = 10 + 198 * lastpos[name][1];
     var ret ='';
     ret += '<div class="card'+(forsale >=0 ? 1:0)+'" style="';
     ret += 'background: url(img/'+name+'.jpg);';
     ret += 'background-size: cover;'
-    ret += 'top:'+py+'px;left:'+px+'px;"';
+    ret += 'top:'+py+'px;left:'+px+'px;z-index:1"';
     ret += ' id="card' + name + '"';
     if (forsale >= 0) ret += ' onClick="buy('+forsale+')"';
     ret += '>';
@@ -1058,8 +1062,8 @@ function ui_card(name,forsale) {
     return ret;
 }
 function ui_stack() {
-    var px = 10 + 160 * 5;
-    var py = 10 + 160 * 1;
+    var px = 10 + 198 * 4;
+    var py = 10 + 198 * 1;
     var ret ='';
     ret += '<div class="card0" style="'
     ret += 'background: url(img/DEC.jpg);';
@@ -1080,27 +1084,27 @@ function ui_alttable() {
 
 function ui_step() {
     var pos = ui_market_width() > 4 ? [3,1] : [4,0];
-    var px = 10 + 160 * pos[0];
-    var py = 10 + 160 * pos[1];
+    var px = 10 + 198 * pos[0];
+    var py = 10 + 198 * pos[1]+10;
     var alt = alttable;
     var ret ='';
-    ret += '<div style="position:absolute;width:150px;height:150px;'
-    ret += 'border:0px solid black;z-index:0;text-align:center;';
+    ret += '<div style="position:absolute;width:188px;height:188px;'
+    ret += 'border:0px solid black;text-align:center;';
     ret += 'top:'+py+'px;left:'+px+'px;" onClick="ui_alttable()">';
-    if (!alt) ret += '<div style="font-size:150%">'+(step?t('Step')+' '+step:'Game over')+'</div>';
+    if (!alt) ret += '<div style="font-size:44px">'+(step?t('Step')+' '+step:'Game over')+'</div>';
     ret += '<table align="center">';
     if (!alt) {
     ret += '<tr>';
     for (var i = 1; i <= 4; i++) {
-	ret += '<td width="25" height="40">';
-	ret += '<img src="img/R'+i+'.png" height="31">';
+	ret += '<td width="28" height="50">';
+	ret += '<img src="img/R'+i+'.png" height="35">';
 	ret += '</td>';
     }
     ret += '</tr>';
     }
     for (var s = 1; s <= 3; s++) if (s == step || alt) {
 	var rows = 'KOR' == map_id() ? 2:1;
-	var h = rows == 2 ? 20 : 40;
+	var h = rows == 2 ? 24 : 50;
 	for (var j = 0; j < rows; j++) {
 	    ret += '</tr>';
 	    for (var i = 1; i <= 4; i++) {
@@ -1108,7 +1112,7 @@ function ui_step() {
 		var fgcol = (i%2?'white':'black');
 		var cost = maps[map].refill[i-1][s-1+(players-2)*3];
 		if (rows > 1) cost = j ? cost % 10 : Math.floor(cost / 10);
-		ret += '<td width="25" height="'+h+'" style="background-color:#'+bgcol+';color:'+fgcol+';">';
+		ret += '<td width="28" height="'+h+'" style="background-color:#'+bgcol+';color:'+fgcol+';">';
 		ret += '<div style="max-height:'+h+'px;line-height:'+h+'px;">'
 		ret += cost;
 		ret += '</div></td>';
@@ -1187,12 +1191,15 @@ function ui_calculator() {
 }
 
 function ui_market() {
-    var ret = '<div class="market">';
+    var ret = '<div class="panel"><div class="market" style="height:402px">';
     var m = market_availiable();
     for (var i = 0; i < m; i++) ret += ui_card(market[i], phase == 2 ? i : -1);
     for (var i = m; i < market.length; i++) ret += ui_card(market[i], -1);
     for (var i = 0; i < stack.length && i < 4; i++) ret += ui_card(stack[i], -1);
     var p = event_cards();
+    if (stack.length > 0)
+	ret += ui_stack();
+    ret += ui_step();
     for (var i = 0; i < p.length; i++) {
 	var sp = stack.indexOf(p[i]);
 	if (market.indexOf(p[i]) == -1 && (sp >= 4 || sp == -1))
@@ -1203,12 +1210,9 @@ function ui_market() {
 //	if (c >= m) c = -1;
 //	ret += ui_card(i, c, stack.length && i == stack[0]);
 //    }
-    if (stack.length > 0)
-	ret += ui_stack();
-    ret += ui_step();
-    ret += '</div>';
-    ret += '\n';
-    ret += '<div style="position:relative;width:970px;height:36px;">';
+    ret += '</div></div>';
+    ret += '<div class="panel" style="height:2px"></div>';
+    ret += '<div class="panel" style="height:105px;">';
     var lim = get_limits();
     for (i = 0; i < cities && i < 24; i++) {
 	var bg = 'a';
@@ -1219,10 +1223,7 @@ function ui_market() {
 	ret += i + 1;
 	ret += '</div>';
     }
-    ret += ui_button(900,0,70,35,'Build',phase == 4?'build':'');
-    ret += '</div>';
-    ret += '\n';
-    ret += '<div style="position:relative;width:970px;height:72px;">';
+    ret += ui_button(900,0,100,35,'Build',phase == 4?'build':'');
     for (i = 0; i < 5; i++) {
 	var phasenames = ['Player order','Auction','Resources','Building','Bureaucracy'];
 	var name = t(phasenames[i]);
@@ -1235,16 +1236,16 @@ function ui_market() {
 	    }
 	}
 	if (order < 2 && (turn == 1 || 'BAD' == map_id())) order ^= 1;
-	ret += ui_phase(order*168,0,168,35,name,bg);
+	ret += ui_phase(order*168,35,168,35,name,bg);
     }
     if (pass_active())
-	ret += ui_button(1*168,35,168,35,'Pass','pass');
+	ret += ui_button(1*168,70,168,35,'Pass','pass');
     if (nospace_active())
-	ret += ui_button(3*168,35,168,35,'Out of space','nospace');
-    ret += ui_button(900,0,70,35,'Next',nextphase_active()?'nextphase':'');
-    ret += ui_button(900,35,70,35,'Undo',undo_active()?'undo':'');
-    ret += ui_button(0,35,100,35,'End game','end_game');
-    ret += ui_button(805,35,35,35,'C','ui_calc_switch');
+	ret += ui_button(3*168,70,168,35,'Out of space','nospace');
+    ret += ui_button(900,35,100,35,'Next',nextphase_active()?'nextphase':'');
+    ret += ui_button(900,70,100,35,'Undo',undo_active()?'undo':'');
+    ret += ui_button(0,70,100,35,'End game','end_game');
+    ret += ui_button(805,70,35,35,'C','ui_calc_switch');
 
     ret += '</div>';
     return ret;
@@ -1263,29 +1264,31 @@ function ui_init_game() {
     mvqueue = [];
     for (var i = 0; i < m; i++) lastpos[market[i]] = [i, 0];
     for (var i = m; i < market.length; i++) lastpos[market[i]] = [i-m, 1];
-    for (var i = 0; i < stack.length; i++) lastpos[stack[i]] = [5, 1];
+    for (var i = 0; i < stack.length; i++) lastpos[stack[i]] = [4, 1];
     if (step2plants)
-	for (var i = 0; i < step2plants.length; i++) lastpos[step2plants[i]] = [5, 1];
+	for (var i = 0; i < step2plants.length; i++) lastpos[step2plants[i]] = [4, 1];
 }
 
 function display() {
-    var title = t('Power Grid Market Aid')+' v1.0j';
+    var title = t('Power Grid Market Aid')+' v1.0k';
     var tmp = '';
     if (ingame) title = t(maps[map].name)+', '+players+' '+t('Players');
     if (debugmode) {
-	tmp += '<input style="width:960px" type="text" onChange="set_state(this.value);display();" value="'+get_state()+'"/><br/>';
-    } else {
-	tmp += '<a style="display:none" id="report_mail" href="' + report_mail() + '"></a>';
-	tmp += ui_button(870,0,100,20,'Report a problem','document.getElementById(\'report_mail\').click'); 
+	tmp += '<div class="panel"><input style="width:99%" type="text" onChange="set_state(this.value);display();" value="'+get_state()+'"/><br/></div>';
     }
+    tmp += '<div class="panel">';
+    tmp += '<div class="header">'+title+'</div>';
+    tmp += '<a style="display:none" id="report_mail" href="' + report_mail() + '"></a>';
+    tmp += ui_button(900,0,100,20,'Report a problem','document.getElementById(\'report_mail\').click'); 
     for (var i = 0; i < languages.length; i++) {
 	tmp += ui_button(30*i,0,30,20,languages[i],'set_lang(\''+languages[i]+'\');display'); 
     }
-    tmp += '<div class="header">'+title+'</div>';
+    tmp += '</div>';
     if (ingame) {
 	tmp += ui_market();
 	tmp += ui_calculator();
     } else {
+	tmp += '<div class="panel" style="height:50px">'
 	tmp += '<select id="playersno" onChange="set_players(document.getElementById(\'playersno\').value);display();">';
 	for(var i = 2; i <= 6; i++) {
 	    tmp += '<option value="'+i+'"';
@@ -1308,8 +1311,8 @@ function display() {
 	    tmp += '>'+t(decks[i].name)+'</option>';
 	}
 	tmp += '</select>';
-	tmp += '<div style="position:relative;width:970px;height:300px;">';
-	tmp += '<div class="market" style="position:absolute;top:30px;left:660px;text-align:left;height:250px;width:300px;">';
+	tmp += '</div><div class="panel" style="height:320px">';
+	tmp += '<div class="market" style="position:absolute;top:0px;left:700px;text-align:left;height:250px;width:296px;">';
 	if (region_select() || chosen_regions()) {
 	    tmp += t('Regions');
 	    if (region_select()) {
@@ -1333,7 +1336,7 @@ function display() {
 	    }
 	}
 	tmp += '</div>';
-	tmp += '<div class="market" style="position:absolute;top:30px;left:0px;text-align:left;font-size:80%;height:250px;width:300px;">';
+	tmp += '<div class="market" style="position:absolute;left:0px;text-align:left;font-size:80%;height:250px;width:296px;">';
 	if (!maps[map].nodecks || maps[map].nodecks.search('P') < 0) {
 	    tmp += t('Promo cards')+':</br>'
 	    for(var i = 0; i < promos.length; i++) {
@@ -1344,7 +1347,7 @@ function display() {
 	    }
 	}
 	tmp += '</div>';
-	tmp += '<div class="market" style="position:absolute;top:30px;left:330px;height:250px;width:300px;"><table>';
+	tmp += '<div class="market" style="position:absolute;left:350px;height:250px;width:296px;"><table>';
 //	tmp += ui_info('',[1,2,3,4].map(function (a) {return '<img height="30" src="img/R'+a+'.png"/>'}));
 	tmp += ui_info('Initial resource costs',maps[map].startcost);
 	if (deck_id() == 'B') {
@@ -1357,8 +1360,9 @@ function display() {
 	tmp += ui_info('Number of connected cities to trigger step 2 / game end',get_limits());
 	tmp += ui_info('Starting money',[50]);
 	tmp += '</table></div>';
-	tmp += ui_button(435,300,100,36,'New Game',region_select() && regionsno[players] != chosen_regions() ? '' : 'start_game');
-	tmp += ui_button(770,303,120,30,'Random regions','B' != deck_id() ? 'random_regions();display' : '');
+	tmp += ui_button(450,270,100,36,'New Game',region_select() && regionsno[players] != chosen_regions() ? '' : 'start_game');
+	tmp += ui_button(790,273,120,30,'Random regions','B' != deck_id() ? 'random_regions();display' : '');
+	tmp += '</div>';
     }
     document.getElementById("buttons").innerHTML=tmp;
 }
