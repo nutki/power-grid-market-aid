@@ -10,7 +10,7 @@
 <style>
 @font-face {
 font-family: Din1451Eng;
-src: url('img/DIN1451Engschrift.ttf');
+src: url('img/din1451e.ttf');
 }
 @font-face {
 font-family: Waldmeister;
@@ -359,14 +359,14 @@ var dict = {
 }
 
 
-// TODO Taxes
 // Deluxe changes TODO:
 /// E 2:[???][???][???][???] 3*:[262][235][223][112] 4*:[374][345][334][122] 5: [???][???][???][???] 6:*[5A4][468][456][234]
 /// A 2:[242][224][213][212] 3*:[252][224][313][212] 4*:[363][335][324][212] 5:*[474][336][425][323] 6:+[585][447][536][324] r2:[242][224][213][212]-[242][223][?12][211]
 //perl -lne 's/\[(...)\]/$i[$j++%4].=$1/ge;print join",",map{s/A/10/;s/\?/"?"/r}split""for @i'
-// gas resource image
 // next card type known
-// watermark
+// different step 3 cards
+// china init_deck removed cards in vs trust
+// taxes not displayed after the event
 
 // Game constants
 
@@ -513,7 +513,7 @@ var promos = [
 { name: 'Theme Park', val: 11, card: 'X05' },
 { name: 'Supply Contract', val: 12, card: 'X06' },
 { name: 'Industrial Espionage', val: 13 },
-//{ name: 'Taxes', val: 14, card: 'X07' },
+{ name: 'Taxes', val: 14, card: 'X07' },
 ];
 
 var version = 1;
@@ -810,6 +810,7 @@ function init_game(state) {
     houses = 0;
     playersleft = players;
     sold = 0;
+    taxes_triggered = false;
     step2plants = undefined; // for Spain & Portugal
     log_clear();
     if (state) {
@@ -970,7 +971,7 @@ function market_organize() {
 
 function draw() {
     if (!stack.length) return market_organize();
-    if (stack[0].substr(0,1) == 'X') {
+    if (stack[0].substr(0,1) == 'X' && stack[0] != 'X07') {
 	stack_reveal(1);
 	{ // DISPLAYEVENT
 	var ev = {};
@@ -1000,6 +1001,20 @@ function draw() {
     }
     mvqueue.push(ev1);
     mvqueue.push(ev2);
+    }
+    if (plant == 'X07') {
+	if (step == 1) {
+	    market_to_stack(-1);
+	} else {
+	    market.extract([plant]);
+	    taxes_triggered = true;
+	    { // DISPLAYEVENT
+	    var ev = {};
+		ev[plant] = [5, 1, 3, 1];
+	    mvqueue.push(ev);	
+	    }
+	}
+	draw();
     }
     if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
     if(houses >= plant_val(market[0])) {
@@ -1056,7 +1071,7 @@ function check_playerleft() {
 function do_buy(i) {
     log_append(i);
     playersleft--;
-    if ('DXA' != map_id() || i == 0)
+    if ('DXA' != map_id() || i == 0 || dxa_discountplant != market[0])
 	sold = 1;
     market_remove(i);
     if ('CHN' != map_id() || step == 3)
@@ -1104,6 +1119,14 @@ function do_endbuild() {
         step = 0;
     }
     phase = 5;
+    if (taxes_triggered) {
+	{ // DISPLAYEVENT
+	var ev = {};
+	    ev['X07'] = [4, 1, 3, 3];
+	mvqueue.push(ev);
+	}
+	taxes_triggered = false;
+    }
 }
 function do_nospace() {
     log_append('N');
@@ -1545,7 +1568,7 @@ function ui_init_game() {
 }
 
 function display() {
-    var title = t('#Title')+' v1.0m';
+    var title = t('#Title')+' v1.0n';
     var tmp = '';
     if (ingame) title = t(maps[map].name)+', '+(is_vs_trust()?t('Against the Trust'):players+' '+t('Players'));
     if (debugmode) {
