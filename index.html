@@ -140,20 +140,20 @@ Array.prototype.shuffle = function() {
     var len = this.length;
     var i = len;
     while (i--) {
-	var p = rand.nextRange(0,len);
-	var t = this[i];
-	this[i] = this[p];
-	this[p] = t;
+        var p = rand.nextRange(0,len);
+        var t = this[i];
+        this[i] = this[p];
+        this[p] = t;
     }
 };
 Array.prototype.extract = function(x) {
     var len = this.length;
     var res = [];
     for (var i = 0; i < x.length; i++) {
-	var t = x[i];
-	var p = this.indexOf(t);
-	if (p < 0) continue;
-	res.push(this.splice(p,1)[0]);
+        var t = x[i];
+        var p = this.indexOf(t);
+        if (p < 0) continue;
+        res.push(this.splice(p,1)[0]);
     }
     return res;
 };
@@ -558,8 +558,8 @@ function set_state(s) {
     if (!s) return;
     var state = s.split(',');
     if (state[0] != version) {
-	alert('Ignoring old game state');
-	return;
+        alert('Ignoring old game state');
+        return;
     }
     ingame = parseInt(state[1]);
     players = parseInt(state[2]);
@@ -598,13 +598,13 @@ function get_limits() {
     if ('B' == deck_id()) return limitsbig[idx];
     if ('BAD' == map_id()) return limitsbad[idx];
     if ('GBR' == map_id() && players == 2) {
-	var c = 0;
-	if (chosen_regions() == regionsno[2]) {
-	    for (var i = 0; i < 7; i++) if (has_region(i)) c += maps[map].regions.cities[i];
-	} else {
-	    c = 'x';
-	}
-	return [limits[2][0],c];
+        var c = 0;
+        if (chosen_regions() == regionsno[2]) {
+            for (var i = 0; i < 7; i++) if (has_region(i)) c += maps[map].regions.cities[i];
+        } else {
+            c = 'x';
+        }
+        return [limits[2][0],c];
     }
     return limits[idx];
 }
@@ -640,30 +640,30 @@ function random_regions_ex() {
     var con = maps[map].regions.con;
     var possible = [];
     for (var i = 0; i < (1 << total); i++) {
-	var c = 0, j;
-	for (j = 1; j < (1 << total); j*=2) if (i & j) c++;
-	if (c != tochoose) continue;
-	for (j = 1; !(i & j); j*=2);
-	for (var k = 0; k < total - 1; k++) {
-	    for(var l = 0; l < con.length; l++) {
-		if ((con[l] & i) == con[l] && (con[l] & j)) {
-		    j |= con[l];
-		}
-	    }
-	}
-	if (i == j)
-	    possible.push(i);
+        var c = 0, j;
+        for (j = 1; j < (1 << total); j*=2) if (i & j) c++;
+        if (c != tochoose) continue;
+        for (j = 1; !(i & j); j*=2);
+        for (var k = 0; k < total - 1; k++) {
+            for(var l = 0; l < con.length; l++) {
+                if ((con[l] & i) == con[l] && (con[l] & j)) {
+                    j |= con[l];
+                }
+            }
+        }
+        if (i == j)
+            possible.push(i);
     }
     var r = Math.floor(Math.random() * possible.length);
     var r = possible[r];
     for (var i = 0; i < total; i++)
-	set_region(i, r & (1<<i) ? 1 : 0);
+        set_region(i, r & (1<<i) ? 1 : 0);
 }
 
 function random_regions() {
     if (chosen_regions()) {
-	clear_regions();
-	return;	
+        clear_regions();
+        return;	
     }
     var total = maps[map].regions.names.length;
     if (total > 6) return random_regions_ex();
@@ -672,7 +672,7 @@ function random_regions() {
     var r = Math.floor(Math.random() * possible.length);
     var r = 0x3f & possible[r].charCodeAt(0);
     for (var i = 0; i < 6; i++)
-	set_region(i, r & (1<<i) ? 1 : 0);
+        set_region(i, r & (1<<i) ? 1 : 0);
 }
 
 function mixplants() {
@@ -681,11 +681,11 @@ function mixplants() {
     var have = {};
     tmp.shuffle();
     for(var i = 0; i < tmp.length; i++) {
-	var val = plant_val(tmp[i]);
-	if (!have[val] && val != 17 && val != 18) {
-	    ret.push(tmp[i]);
-	}
-	have[val] = 1;
+        var val = plant_val(tmp[i]);
+        if (!have[val] && val != 17 && val != 18) {
+            ret.push(tmp[i]);
+        }
+        have[val] = 1;
     }
     ret.sort();
     return ret;
@@ -702,101 +702,101 @@ function init_deck() {
     if ('N' == deck_id()) p = newplants;
     if ('M' == deck_id()) p = mixplants();
     if ('B' == deck_id()) {
-	p = p.concat(bigplants, newplants.slice(-2));
-	remove = toremovebig[is_vs_trust()?0:players];
+        p = p.concat(bigplants, newplants.slice(-2));
+        remove = toremovebig[is_vs_trust()?0:players];
     }
     if ('D' == deck_id()) {
-	p = dxhplants;
-	removelow = toremovelow[is_vs_trust()?0:players];
-	remove -= removelow;
+        p = dxhplants;
+        removelow = toremovelow[is_vs_trust()?0:players];
+        remove -= removelow;
     }
 
     stack = p.slice(0);
     if ('RUS' == map_id()) {
-	stack.extract(['06A','14A','06B','21B'])
-	marketsize = 3;
+        stack.extract(['06A','14A','06B','21B'])
+        marketsize = 3;
     } else if ('CHN' == map_id()) {
-	stack.extract(['03A','04A','33A','01B','02B','32B']);
-	if (players < 5)
-	    stack.extract(['11A','18A','24A','46A','08B','15B','27B','36B']);
-	if (players < 4)
-	    stack.extract(['09A','16A','20A','30A','12B','22B','28B','42B']);
-	market = stack.splice(0,players);
-	var pos = stack.indexOf('S' == deck_id()?'31A':'30B');
-	var tmp1 = stack.splice(pos);
-	pos = tmp1.indexOf('S' == deck_id()?'36A':'35B');
-	var tmp2 = tmp1.splice(pos);
-	tmp1.push(step3);
-	if (has_option(promos[0].val)) tmp1.push(promos[0].card); // Flux generator
-	tmp1.shuffle();
-	tmp2.shuffle();
-	stack = stack.concat(tmp1,tmp2);
-	for (var i = 1; i < promos.length; i++) if (has_option(promos[i].val) && promos[i].card) {
-	    stack.splice(rand.nextRange(0,stack.length+1),0,promos[i].card);
-	}
-	return;
+        stack.extract(['03A','04A','33A','01B','02B','32B']);
+        if (players < 5)
+            stack.extract(['11A','18A','24A','46A','08B','15B','27B','36B']);
+        if (players < 4)
+            stack.extract(['09A','16A','20A','30A','12B','22B','28B','42B']);
+        market = stack.splice(0,players);
+        var pos = stack.indexOf('S' == deck_id()?'31A':'30B');
+        var tmp1 = stack.splice(pos);
+        pos = tmp1.indexOf('S' == deck_id()?'36A':'35B');
+        var tmp2 = tmp1.splice(pos);
+        tmp1.push(step3);
+        if (has_option(promos[0].val)) tmp1.push(promos[0].card); // Flux generator
+        tmp1.shuffle();
+        tmp2.shuffle();
+        stack = stack.concat(tmp1,tmp2);
+        for (var i = 1; i < promos.length; i++) if (has_option(promos[i].val) && promos[i].card) {
+            stack.splice(rand.nextRange(0,stack.length+1),0,promos[i].card);
+        }
+        return;
     } else if ('NEU' == map_id()) {
-	for (var i = 0; i < 6; i++) if (has_region(i)) {
-	    stack.extract(neplants[i][0]);
-	    stack = stack.concat(neplants[i][1]);
-	}
-	stack.sort();
+        for (var i = 0; i < 6; i++) if (has_region(i)) {
+            stack.extract(neplants[i][0]);
+            stack = stack.concat(neplants[i][1]);
+        }
+        stack.sort();
     } else if ('AUS' == map_id()) {
-	stack.extract(['17A','19B']);
+        stack.extract(['17A','19B']);
     } else if ('IND' == map_id()) {
-	stack.extract(['11A','08B']);
+        stack.extract(['11A','08B']);
     }
     if ('D' == deck_id()) {
-	market = dxlplants.slice(0);
-	market.shuffle();
-	if (removelow) market.splice(-removelow);
-	topdeck = market.splice(-1);
-	save = market.splice(8); // NOTE save is overwritten in BRA and QUE
-	market.sort();
+        market = dxlplants.slice(0);
+        market.shuffle();
+        if (removelow) market.splice(-removelow);
+        topdeck = market.splice(-1);
+        save = market.splice(8); // NOTE save is overwritten in BRA and QUE
+        market.sort();
     } else {
-	market = stack.splice(0,marketsize * 2);
+        market = stack.splice(0,marketsize * 2);
     }
     dxa_discountplant = 'DXA' == map_id() ? market[0] : undefined;
 
     if ('M' != deck_id()) {
-	topdeck = topdeck.concat(stack.extract(topdeckplants));
-	if ('FRA' == map_id()) {
-	    topdeck = stack.extract(['11A','19B']);
-	} else if ('BRA' == map_id()) {
-	    topdeck = topdeck.concat(stack.extract(['14A','21B']));
-	} else if ('IBE' == map_id()) {
-	    step2plants = stack.extract(['18A','22A','27A','15B','16B','26B']);
-	} else if ('RUS' == map_id()) {
-	    var tmp = stack.extract(['10A','11A','08B','09B']);
-	    stack.shuffle();    
-	    tmp = tmp.concat(stack.splice(-3));
-	    tmp.shuffle();
-	    topdeck = topdeck.concat(tmp);
-	} else if ('QUE' == map_id()) {
-	    topdeck = topdeck.concat(stack.extract(['18A','22A','15B','16B']));
-	}
+        topdeck = topdeck.concat(stack.extract(topdeckplants));
+        if ('FRA' == map_id()) {
+            topdeck = stack.extract(['11A','19B']);
+        } else if ('BRA' == map_id()) {
+            topdeck = topdeck.concat(stack.extract(['14A','21B']));
+        } else if ('IBE' == map_id()) {
+            step2plants = stack.extract(['18A','22A','27A','15B','16B','26B']);
+        } else if ('RUS' == map_id()) {
+            var tmp = stack.extract(['10A','11A','08B','09B']);
+            stack.shuffle();    
+            tmp = tmp.concat(stack.splice(-3));
+            tmp.shuffle();
+            topdeck = topdeck.concat(tmp);
+        } else if ('QUE' == map_id()) {
+            topdeck = topdeck.concat(stack.extract(['18A','22A','15B','16B']));
+        }
     }
     if ('GBR' == map_id()) {
-	stack.shuffle();
-	bottomdeck = stack.splice(-2);
+        stack.shuffle();
+        bottomdeck = stack.splice(-2);
     }
     if (remove) {
-	if ('BRA' == map_id()) save = stack.extract(gasplants);
-	if ('QUE' == map_id()) save = stack.extract(ecoplants);
-	stack.shuffle();
-	stack.splice(-remove);
-	if (save) {
-	    stack = stack.concat(save);
-	}
+        if ('BRA' == map_id()) save = stack.extract(gasplants);
+        if ('QUE' == map_id()) save = stack.extract(ecoplants);
+        stack.shuffle();
+        stack.splice(-remove);
+        if (save) {
+            stack = stack.concat(save);
+        }
     }
     for (var i = 0; i < promos.length; i++) if (has_option(promos[i].val) && promos[i].card) {
-	stack.push(promos[i].card);
+        stack.push(promos[i].card);
     }
     stack.shuffle();
     stack = topdeck.concat(stack,[step3],bottomdeck);
     if ('DXE' == map_id()) {
-	market.push(stack.shift());
-	market.sort();
+        market.push(stack.shift());
+        market.sort();
     }
 }
 
@@ -814,23 +814,23 @@ function init_game(state) {
     step2plants = undefined; // for Spain & Portugal
     log_clear();
     if (state) {
-	state = state.split('|');
-	rand = new RNG(parseInt(state[0]));
-	oldlog = state[1];
+        state = state.split('|');
+        rand = new RNG(parseInt(state[0]));
+        oldlog = state[1];
     } else {
-	rand = new RNG();
+        rand = new RNG();
     }
     log_append(rand.state + '|');
     init_deck();
     if ('B' == deck_id()) {
-	cities = bigcitiesno[players];
+        cities = bigcitiesno[players];
     } else if (maps[map].regions.cities) {
-	cities = 0;
-	for (var i = 0; i < 7; i++) if (has_region(i)) {
-	    cities += maps[map].regions.cities[i];
-	}
+        cities = 0;
+        for (var i = 0; i < 7; i++) if (has_region(i)) {
+            cities += maps[map].regions.cities[i];
+        }
     } else {
-	cities = regionsno[players] * 7;
+        cities = regionsno[players] * 7;
     }
     ui_init_game();
     replay(oldlog);
@@ -848,11 +848,11 @@ function log_append(a) {
 }
 function set_players(n) {
     if (n == 0) { // 2 against the trust
-	players = 3;
-	set_vs_trust(true);
+        players = 3;
+        set_vs_trust(true);
     } else {
-	players = n;
-	set_vs_trust(false);
+        players = n;
+        set_vs_trust(false);
     }
     clear_regions();
     save_state();
@@ -873,19 +873,19 @@ function set_map(v) {
     if (map == v) return;
     clear_regions();
     if (!is_deck_ok(v, 'P')) {
-	for (var i = 0; i < promos.length; i++)
-	    set_option(promos[i].val, 0);
+        for (var i = 0; i < promos.length; i++)
+            set_option(promos[i].val, 0);
     }
     if (!is_deck_ok(v, deck_id()))
-	set_deck(maps[v].deluxe ? 4 : 0);
+        set_deck(maps[v].deluxe ? 4 : 0);
     map = v;
     save_state();
 }
 function set_option(o,v) {
     if (v) {
-	options |= 1 << o;
+        options |= 1 << o;
     } else {
-	options &= ~(1 << o);
+        options &= ~(1 << o);
     }
     save_state();
 }
@@ -901,16 +901,16 @@ function is_vs_trust() {
 }
 function replay(inlog) {
     for (var i = 0; i < inlog.length; i++) {
-	var c = inlog.substr(i, 1);
-	switch (c) {
-	    case 'B': do_build(); break;
-	    case 'E': do_endbuild(); break;
-	    case 'T': do_endturn(); break;
-	    case 'P': do_pass(); break;
-	    case 'A': do_passall(); break;
-	    case 'N': do_nospace(); break;
-	    default: do_buy(parseInt(c)); break;
-	}
+        var c = inlog.substr(i, 1);
+        switch (c) {
+            case 'B': do_build(); break;
+            case 'E': do_endbuild(); break;
+            case 'T': do_endturn(); break;
+            case 'P': do_pass(); break;
+            case 'A': do_passall(); break;
+            case 'N': do_nospace(); break;
+            default: do_buy(parseInt(c)); break;
+        }
     }
 }
 
@@ -933,8 +933,8 @@ function market_pop() {
     {
     var ev = {};
     for (var i = 0; i < market.length; i++) {
-	var m = ui_market_width();
-	ev[market[i]] = [  i % m, i >= m, 3, 1];
+        var m = ui_market_width();
+        ev[market[i]] = [  i % m, i >= m, 3, 1];
     }
     mvqueue.push(ev);
     }
@@ -943,7 +943,7 @@ function market_to_stack(i) {
     if (i < 0) i = market.length - 1;
     { // DISPLAYEVENT
     var ev = {};
-	ev[market[i]] = [4,1, 1, 1];
+        ev[market[i]] = [4,1, 1, 1];
     mvqueue.push(ev);	
     }
     stack.push(market.splice(i,1)[0]);
@@ -952,7 +952,7 @@ function stack_reveal(p) {
     if (!stack.length) return;
     { // DISPLAYEVENT
     var ev = {};
-	ev[stack[0]] = [4,1, 3, p?3:1,p];
+        ev[stack[0]] = [4,1, 3, p?3:1,p];
     mvqueue.push(ev);	
     }
 }
@@ -962,8 +962,8 @@ function market_organize() {
     {
     var ev = {};
     for (var i = 0; i < market.length; i++) {
-	var m = ui_market_width();
-	ev[market[i]] = [ i % m, i >= m, 3, 1];
+        var m = ui_market_width();
+        ev[market[i]] = [ i % m, i >= m, 3, 1];
     }
     mvqueue.push(ev);
     }
@@ -972,19 +972,19 @@ function market_organize() {
 function draw() {
     if (!stack.length) return market_organize();
     if (stack[0].substr(0,1) == 'X' && stack[0] != 'X07') {
-	stack_reveal(1);
-	{ // DISPLAYEVENT
-	var ev = {};
-	    ev[stack[0]] = [1.5,2.5, 3, 1];
-	mvqueue.push(ev);	
-	}
-	stack.shift();
-	draw();
-	return;
+        stack_reveal(1);
+        { // DISPLAYEVENT
+        var ev = {};
+            ev[stack[0]] = [1.5,2.5, 3, 1];
+        mvqueue.push(ev);	
+        }
+        stack.shift();
+        draw();
+        return;
     }
     var plant = stack.shift();
     if (plant == step3 && 'CHN' != map_id()) {
-	stack.shuffle();
+        stack.shuffle();
     }
     market.push(plant);
     market.sort();
@@ -992,50 +992,50 @@ function draw() {
     {
     var ev1 = {}, ev2 = {};
     for (var i = 0; i < market.length; i++) {
-	var m = ui_market_width();
-	var xpos = i % m;
-	if (market.length > 8 && i > m) xpos = (i - m) / 4 * 3;
-	var newpos = [ xpos, i >= m, market[i] != plant ? 3 : 4, 1];
-	ev1[market[i]] = market[i] != plant ? newpos : [4, 1, 3, 3];
-	ev2[market[i]] = newpos;
+        var m = ui_market_width();
+        var xpos = i % m;
+        if (market.length > 8 && i > m) xpos = (i - m) / 4 * 3;
+        var newpos = [ xpos, i >= m, market[i] != plant ? 3 : 4, 1];
+        ev1[market[i]] = market[i] != plant ? newpos : [4, 1, 3, 3];
+        ev2[market[i]] = newpos;
     }
     mvqueue.push(ev1);
     mvqueue.push(ev2);
     }
     if (plant == 'X07') {
-	if (step == 1) {
-	    market_to_stack(-1);
-	} else {
-	    market.extract([plant]);
-	    taxes_triggered = true;
-	    { // DISPLAYEVENT
-	    var ev = {};
-		ev[plant] = [5, 1, 3, 1];
-	    mvqueue.push(ev);	
-	    }
-	}
-	draw();
+        if (step == 1) {
+            market_to_stack(-1);
+        } else {
+            market.extract([plant]);
+            taxes_triggered = true;
+            { // DISPLAYEVENT
+            var ev = {};
+                ev[plant] = [5, 1, 3, 1];
+            mvqueue.push(ev);	
+            }
+        }
+        draw();
     }
     if ('33P' == plant) {
-	market_shift();
-	draw();
+        market_shift();
+        draw();
     }
     if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
     if(houses >= plant_val(market[0])) {
-	market_shift();
-	draw();
+        market_shift();
+        draw();
     }
 }
 
 function step2() {
     if (step2plants)
-	stack = step2plants.concat(stack);
+        stack = step2plants.concat(stack);
     if (market.length) {
-	market_shift();
-	if ('DXE' == map_id())
-	    market_organize();
-	else
-	    draw();
+        market_shift();
+        if ('DXE' == map_id())
+            market_organize();
+        else
+            draw();
     }
     step = 2;
     test_step3();
@@ -1045,11 +1045,11 @@ function test_step3() {
     if (market.indexOf(step3) < 0) return;
     if (step == 1 && maps[map].deluxe && market.length > 1) {
         // TODO: Perform start of step 2 actions for other maps
-	market_shift();
-	if ('DXE' == map_id())
-	    market_organize();
-	else
-	    draw();
+        market_shift();
+        if ('DXE' == map_id())
+            market_organize();
+        else
+            draw();
     }
     step = 3;
     market_shift();
@@ -1062,10 +1062,10 @@ function check_playerleft() {
         if (!sold && 'RUS' != map_id() && 'CHN' != map_id()) {
             market_shift();
             draw();
-	    if ('BAD' == map_id()) {
-		market_shift();
-		draw();
-	    }
+            if ('BAD' == map_id()) {
+                market_shift();
+                draw();
+            }
         }
         test_step3();
         phase = 4;
@@ -1076,18 +1076,18 @@ function do_buy(i) {
     log_append(i);
     playersleft--;
     if ('DXA' != map_id() || i == 0 || dxa_discountplant != market[0])
-	sold = 1;
+        sold = 1;
     market_remove(i);
     if ('CHN' != map_id() || step == 3)
-	draw();
+        draw();
     check_playerleft();
 }
 
 function aucion_pass() {
     playersleft--;
     if ('RUS' == map_id()) {
-	market_shift();
-	draw();
+        market_shift();
+        draw();
     }
     check_playerleft();
 }
@@ -1100,7 +1100,7 @@ function do_pass() {
 function do_passall() {
     log_append('A');
     while(playersleft) 
-	aucion_pass();
+        aucion_pass();
 }
 
 function do_build() {
@@ -1117,19 +1117,19 @@ function do_endbuild() {
     log_append('E');
     test_step3();
     if (houses >= lim[0] && step == 1) {
-	step2();
+        step2();
     }
     if (houses >= lim[1]) {
         step = 0;
     }
     phase = 5;
     if (taxes_triggered) {
-	{ // DISPLAYEVENT
-	var ev = {};
-	    ev['X07'] = [4, 1, 3, 3];
-	mvqueue.push(ev);
-	}
-	taxes_triggered = false;
+        { // DISPLAYEVENT
+        var ev = {};
+            ev['X07'] = [4, 1, 3, 3];
+        mvqueue.push(ev);
+        }
+        taxes_triggered = false;
     }
 }
 function do_nospace() {
@@ -1140,32 +1140,32 @@ function do_nospace() {
 function do_endturn() {
     log_append('T');
     if (step < 3) {
-	if ('CHN' == map_id()) {
-	    var d = [0,0,2,2,3,4,5][players];
-	    var m = [0,0,1,1,2,2,3][players];
-	    var i = d - market.length;
-	    if (i < m) i = m;
-	    while (i--) {
-		draw();
-		if (market.indexOf(step3) >= 0) break;
-		if (market.length > d) market_shift();
-	    }
-	} else if ('QUE' == map_id()) {
-	    var i;
-	    for (i = market.length - 1; i >= 0; i--) {
-		if (ecoplants.indexOf(market[i]) < 0) break;
-	    }
-	    market_to_stack(i);
-	    draw();
-	} else if ('BNX' == map_id()) {
-	    market_to_stack(-1);
-	    market_shift();
-	    draw();
-	    draw();
-	} else {
-	    market_to_stack(-1);
-	    draw();
-	}
+        if ('CHN' == map_id()) {
+            var d = [0,0,2,2,3,4,5][players];
+            var m = [0,0,1,1,2,2,3][players];
+            var i = d - market.length;
+            if (i < m) i = m;
+            while (i--) {
+                draw();
+                if (market.indexOf(step3) >= 0) break;
+                if (market.length > d) market_shift();
+            }
+        } else if ('QUE' == map_id()) {
+            var i;
+            for (i = market.length - 1; i >= 0; i--) {
+                if (ecoplants.indexOf(market[i]) < 0) break;
+            }
+            market_to_stack(i);
+            draw();
+        } else if ('BNX' == map_id()) {
+            market_to_stack(-1);
+            market_shift();
+            draw();
+            draw();
+        } else {
+            market_to_stack(-1);
+            draw();
+        }
         test_step3();
     } else if (market.length > 0) {
         market_shift();
@@ -1176,15 +1176,15 @@ function do_endturn() {
     sold = 0;
     playersleft = players;
     if (dxa_discountplant)
-	dxa_discountplant = market[0];
+        dxa_discountplant = market[0];
 }
 
 function market_availiable() {
     var ret = market.length;
     if (step < 3 && 'CHN' != map_id() && ret > marketsize) {
-	ret = marketsize;
-	if ('BNX' == map_id() && ecoplants.indexOf(market[ret]) >= 0)
-	    ret++;
+        ret = marketsize;
+        if ('BNX' == map_id() && ecoplants.indexOf(market[ret]) >= 0)
+            ret++;
     }
     return ret;
 }
@@ -1210,60 +1210,60 @@ function pass_active() {
 
 function buy(i) {
     if (market_availiable() > i && phase == 2) {
-	flush_events();
+        flush_events();
         do_buy(i);
     }
     display();
 }
 function pass() {
     if (phase == 2 && turn > 1) {
-	flush_events();
+        flush_events();
         do_pass();
     }
     display();
 }
 function passall() {
     if (phase == 2 && turn > 1) {
-	flush_events();
+        flush_events();
         do_passall();
     }
     display();
 }
 function build() {
     if (phase == 4) {
-	flush_events();
+        flush_events();
         do_build();
     }
     display();
 }
 function nospace() {
     if (phase == 4 && step == 1) {
-	flush_events();
+        flush_events();
         do_nospace();
     }
     display();
 }
 function endbuild() {
     if (phase == 4) {
-	flush_events();
+        flush_events();
         do_endbuild();
     }
     display();
 }
 function endturn() {
     if (phase == 5 && step > 0) {
-	flush_events();
+        flush_events();
         do_endturn();
     }
     display();
 }
 function nextphase() {
     if (phase == 2) {
-	passall();
+        passall();
     } else if (phase == 4) {
-	endbuild();
+        endbuild();
     } else if (phase == 5) {
-	endturn();
+        endturn();
     }
 }
 function start_game() {
@@ -1274,7 +1274,7 @@ function start_game() {
 
 function end_game() {
     if (!step || confirm(t('Exit game?')))
-	set_ingame(0);
+        set_ingame(0);
     display();
 }
 
@@ -1297,9 +1297,9 @@ function report_mail() {
 document.onkeydown = function(e) {
     if (e.ctrlKey && e.keyCode == 69) {
         debugmode = debugmode ? 0 : 1;
-	save_state();
-	display();
-	return false;
+        save_state();
+        display();
+        return false;
     }
     if (!ingame) return;
     if (e.keyCode > 48 && e.keyCode < 55) {
@@ -1307,26 +1307,26 @@ document.onkeydown = function(e) {
     } else if (e.ctrlKey && e.keyCode == 90 && undo_active()) {
         undo();
     } else if (e.keyCode == 78) {
-	nextphase();
+        nextphase();
     } else if (e.keyCode == 66) {
-	build();
+        build();
     } else if (e.keyCode == 67) {
-	ui_calc_switch();
+        ui_calc_switch();
     } else if (e.keyCode == 27) {
-	if (ui_calc) ui_calc_switch(); else end_game();
+        if (ui_calc) ui_calc_switch(); else end_game();
     } else if (e.keyCode == 80 && pass_active()) {
         pass();
     } else if (e.keyCode == 79 && nospace_active()) {
         nospace();
     } else {
-	return true;
+        return true;
     }
     return false;
 }
 
 function ui_set_regions(elem) {
     for (var i = 0; i < 7; i++) {
-	set_region(i, elem.options[i].selected);
+        set_region(i, elem.options[i].selected);
     }
     display();
 }
@@ -1355,7 +1355,7 @@ function ui_card(name,forsale) {
     if (forsale >= 0) ret += ' onClick="buy('+forsale+')"';
     ret += '>';
     if (forsale == 0 && dxa_discountplant == name)
-	ret += '<div class="discount">01</div>';
+        ret += '<div class="discount">01</div>';
 //    ret += name;
     ret += '</div>';
     return ret;
@@ -1370,7 +1370,7 @@ function ui_stack() {
     ret += 'z-index:2;';
     ret += 'top:'+py+'px;left:'+px+'px;"';
     if (has_espionage())
-	ret += ' onclick="stack_reveal(0)"';
+        ret += ' onclick="stack_reveal(0)"';
     ret += '>';
     ret += '</div>';
     return ret;
@@ -1396,56 +1396,56 @@ function ui_step() {
     if (!alt) {
     ret += '<tr>';
     for (var i = 1; i <= 4; i++) {
-	var j = maps[map].deluxe ? [1,5,2,4][i-1] : i;
-	ret += '<td width="28" height="50">';
-	ret += '<img src="img/R'+j+'.png" height="35">';
-	ret += '</td>';
+        var j = maps[map].deluxe ? [1,5,2,4][i-1] : i;
+        ret += '<td width="28" height="50">';
+        ret += '<img src="img/R'+j+'.png" height="35">';
+        ret += '</td>';
     }
     ret += '</tr>';
     }
     for (var s = 1; s <= 3; s++) if (s == step || alt) {
-	var rows = 'KOR' == map_id() ? 2:1;
-	var h = rows == 2 ? 24 : 50;
-	var fh = rows == 2 ? 24 : 30;
-	for (var j = 0; j < rows; j++) {
-	    ret += '</tr>';
-	    for (var i = 1; i <= 4; i++) {
-		var bgcol = s == step ? (i%2?'3e6e3e':'a7bc95') : (i%2?'4e4e4e':'a8a8a8');
-		var fgcol = (i%2?'white':'black');
-		var cost = maps[map].refill[i-1][s-1+(players-2)*3];
-		if (cost < 0 && s == step) bgcol = 'ef7c6a';
-		if (rows > 1) cost = j ? cost % 10 : Math.floor(cost / 10);
-		ret += '<td width="28" height="'+h+'" style="font-size:'+fh+'px;background-color:#'+bgcol+';color:'+fgcol+';">';
-		ret += '<div style="max-height:'+h+'px;line-height:'+h+'px;">'
-		ret += cost;
-		ret += '</div></td>';
-	    }
-	    ret += '</tr>';
-	}
+        var rows = 'KOR' == map_id() ? 2:1;
+        var h = rows == 2 ? 24 : 50;
+        var fh = rows == 2 ? 24 : 30;
+        for (var j = 0; j < rows; j++) {
+            ret += '</tr>';
+            for (var i = 1; i <= 4; i++) {
+                var bgcol = s == step ? (i%2?'3e6e3e':'a7bc95') : (i%2?'4e4e4e':'a8a8a8');
+                var fgcol = (i%2?'white':'black');
+                var cost = maps[map].refill[i-1][s-1+(players-2)*3];
+                if (cost < 0 && s == step) bgcol = 'ef7c6a';
+                if (rows > 1) cost = j ? cost % 10 : Math.floor(cost / 10);
+                ret += '<td width="28" height="'+h+'" style="font-size:'+fh+'px;background-color:#'+bgcol+';color:'+fgcol+';">';
+                ret += '<div style="max-height:'+h+'px;line-height:'+h+'px;">'
+                ret += cost;
+                ret += '</div></td>';
+            }
+            ret += '</tr>';
+        }
     }
     ret += '</table>';
     ret += '</div>';
     return ret;
 }
 function ui_button(x,y,w,h,name,func) {
-	var ret = '';
-	x++; y++; w-=2; h-=2;
-	var hf = Math.ceil(h*.7);
-	ret += '<div class="button'+(func?1:0)+'" style="font-size:'+hf+'px;line-height:'+h+'px;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;"';
-	ret += ' onClick="'+func+'()"';
-	ret += '>';
-	ret += t(name);
-	ret += '</div>';
-	return ret;
+        var ret = '';
+        x++; y++; w-=2; h-=2;
+        var hf = Math.ceil(h*.7);
+        ret += '<div class="button'+(func?1:0)+'" style="font-size:'+hf+'px;line-height:'+h+'px;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;"';
+        ret += ' onClick="'+func+'()"';
+        ret += '>';
+        ret += t(name);
+        ret += '</div>';
+        return ret;
 }
 
 function ui_phase(x,y,w,h,name,on) {
-	var ret = '';
-	x++; y++; w-=2; h-=2;
-	ret += '<div class="phase'+(on?1:0)+'" style="line-height:'+h+'px;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;">';
-	ret += name;
-	ret += '</div>';
-	return ret;
+        var ret = '';
+        x++; y++; w-=2; h-=2;
+        ret += '<div class="phase'+(on?1:0)+'" style="line-height:'+h+'px;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;">';
+        ret += name;
+        ret += '</div>';
+        return ret;
 }
 
 function ui_calc_switch() {
@@ -1467,10 +1467,10 @@ function ui_calculator() {
     tmp += '<div class="market" style="position:absolute;top:90px;left:175px;height:335px;width:620px;z-index:20;">';
     tmp += '<div style="position:absolute;top:10px;left:10px;height:315px;width:600px;z-index:20;">';
     for (var i = 0; i < 10; i++) {
-	for (var j = 0; j < 3; j++) {
-	    var a = j*10+i+1;
-	    tmp += ui_button(i*50,j*50,50,50,a,'ui_calc_state.push('+a+');display');
-	}
+        for (var j = 0; j < 3; j++) {
+            var a = j*10+i+1;
+            tmp += ui_button(i*50,j*50,50,50,a,'ui_calc_state.push('+a+');display');
+        }
     }
     tmp += ui_button(11*50,1*50,50,50,'C',ui_calc_state.length?'ui_calc_state.pop();display':'');
     tmp += ui_button(11*50,2*50,50,50,'CA',ui_calc_state.length?'ui_calc_state=[];display':'');
@@ -1480,9 +1480,9 @@ function ui_calculator() {
     tmp += '<div style="position:absolute;font-size:50px;line-height:55px;text-align:right;top:150px;left:0px;height:165px;width:600px;">&nbsp';
     var r = [];
     for (var i = 0; i < ui_calc_state.length; i++) {
-	var v = ui_calc_state[i];
-	r.push(v < 0 ? ui_calc_house(-v,50) : v);
-	sum += Math.abs(v);
+        var v = ui_calc_state[i];
+        r.push(v < 0 ? ui_calc_house(-v,50) : v);
+        sum += Math.abs(v);
     }
     tmp += r.join(', ');
     tmp += '<br\>= ' + sum;
@@ -1499,12 +1499,12 @@ function ui_market() {
     for (var i = 0; i < stack.length && i < 4; i++) ret += ui_card(stack[i], -1);
     var p = event_cards();
     if (stack.length > 0)
-	ret += ui_stack();
+        ret += ui_stack();
     ret += ui_step();
     for (var i = 0; i < p.length; i++) {
-	var sp = stack.indexOf(p[i]);
-	if (market.indexOf(p[i]) == -1 && (sp >= 4 || sp == -1))
-	    ret += ui_card(p[i], -1);
+        var sp = stack.indexOf(p[i]);
+        if (market.indexOf(p[i]) == -1 && (sp >= 4 || sp == -1))
+            ret += ui_card(p[i], -1);
     }
 //    for (var i in lastpos) {
 //	var c = phase == 2 ? market.indexOf(i) : -1;
@@ -1516,33 +1516,33 @@ function ui_market() {
     ret += '<div class="panel" style="height:105px;">';
     var lim = get_limits();
     for (i = 0; i < cities && i < 24; i++) {
-	var bg = 'a';
-	if (i == lim[0] - 1) bg = '2';
-	if (i == lim[1] - 1) bg = '2';
-	if (houses > i) bg = '3';
-	ret += '<div style="font-size:18px;line-height:35px;position:absolute;left:'+i*35+'px;width:35px;height:35px;background: url(img/house'+bg+'.png);background-size: cover;">';
-	ret += i + 1;
-	ret += '</div>';
+        var bg = 'a';
+        if (i == lim[0] - 1) bg = '2';
+        if (i == lim[1] - 1) bg = '2';
+        if (houses > i) bg = '3';
+        ret += '<div style="font-size:18px;line-height:35px;position:absolute;left:'+i*35+'px;width:35px;height:35px;background: url(img/house'+bg+'.png);background-size: cover;">';
+        ret += i + 1;
+        ret += '</div>';
     }
     ret += ui_button(900,0,100,35,'Build',phase == 4?'build':'');
     for (i = 0; i < 5; i++) {
-	var phasenames = ['Player order','Auction','Resources','Building','Bureaucracy'];
-	var name = t(phasenames[i]);
-	var bg = 0;
-	var order = i;
-	if (i == phase - 1) {
-	    bg = 1;
-	    if (phase == 2) {
-		name += ': ' + (players - playersleft + 1) + '/' + players;
-	    }
-	}
-	if (order < 2 && (turn == 1 || 'BAD' == map_id())) order ^= 1;
-	ret += ui_phase(order*168,35,168,35,name,bg);
+        var phasenames = ['Player order','Auction','Resources','Building','Bureaucracy'];
+        var name = t(phasenames[i]);
+        var bg = 0;
+        var order = i;
+        if (i == phase - 1) {
+            bg = 1;
+            if (phase == 2) {
+                name += ': ' + (players - playersleft + 1) + '/' + players;
+            }
+        }
+        if (order < 2 && (turn == 1 || 'BAD' == map_id())) order ^= 1;
+        ret += ui_phase(order*168,35,168,35,name,bg);
     }
     if (pass_active())
-	ret += ui_button(1*168,70,168,35,'Pass','pass');
+        ret += ui_button(1*168,70,168,35,'Pass','pass');
     if (nospace_active())
-	ret += ui_button(3*168,70,168,35,'Out of space','nospace');
+        ret += ui_button(3*168,70,168,35,'Out of space','nospace');
     ret += ui_button(900,35,100,35,'Next',nextphase_active()?'nextphase':'');
     ret += ui_button(900,70,100,35,'Undo',undo_active()?'undo':'');
     ret += ui_button(0,70,100,35,'End game','end_game');
@@ -1568,7 +1568,7 @@ function ui_init_game() {
     for (var i = m; i < market.length; i++) lastpos[market[i]] = [(i-m)*dense, 1];
     for (var i = 0; i < stack.length; i++) lastpos[stack[i]] = [4, 1];
     if (step2plants)
-	for (var i = 0; i < step2plants.length; i++) lastpos[step2plants[i]] = [4, 1];
+        for (var i = 0; i < step2plants.length; i++) lastpos[step2plants[i]] = [4, 1];
 }
 
 function display() {
@@ -1576,100 +1576,100 @@ function display() {
     var tmp = '';
     if (ingame) title = t(maps[map].name)+', '+(is_vs_trust()?t('Against the Trust'):players+' '+t('Players'));
     if (debugmode) {
-	tmp += '<div class="panel"><input style="width:99%" type="text" onChange="set_state(this.value);display();" value="'+get_state()+'"/><br/></div>';
+        tmp += '<div class="panel"><input style="width:99%" type="text" onChange="set_state(this.value);display();" value="'+get_state()+'"/><br/></div>';
     }
     tmp += '<div class="panel">';
     tmp += '<div class="header">'+title+'</div>';
     tmp += '<a style="display:none" id="report_mail" href="' + report_mail() + '"></a>';
     tmp += ui_button(900,0,100,20,'Report a problem','document.getElementById(\'report_mail\').click'); 
     for (var i = 0; i < languages.length; i++) {
-	tmp += ui_button(30*i,0,30,20,languages[i].toUpperCase(),lang == languages[i]?'':'set_lang(\''+languages[i]+'\');display'); 
+        tmp += ui_button(30*i,0,30,20,languages[i].toUpperCase(),lang == languages[i]?'':'set_lang(\''+languages[i]+'\');display'); 
     }
     tmp += '</div>';
     if (ingame) {
-	tmp += ui_market();
-	tmp += ui_calculator();
+        tmp += ui_market();
+        tmp += ui_calculator();
     } else {
-	tmp += '<div class="panel" style="height:50px">'
-	tmp += '<select id="playersno" onChange="set_players(document.getElementById(\'playersno\').value);display();">';
-	for(var i = 2; i <= 6; i++) {
-	    tmp += '<option value="'+i+'"';
-	    if (i == players && !is_vs_trust()) tmp += ' selected';
-	    tmp += '>'+i+' '+t('Players')+'</option>';
-	    if (i == 2) {
-		tmp += '<option value="0"';
-		if (is_vs_trust()) tmp += ' selected';
-		tmp += '>'+t('2 vs Trust')+'</option>';
-	    }
-	}
-	tmp += '</select>';
-	tmp += '<select id="mapno" onChange="set_map(this.value);display();">';
-	for(var i = 0; i < maps.length; i++) {
-	    tmp += '<option value="'+i+'"';
-	    if (i == map) tmp += ' selected';
-	    tmp += '>'+t(maps[i].name)+'</option>';
-	}
-	tmp += '</select>';
-	tmp += '<select id="deckno" onChange="set_deck(this.value);display();">';
-	for(var i = 0; i < decks.length; i++) {
-	    if (!is_deck_ok(map, decks[i].id)) continue;
-	    tmp += '<option value="'+i+'"';
-	    if (i == deck) tmp += ' selected';
-	    tmp += '>'+t(decks[i].name)+'</option>';
-	}
-	tmp += '</select>';
-	tmp += '</div><div class="panel" style="height:320px">';
-	tmp += '<div class="market" style="position:absolute;top:0px;left:700px;text-align:left;height:250px;width:296px;">';
-	if (region_select() || chosen_regions()) {
-	    tmp += t('Regions');
-	    if (region_select()) {
-		var diff = regionsno[players] - chosen_regions();
-		if (diff > 0) tmp += ' ('+t('choose')+' ' + diff + (chosen_regions() ? ' '+t('more') : '') + ')';
-		else if (diff < 0) tmp += ' ('+t('choose')+' ' + -diff + ' '+t('less')+')';
-	    }
-	    tmp += ':</br>';
-	    for(var i = 0; i < maps[map].regions.colors.length; i++) if (region_select() || has_region(i)) {
-		var fg = has_region(i) ? 'black' : '#777777';
-		if (region_select()) {
-		    tmp += '<input type="checkbox" onChange="set_region('+i+',this.checked);display();"';
-		    if (has_region(i)) tmp += ' checked';
-		    tmp += '>';
-		}
-		tmp += '<span style="color:'+fg+';';
-		if (!region_select()) tmp+= 'margin-left:20px;';
-		tmp += '">'+t(maps[map].regions.names[i])+'</span>'
-		tmp += ' <img style="border:1px solid '+fg+'" src="img/c'+maps[map].regions.colors.charAt(i)+'.png" width=20 height=20>';
-		tmp += region_select() ? '</input><br/>' : '<br/>';
-	    }
-	}
-	tmp += '</div>';
-	tmp += '<div class="market" style="position:absolute;left:0px;text-align:left;font-size:80%;height:250px;width:296px;">';
-	if (is_deck_ok(map, 'P')) {
-	    tmp += t('Promo cards')+':</br>'
-	    for(var i = 0; i < promos.length; i++) {
-		tmp += '<input type="checkbox" onChange="set_option('+promos[i].val+',this.checked);display();"';
-		if (has_option(promos[i].val)) tmp += ' checked';
-		tmp += '><span style="color:'+(has_option(promos[i].val)?'black':'#777777')+'">'+t(promos[i].name)+'</span></input>';
-	    tmp += '<br/>';
-	    }
-	}
-	tmp += '</div>';
-	tmp += '<div class="market" style="position:absolute;left:350px;height:250px;width:296px;"><table>';
+        tmp += '<div class="panel" style="height:50px">'
+        tmp += '<select id="playersno" onChange="set_players(document.getElementById(\'playersno\').value);display();">';
+        for(var i = 2; i <= 6; i++) {
+            tmp += '<option value="'+i+'"';
+            if (i == players && !is_vs_trust()) tmp += ' selected';
+            tmp += '>'+i+' '+t('Players')+'</option>';
+            if (i == 2) {
+                tmp += '<option value="0"';
+                if (is_vs_trust()) tmp += ' selected';
+                tmp += '>'+t('2 vs Trust')+'</option>';
+            }
+        }
+        tmp += '</select>';
+        tmp += '<select id="mapno" onChange="set_map(this.value);display();">';
+        for(var i = 0; i < maps.length; i++) {
+            tmp += '<option value="'+i+'"';
+            if (i == map) tmp += ' selected';
+            tmp += '>'+t(maps[i].name)+'</option>';
+        }
+        tmp += '</select>';
+        tmp += '<select id="deckno" onChange="set_deck(this.value);display();">';
+        for(var i = 0; i < decks.length; i++) {
+            if (!is_deck_ok(map, decks[i].id)) continue;
+            tmp += '<option value="'+i+'"';
+            if (i == deck) tmp += ' selected';
+            tmp += '>'+t(decks[i].name)+'</option>';
+        }
+        tmp += '</select>';
+        tmp += '</div><div class="panel" style="height:320px">';
+        tmp += '<div class="market" style="position:absolute;top:0px;left:700px;text-align:left;height:250px;width:296px;">';
+        if (region_select() || chosen_regions()) {
+            tmp += t('Regions');
+            if (region_select()) {
+                var diff = regionsno[players] - chosen_regions();
+                if (diff > 0) tmp += ' ('+t('choose')+' ' + diff + (chosen_regions() ? ' '+t('more') : '') + ')';
+                else if (diff < 0) tmp += ' ('+t('choose')+' ' + -diff + ' '+t('less')+')';
+            }
+            tmp += ':</br>';
+            for(var i = 0; i < maps[map].regions.colors.length; i++) if (region_select() || has_region(i)) {
+                var fg = has_region(i) ? 'black' : '#777777';
+                if (region_select()) {
+                    tmp += '<input type="checkbox" onChange="set_region('+i+',this.checked);display();"';
+                    if (has_region(i)) tmp += ' checked';
+                    tmp += '>';
+                }
+                tmp += '<span style="color:'+fg+';';
+                if (!region_select()) tmp+= 'margin-left:20px;';
+                tmp += '">'+t(maps[map].regions.names[i])+'</span>'
+                tmp += ' <img style="border:1px solid '+fg+'" src="img/c'+maps[map].regions.colors.charAt(i)+'.png" width=20 height=20>';
+                tmp += region_select() ? '</input><br/>' : '<br/>';
+            }
+        }
+        tmp += '</div>';
+        tmp += '<div class="market" style="position:absolute;left:0px;text-align:left;font-size:80%;height:250px;width:296px;">';
+        if (is_deck_ok(map, 'P')) {
+            tmp += t('Promo cards')+':</br>'
+            for(var i = 0; i < promos.length; i++) {
+                tmp += '<input type="checkbox" onChange="set_option('+promos[i].val+',this.checked);display();"';
+                if (has_option(promos[i].val)) tmp += ' checked';
+                tmp += '><span style="color:'+(has_option(promos[i].val)?'black':'#777777')+'">'+t(promos[i].name)+'</span></input>';
+            tmp += '<br/>';
+            }
+        }
+        tmp += '</div>';
+        tmp += '<div class="market" style="position:absolute;left:350px;height:250px;width:296px;"><table>';
 //	tmp += ui_info('',[1,2,3,4].map(function (a) {return '<img height="30" src="img/R'+a+'.png"/>'}));
-	tmp += ui_info('Initial resource costs',maps[map].startcost);
-	if (deck_id() == 'B') {
-	    tmp += ui_info('Number of cities chosen on map',[bigcitiesno[players]]);
-	} else {
-	    var value = regionsno[players];
-	    tmp += ui_info('Number of regions chosen on map',[value]);
-	}
-	tmp += ui_info('Maximum number of power plants owned',[maxplantsno[players]]);
-	tmp += ui_info('Number of connected cities to trigger step 2 / game end',get_limits());
-	tmp += ui_info('Starting money',[50]);
-	tmp += '</table></div>';
-	tmp += ui_button(450,270,100,36,'New Game',region_select() && regionsno[players] != chosen_regions() ? '' : 'start_game');
-	tmp += ui_button(790,273,120,30,chosen_regions()?'Clear regions':'Random regions','B' != deck_id() ? 'random_regions();display' : '');
-	tmp += '</div>';
+        tmp += ui_info('Initial resource costs',maps[map].startcost);
+        if (deck_id() == 'B') {
+            tmp += ui_info('Number of cities chosen on map',[bigcitiesno[players]]);
+        } else {
+            var value = regionsno[players];
+            tmp += ui_info('Number of regions chosen on map',[value]);
+        }
+        tmp += ui_info('Maximum number of power plants owned',[maxplantsno[players]]);
+        tmp += ui_info('Number of connected cities to trigger step 2 / game end',get_limits());
+        tmp += ui_info('Starting money',[50]);
+        tmp += '</table></div>';
+        tmp += ui_button(450,270,100,36,'New Game',region_select() && regionsno[players] != chosen_regions() ? '' : 'start_game');
+        tmp += ui_button(790,273,120,30,chosen_regions()?'Clear regions':'Random regions','B' != deck_id() ? 'random_regions();display' : '');
+        tmp += '</div>';
     }
     tmp += '<div class="copyright">Images ©2F-Spiele. This website is not created by nor affiliated with 2F-Spiele.</div>'
     document.getElementById("buttons").innerHTML=tmp;
@@ -1679,8 +1679,8 @@ function ui_info(name,value) {
     var ret = '<tr><td style="text-align:right;line-height:16px;width:180px;font-size:70%">';
     ret += t(name) + '</td>';
     for(var i = 0; i < l; i++) {
-	ret += '<td colspan="'+4/l+'" style="width:'+100/l+'px;line-height:42px;background-color:#a7bc95;">';
-	ret += value[i] + '</td>';
+        ret += '<td colspan="'+4/l+'" style="width:'+100/l+'px;line-height:42px;background-color:#a7bc95;">';
+        ret += value[i] + '</td>';
     }
     ret += '</tr>';
     return ret;
@@ -1693,44 +1693,44 @@ function display_event() {
     var curmv = mvqueue[0];
     if (!curmv) return;
     for (var c in curmv) {
-	var src = lastpos[c];
-	var dst = curmv[c];
-	var xz = frames/25;
-	var px = src[0]*xz + dst[0]*(1-xz);
-	var py = src[1]*xz + dst[1]*(1-xz);
-	ui_set_pos(c,px,py,frames>0?dst[2]:dst[3]);
+        var src = lastpos[c];
+        var dst = curmv[c];
+        var xz = frames/25;
+        var px = src[0]*xz + dst[0]*(1-xz);
+        var py = src[1]*xz + dst[1]*(1-xz);
+        ui_set_pos(c,px,py,frames>0?dst[2]:dst[3]);
     }
     if (dst && dst[4]) {
-	    var item = document.getElementById("card"+c);
-	    item.onclick = function () { cancel_event(); };
+            var item = document.getElementById("card"+c);
+            item.onclick = function () { cancel_event(); };
     } else
     frames--;
     if (frames < 0) {
-	for (var c in curmv)
-	    lastpos[c] = curmv[c].slice(0,2);
-	mvqueue.shift();
-	frames = 25;
+        for (var c in curmv)
+            lastpos[c] = curmv[c].slice(0,2);
+        mvqueue.shift();
+        frames = 25;
     }
 }
 function cancel_event() {
     var e;
     if (e = mvqueue.shift())
-	for (var c in e) {
-	    ui_set_pos(c,e[c][0],e[c][1],e[c][3]);
-	    lastpos[c] = e[c].slice(0,2);
-	}
+        for (var c in e) {
+            ui_set_pos(c,e[c][0],e[c][1],e[c][3]);
+            lastpos[c] = e[c].slice(0,2);
+        }
     frames = 25;
 }
 function flush_events() {
     while (mvqueue.length)
-	cancel_event();
+        cancel_event();
 }
 function event_cards() {
     var r = [];
     for (var i = 0; i < mvqueue.length; i++)
-	for (var c in mvqueue[i])
-	    if (r.indexOf(c) == -1)
-		r.push(c);
+        for (var c in mvqueue[i])
+            if (r.indexOf(c) == -1)
+                r.push(c);
     return r;
 }
 </script>
