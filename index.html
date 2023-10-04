@@ -175,6 +175,8 @@ Array.prototype.extract = function(x) {
 // jpn: red, yellow, violet, green, brown
 // rus: red, yellow, violet, pink, green, brown
 
+// dxe: red, yellow, violet, orange, green, blue-green 0134568
+
 // 0 - yellow: (yellow) #FFFF00
 // 1 - red: (red) #FF0000
 // 2 - brown: (sienna) #A0522D
@@ -230,6 +232,8 @@ var dict = {
 'Game over':{pl:'Koniec gry'},
 'End game':{pl:'Wyście'},
 'Exit game?':{pl:'Zakończyć grę?'},
+'2 vs Trust':{pl:'2 vs koncern'},
+'Against the Trust':{pl:'2 kontra koncern'},
 
 'Random regions':{pl:'Losowe regiony'},
 'Clear regions':{pl:'Kasuj regiony'},
@@ -251,6 +255,7 @@ var dict = {
 'New Deck':{pl:'Nowa talia'},
 'Mixed Deck':{pl:'Talia mieszana'},
 'Big Game Deck':{pl:'Duża talia'},
+'Deluxe Deck':{pl:'Talia deluxe'},
 
 //Region names:
 'Austria':{},
@@ -339,25 +344,39 @@ var dict = {
 'Theme Park':{de:'Freizeitpark',pl:'Lunapark'},
 'Supply Contract':{de:'Liefervertrag',pl:'Umowa dostawy'},
 'Industrial Espionage':{de:'Industriespionage',pl:'Wywiad gospodarczy'},
+'Taxes':{de:'Steuern',pl:'Podatki'},
 
 //'':{de:''},
 }
 
+// im: 04,20,22,31,35,36(171,223,227) /10,14,21 (129x129) scan(165)
+// Deluxe changes:
+// 7 map regions // special region randomizer
+/// E  23*:[262][235][223][112] 4*:[374][345][334][122]                         6:*[5A4][468][456][234]
+/// A   3*:[252][224][313][212] 4*:[363][335][324][212] 5:*[474][336][425][323] 6:+[585][447][536][324] r2:[242][224][213][212]-[242][223][?12][211]
+// oil/garbage -> gas/oil
+// next card type known
+// 1->3 step transition do 1->2 transition changes
+// EU: 5 future market plants in step 1
+// NA: discount cheapest to 1 instead of replacing if everybody passes
 
 // Game constants
 
 var regionsno = [ null, null, 3, 3, 4, 5, 5];
 var maxplantsno = [ null, null, 4, 3, 3, 3, 3];
 var bigcitiesno = [ null, null, 24, 24, 32, 40, 42];
-var toremove = [ null, null, 8, 8, 4, 0, 0];
-var limits = [ null, null, [10,21], [7,17], [7,17], [7,15], [6,14]];
-var limitsbig = [ null, null, [12,24], [8,20], [8,20], [8,18], [7,15]];
-var limitsbad = [ null, null, [9,21], [6,17], [6,17], [6,15], [5,14]];
+var toremove = [ 6, null, 8, 8, 4, 0, 0];
+var toremovebig = [ 7, null, 10, 10, 5, 0, 0];
+var toremovelow = [ 1, null, 2, 2, 1, 0, 0];
+var limits = [ [7,18], null, [10,21], [7,17], [7,17], [7,15], [6,14]];
+var limitsbig = [ [8,21], null, [12,24], [8,20], [8,20], [8,18], [7,15]];
+var limitsbad = [ [6,18], null, [9,21], [6,17], [6,17], [6,15], [5,14]];
 var decks = [
 { id: 'S', name: 'Standard Deck' },
 { id: 'N', name: 'New Deck' },
 { id: 'M', name: 'Mixed Deck'},
 { id: 'B', name: 'Big Game Deck' },
+{ id: 'D', name: 'Deluxe Deck' },
 ];
 var regionchoice = {
 6:{3:'GKScMUeYiqNVfZjr\\ltx',4:'OWg[ks]muy^nvz|',5:'_ow{}~'},
@@ -401,6 +420,10 @@ var indregions = { colors:'876102', bad:'cMYiqrsy',
     names: [ 'North West', 'Central West', 'North / Nepal', 'South', 'Central East', 'East / Bangladesh' ] };
 var ausregions = { colors:'10627', bad:'',
     names: [ 'Western Australia', 'Northern Territory / South', 'Queensland', 'New South Wales', 'Victoria / Tasmania' ] };
+var dxeregions = { colors:'1360854', connections: [ '01','02','03',12,23,24,34,35,36,45,56 ], con: [3,5,9,6,12,20,24,40,72,48,96],
+    names: [ 'West', 'North West', 'Central', 'South', 'North East', 'East', 'South East']};
+var dxaregions = { colors:'0436815', connections: [ '01','03',12,13,23,24,34,35,45,56 ], con: [3,9,6,10,12,20,24,40,48,96],
+    names: [ 'North West', 'Pacific', 'Mexico', 'Central', 'South', 'East Central', 'North East']};
 
 var std0 = [3,4,3,4,5,3,5,6,4,5,7,5,7,9,6];
 var std1 = [2,2,4,2,3,4,3,4,5,4,5,6,5,6,7];
@@ -438,7 +461,9 @@ var maps = [
 { id: 'GBR', name: 'United Kingdom & Ireland', regions: gbrregions, startcost: [1,3,5,'-'], refill:gbrrefill },
 { id: 'NEU', name: 'Northern Europe', nodecks: 'MB', regions: neuregions, startcost: [3,3,5,7], refill:neurefill },
 { id: 'AUS', name: 'Australia', regions: ausregions, startcost: [1,3,4,1], refill: ausrefill },
-{ id: 'IND', name: 'Indian Subcontinent', regions: indregions, startcost: [1,3,2,6], refill: indrefill },
+{ id: 'IND', name: 'Indian Subcontinent', regions: indregions, startcost: [1,2,2,6], refill: indrefill },
+{ id: 'DXE', name: 'Europe Deluxe', startcost: [2,3,3,8], regions: dxeregions, refill: stdrefill },
+{ id: 'DXA', name: 'North America Deluxe', startcost: [2,3,4,9], regions: dxaregions, refill: stdrefill },
 ];
 var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
                   '16A','17A','18A','19A','20A','21A','22A','23A','24A','25A','26A','27A','28A',
@@ -450,6 +475,10 @@ var newplants = [ '01B','02B','03B','04B','05B','06B','07B','08B','09B','10B','1
                   '42B','44B','46B','50B' ];
 var bigplants = [ '52B','54B','57B','60B' ];
 var step3 = '999';
+var dxlplants = [ '03D','04D','05D','06D','07D','08D','09D','10D','11D','12D','13D','14D','15D' ];
+var dxhplants = [ '16D','17D','18D','19D','20D','21D','22D','23D','24D','25D','26D','27D','28D',
+                  '29D','30D','31D','32D','33D','34D','35D','36D','37D','38D','39D','40D',
+                  '42D','44D','46D','50D' ];
 
 var topdeckplants = [ '13A', '11B' ];
 var ecoplants = [ '13A','18A','22A','27A','33A','37A','44A',
@@ -466,7 +495,7 @@ var neplants = [
 ];
 
 var promos = [
-{ name: 'Flux-Generator', val: 6, card: '33D' },
+{ name: 'Flux-Generator', val: 6, card: '33P' },
 { name: 'Transformer Station', val: 7, card: 'X01' },
 { name: 'Warehouse', val: 8, card: 'X02' },
 { name: 'Shortage of Resources', val: 9, card: 'X03' },
@@ -474,6 +503,7 @@ var promos = [
 { name: 'Theme Park', val: 11, card: 'X05' },
 { name: 'Supply Contract', val: 12, card: 'X06' },
 { name: 'Industrial Espionage', val: 13 },
+{ name: 'Taxes', val: 14, card: 'X07' },
 ];
 
 var version = 1;
@@ -554,18 +584,19 @@ function deck_id() { return decks[deck].id; }
 function map_id() { return maps[map].id; }
 function plant_val(a) { return parseInt(a,10); }
 function get_limits() {
-    if ('B' == deck_id()) return limitsbig[players];
-    if ('BAD' == map_id()) return limitsbad[players];
+    var idx = is_vs_trust() ? 0 : players;
+    if ('B' == deck_id()) return limitsbig[idx];
+    if ('BAD' == map_id()) return limitsbad[idx];
     if ('GBR' == map_id() && players == 2) {
 	var c = 0;
-	if (chosen_regions() == regionsno[players]) {
+	if (chosen_regions() == regionsno[2]) {
 	    for (var i = 0; i < 6; i++) if (has_option(i)) c += maps[map].regions.cities[i];
 	} else {
 	    c = 'x';
 	}
 	return [limits[2][0],c];
     }
-    return limits[players];
+    return limits[idx];
 }
 function has_option(v) {
     return options & (1 << v);
@@ -576,6 +607,13 @@ function chosen_regions() {
     return ret;
 }
 function has_espionage() { return has_option(13); }
+
+function set_vs_trust(v) {
+    set_option(15, v ? 1 : 0);
+}
+function is_vs_trust() {
+    return has_option(15) !== 0;
+}
 
 function random_regions() {
     if (chosen_regions()) {
@@ -609,13 +647,22 @@ function mixplants() {
 
 function init_deck() {
     var p = plants;
-    var remove = toremove[players];
+    var remove = toremove[is_vs_trust()?0:players];
+    var removelow;
+    var save;
+    var topdeck = [];
+    var bottomdeck = [];
     marketsize = 4; // for Russia
     if ('N' == deck_id()) p = newplants;
     if ('M' == deck_id()) p = mixplants();
     if ('B' == deck_id()) {
 	p = p.concat(bigplants, newplants.slice(-2));
-	remove = remove / 4 * 5;
+	remove = toremovebig[is_vs_trust()?0:players];
+    }
+    if ('D' == deck_id()) {
+	p = dxhplants;
+	removelow = toremovelow[is_vs_trust()?0:players];
+	remove -= removelow;
     }
 
     stack = p.slice(0);
@@ -648,15 +695,24 @@ function init_deck() {
 	    stack = stack.concat(neplants[i][1]);
 	}
 	stack.sort();
+    } else if ('AUS' == map_id()) {
+	stack.extract(['17A','19B']);
     } else if ('IND' == map_id()) {
-	stack.extract(['11A','19B']);
+	stack.extract(['11A','08B']);
     }
-    market = stack.splice(0,marketsize * 2);
+    if ('D' == deck_id()) {
+	market = dxlplants.slice(0);
+	market.shuffle();
+	if (removelow) market.splice(-removelow);
+	save = market.splice(9); // NOTE save is overwritten in BRA and QUE
+	topdeck = market.splice(8);
+	market.sort();
+    } else {
+	market = stack.splice(0,marketsize * 2);
+    }
 
-    var topdeck = [];
-    var bottomdeck = [];
     if ('M' != deck_id()) {
-	topdeck = stack.extract(topdeckplants);
+	topdeck = topdeck.concat(stack.extract(topdeckplants));
 	if ('FRA' == map_id()) {
 	    topdeck = stack.extract(['11A','19B']);
 	} else if ('BRA' == map_id()) {
@@ -678,7 +734,6 @@ function init_deck() {
 	bottomdeck = stack.splice(-2);
     }
     if (remove) {
-	var save;
 	if ('BRA' == map_id()) save = stack.extract(gasplants);
 	if ('QUE' == map_id()) save = stack.extract(ecoplants);
 	stack.shuffle();
@@ -740,7 +795,13 @@ function log_append(a) {
     save_state();
 }
 function set_players(n) {
-    players = n;
+    if (n == 0) { // 2 against the trust
+	players = 3;
+	set_vs_trust(true);
+    } else {
+	players = n;
+	set_vs_trust(false);
+    }
     for (var i = 0; i < 6; i++)
 	set_option(i, 0);
     save_state();
@@ -776,6 +837,12 @@ function set_option(o,v) {
 function set_ingame(v) {
     ingame = v;
     save_state();
+}
+function set_vs_trust(v) {
+    set_option(15, v ? 1 : 0);
+}
+function is_vs_trust() {
+    return has_option(15) > 0;
 }
 function replay(inlog) {
     for (var i = 0; i < inlog.length; i++) {
@@ -886,6 +953,7 @@ function step2() {
 
 function test_step3() {
     if (market.indexOf(step3) < 0) return;
+    // TODO: Perform start of step 2 actions (by deluxe rules)
     step = 3;
     market_shift();
     market_pop();
@@ -1393,7 +1461,7 @@ function ui_init_game() {
 function display() {
     var title = t('#Title')+' v1.0l';
     var tmp = '';
-    if (ingame) title = t(maps[map].name)+', '+players+' '+t('Players');
+    if (ingame) title = t(maps[map].name)+', '+(is_vs_trust()?t('Against the Trust'):players+' '+t('Players'));
     if (debugmode) {
 	tmp += '<div class="panel"><input style="width:99%" type="text" onChange="set_state(this.value);display();" value="'+get_state()+'"/><br/></div>';
     }
@@ -1413,8 +1481,13 @@ function display() {
 	tmp += '<select id="playersno" onChange="set_players(document.getElementById(\'playersno\').value);display();">';
 	for(var i = 2; i <= 6; i++) {
 	    tmp += '<option value="'+i+'"';
-	    if (i == players) tmp += ' selected';
+	    if (i == players && !is_vs_trust()) tmp += ' selected';
 	    tmp += '>'+i+' '+t('Players')+'</option>';
+	    if (i == 2) {
+		tmp += '<option value="0"';
+		if (is_vs_trust()) tmp += ' selected';
+		tmp += '>'+t('2 vs Trust')+'</option>';
+	    }
 	}
 	tmp += '</select>';
 	tmp += '<select id="mapno" onChange="set_map(this.value);display();">';
