@@ -1571,6 +1571,7 @@ function ui_init_game() {
         for (var i = 0; i < step2plants.length; i++) lastpos[step2plants[i]] = [4, 1];
 }
 
+let gitRevision = '';
 function display() {
     var title = t('#Title')+' v1.0n';
     var tmp = '';
@@ -1671,7 +1672,7 @@ function display() {
         tmp += ui_button(790,273,120,30,chosen_regions()?'Clear regions':'Random regions','B' != deck_id() ? 'random_regions();display' : '');
         tmp += '</div>';
     }
-    tmp += '<div class="copyright">Images ©2F-Spiele. This website is not created by nor affiliated with 2F-Spiele.</div>'
+    tmp += '<div class="copyright">Images ©2F-Spiele. This website is not created by nor affiliated with 2F-Spiele. '+gitRevision.substring(0, 7)+'</div>'
     document.getElementById("buttons").innerHTML=tmp;
 }
 function ui_info(name,value) {
@@ -1733,6 +1734,11 @@ function event_cards() {
                 r.push(c);
     return r;
 }
+fetch('build.txt').then(res => res.text().then(v => {
+    if (v.startsWith('---')) return;
+    gitRevision = v;
+    display();
+}));
 </script>
 </head>
 <body onLoad="load_state();display();display_event();">
