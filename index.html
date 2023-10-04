@@ -1284,11 +1284,12 @@ function undo() {
 }
 
 function report_mail() {
-    var ret = 'mailto:pgmarketaid@gmail.com';
-    ret += '?subject=Online report';
-    ret += '&body=Keep this line:%0d';
+    var ret = 'https://github.com/nutki/power-grid-market-aid/issues/new';
+    ret += '?title=Online report';
+    ret += '&body=%0dKeep this line:%0d';
     ret += get_state();
     if (navigator) ret += ' / ' + navigator.userAgent;
+    if (gitRevision) ret += ' / ' + gitRevision;
     return ret;
 }
 
@@ -1581,7 +1582,7 @@ function display() {
     }
     tmp += '<div class="panel">';
     tmp += '<div class="header">'+title+'</div>';
-    tmp += '<a style="display:none" id="report_mail" href="' + report_mail() + '"></a>';
+    tmp += '<a style="display:none" id="report_mail" href="' + report_mail() + '" target="_blank"></a>';
     tmp += ui_button(900,0,100,20,'Report a problem','document.getElementById(\'report_mail\').click'); 
     for (var i = 0; i < languages.length; i++) {
         tmp += ui_button(30*i,0,30,20,languages[i].toUpperCase(),lang == languages[i]?'':'set_lang(\''+languages[i]+'\');display'); 
