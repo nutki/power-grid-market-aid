@@ -220,18 +220,18 @@ var dict = {
 
 'Step':{de:'Stufe',pl:'Etap',nl:'Periode'},
 
-'Player order':{de:'Reihenfolge',pl:'Kolejność graczy'},
+'Player order':{de:'Reihenfolge',pl:'Kolejność graczy',nl:'Beurtvolgorde'},
 'Auction':{de:'Kraftwerke',pl:'Licytacja',nl:'Centrales'},
 'Resources':{de:'Rohstoffe kaufen',pl:'Zakup surowców',nl:'Brandstoffen'},
 'Building':{de:'Bauen',pl:'Rozbudowa sieci',nl:'Bouwen'},
 'Bureaucracy':{de:'Bürokratie',pl:'Biurokracja',nl:'Bureaucratie'},
 
 'Players':{de:'Spieler',pl:'Graczy',nl:'Spelers'},
-'Build':{pl:'Buduj'},
+'Build':{pl:'Buduj',nl:'Bouw'},
 'Next':{pl:'Dalej'},
-'Undo':{pl:'Wróć'},
-'Pass':{pl:'Pas'},
-'Out of space':{pl:'Brak miejsca'},
+'Undo':{pl:'Wróć',nl:'Terug'},
+'Pass':{pl:'Pas',pl:'Pas'},
+'Out of space':{pl:'Brak miejsca',nl:'Geen plek'},
 'Report a problem':{pl:'Zgłoś problem'},
 'Game over':{pl:'Koniec gry'},
 'End game':{pl:'Wyście'},
@@ -243,9 +243,9 @@ var dict = {
 'Clear regions':{pl:'Kasuj regiony'},
 'New Game':{pl:'Nowa gra'},
 'Regions':{de:'Regionen',pl:'Regiony',nl:'Gebiden'},
-'choose':{pl:'wybierz'},
-'more':{pl:'więcej'},
-'less':{pl:'mniej'},
+'choose':{pl:'wybierz',nl:'kies'},
+'more':{pl:'więcej',nl:'meer'},
+'less':{pl:'mniej',nl:'minder'},
 'Promo cards':{de:'Promokarten',pl:'Karty promocyjne'},
 'Number of regions chosen on map':{de:'Anzahl an Regionen auf der Landkarte',pl:'Liczba regionów na mapie, które biorą udział w grze'},
 'Number of cities chosen on map':{de:'Anzahl an Städten auf der Landkarte',pl:'Liczba miast na mapie, które biorą udział w grze'},
@@ -1016,10 +1016,14 @@ function draw() {
 	}
 	draw();
     }
+    if ('33P' == plant) {
+	market_shift();
+	draw();
+    }
     if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
     if(houses >= plant_val(market[0])) {
-          market_shift();
-          draw();
+	market_shift();
+	draw();
     }
 }
 
