@@ -1358,12 +1358,13 @@ function ui_card(name,forsale) {
     ret += '</div>';
     return ret;
 }
-function ui_stack() {
+function ui_stack(name) {
     var px = 10 + 198 * 4;
     var py = 10 + 198 * 1;
     var ret ='';
+    const isLow = topdeckplants.includes(name);
     ret += '<div class="card0" style="'
-    ret += 'background: url(img/DEC.jpg);';
+    ret += 'background: url(img/'+(isLow ? 'DEL' : 'DEC')+'.jpg);';
     ret += 'background-size: cover;'
     ret += 'z-index:2;';
     ret += 'top:'+py+'px;left:'+px+'px;"';
@@ -1498,7 +1499,7 @@ function ui_market() {
     for (var i = 0; i < stack.length && i < 4; i++) ret += ui_card(stack[i], -1);
     var p = event_cards();
     if (stack.length > 0)
-        ret += ui_stack();
+        ret += ui_stack(stack[0]);
     ret += ui_step();
     for (var i = 0; i < p.length; i++) {
         var sp = stack.indexOf(p[i]);
