@@ -477,17 +477,16 @@ var maps = [
 var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
                   '16A','17A','18A','19A','20A','21A','22A','23A','24A','25A','26A','27A','28A',
                   '29A','30A','31A','32A','33A','34A','35A','36A','37A','38A','39A','40A',
-                  '42A','44A','46A','50A' ];
+                  '42A','44A','46A','50A','99A' ];
 var newplants = [ '01B','02B','03B','04B','05B','06B','07B','08B','09B','10B','11B','12B','13B',
                   '14B','15B','16B','19B','20B','21B','22B','23B','24B','25B','26B','27B','28B',
                   '29B','30B','31B','32B','33B','34B','35B','36B','37B','38B','39B','40B',
-                  '42B','44B','46B','50B' ];
-var bigplants = [ '52B','54B','57B','60B' ];
-var step3 = '99A';
+                  '42B','44B','46B','50B','99B' ];
+var bigplants = [ '46B','50B','52B','54B','57B','60B' ];
 var dxplants  = [ '03D','04D','05D','06D','07D','08D','09D','10D','11D','12D','13D','14D','15D',
                   '16D','17D','18D','19D','20D','21D','22D','23D','24D','25D','26D','27D','28D',
                   '29D','30D','31D','32D','33D','34D','35D','36D','37D','38D','39D','40D',
-                  '42D','44D','46D','50D' ];
+                  '42D','44D','46D','50D','99D' ];
 
 const lowplants_recharged = [...[plants, newplants, dxplants].flatMap(d => d.slice(0, 13)), '07C', '10C', '14B', '15B', '16B'];
 const lowplants = [...[plants, newplants, dxplants].flatMap(d => d.slice(0, 8)), '13A', '11B', '11D', '07C', '10C' ];
@@ -597,6 +596,7 @@ function save_state() {
 function deck_id() { return decks[deck].id; }
 function map_id() { return maps[map].id; }
 function plant_val(a) { return parseInt(a,10); }
+function is_step3(a) { return plant_val(a) === 99; }
 function get_limits() {
     var idx = is_vs_trust() ? 0 : players;
     if ('B' == deck_id()) return limitsbig[idx];
@@ -731,13 +731,14 @@ function init_deck() {
         }
     }
     if ('B' == deck_id()) {
-        p = p.concat(bigplants, newplants.slice(-2));
+        p = p.concat(bigplants);
         const toremovetab = recharged_setup ? toremovebig_re : toremovebig;
         remove = toremovetab[is_vs_trust()?0:players] - removelow;
     }
     if ('D' == deck_id()) p = dxplants;
 
     stack = p.slice(0);
+    const step3 = stack.pop();
     if ('FRA' == map_id()) {
         stack.extract(['13A','11B']);
         if (!recharged_setup) low.push('11A','19B');
@@ -1010,7 +1011,7 @@ function draw() {
         return;
     }
     var plant = stack.shift();
-    if (plant == step3 && 'CHN' != map_id()) {
+    if (is_step3(plant) && 'CHN' != map_id()) {
         stack.shuffle();
     }
     market.push(plant);
@@ -1069,7 +1070,7 @@ function step2() {
 }
 
 function test_step3() {
-    if (market.indexOf(step3) < 0) return;
+    if (!market.find(is_step3)) return;
     if (step == 1 && 'D' == deck_id() && market.length > 1) {
         // TODO: Perform start of step 2 actions for other maps
         market_shift();
@@ -1174,7 +1175,7 @@ function do_endturn() {
             if (i < m) i = m;
             while (i--) {
                 draw();
-                if (market.indexOf(step3) >= 0) break;
+                if (market.find(is_step3)) break;
                 if (market.length > d) market_shift();
             }
         } else if ('QUE' == map_id()) {
