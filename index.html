@@ -892,7 +892,7 @@ function set_deck(v) {
     save_state();
 }
 function is_deck_ok(map, deck) {
-    if (maps[map].nodecks && maps[map].nodecks.search('P') >= 0) return false;
+    if (maps[map].nodecks && maps[map].nodecks.search(deck) >= 0) return false;
     if (maps[map].deluxe && deck != 'D' && deck != 'P') return false;
     if (!maps[map].deluxe && deck == 'D') return false;
     return true;
