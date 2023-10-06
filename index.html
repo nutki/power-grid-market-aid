@@ -1312,11 +1312,10 @@ function undo() {
 
 function report_mail() {
     var ret = 'https://github.com/nutki/power-grid-market-aid/issues/new';
-    ret += '?title=Online report';
-    ret += '&body=%0dKeep this line:%0d';
-    ret += get_state();
-    if (navigator) ret += ' / ' + navigator.userAgent;
-    if (gitRevision) ret += ' / ' + gitRevision;
+    ret += '?body=Game%20state:%0d';
+    ret += encodeURIComponent(get_state());
+    if (navigator) ret += encodeURIComponent('\n' + navigator.userAgent);
+    if (gitRevision) ret += encodeURIComponent('\n' + gitRevision);
     return ret;
 }
 
