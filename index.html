@@ -372,9 +372,11 @@ var maxplantsno = [ null, null, 4, 3, 3, 3, 3];
 var bigcitiesno = [ null, null, 24, 24, 32, 40, 42];
 var toremove = [ 6, null, 8, 8, 4, 0, 0];
 var toremovebig = [ 7, null, 10, 10, 5, 0, 0];
+var toremovebig_re = [ 7, null, 9, 9, 5, 0, 0];
 var toremovelow = [ 1, null, 2, 2, 1, 0, 0];
+var toremovemix_re = [ 5, null, 7, 7, 3, 0, 0];
 var limits = [ [7,18], null, [10,21], [7,17], [7,17], [7,15], [6,14]];
-var limitsbig = [ [8,21], null, [12,24], [8,20], [8,20], [8,18], [7,15]];
+var limitsbig = [ [8,20], null, [12,24], [8,20], [8,20], [8,18], [7,15]];
 var limitsbad = [ [6,18], null, [9,21], [6,17], [6,17], [6,15], [5,14]];
 var decks = [
 { id: 'S', name: 'Standard Deck' },
@@ -482,24 +484,29 @@ var newplants = [ '01B','02B','03B','04B','05B','06B','07B','08B','09B','10B','1
                   '42B','44B','46B','50B' ];
 var bigplants = [ '52B','54B','57B','60B' ];
 var step3 = '99A';
-var dxlplants = [ '03D','04D','05D','06D','07D','08D','09D','10D','11D','12D','13D','14D','15D' ];
-var dxhplants = [ '16D','17D','18D','19D','20D','21D','22D','23D','24D','25D','26D','27D','28D',
+var dxplants  = [ '03D','04D','05D','06D','07D','08D','09D','10D','11D','12D','13D','14D','15D',
+                  '16D','17D','18D','19D','20D','21D','22D','23D','24D','25D','26D','27D','28D',
                   '29D','30D','31D','32D','33D','34D','35D','36D','37D','38D','39D','40D',
                   '42D','44D','46D','50D' ];
+
+const lowplants_recharged = [...[plants, newplants, dxplants].flatMap(d => d.slice(0, 13)), '07C', '10C', '14B', '15B', '16B'];
+const lowplants = [...[plants, newplants, dxplants].flatMap(d => d.slice(0, 8)), '13A', '11B', '11D', '07C', '10C' ];
 
 var topdeckplants = [ '13A', '11B' ];
 var ecoplants = [ '13A','18A','22A','27A','33A','37A','44A',
                   '10B','11B','15B','16B','26B','32B','39B' ];
 var gasplants = [ '06A','14A','19A','24A','30A','38A',
                   '06B','21B','27B','33B','42B','52B' ];
-var neplants = [
-    [ [ '19A', '26A', '22B', '27B' ], [ '19C', '26C' ]],
-    [ [ '07A', '46A', '07B', '36B' ], [ '07C', '46C' ]],
-    [ [ '10A', '39A', '09B', '38B' ], [ '10C', '39C' ]],
-    [ [ '21A', '25A', '28B', '29B' ], [ '21C', '25C' ]],
-    [ [ '32A', '44A', '25B', '39B' ], [ '32C', '44C' ]],
-    [ [ '18A', '22A', '15B', '16B' ], [ '18C', '22C' ]],
-];
+var neplants = [[ '19C', '26C' ], [ '07C', '46C' ], [ '10C', '39C' ], [ '21C', '25C' ], [ '32C', '44C' ], [ '18C', '22C' ]];
+const neplants_sub = {
+    '19C': ['22B'], '26C': ['27B'],
+    '07C': ['07B'], '46C': ['36B'],
+    '10C': ['09B'], '39C': ['38B'],
+    '21C': ['28B'], '25C': ['29B'],
+    '32C': ['25B'], '44C': ['39B'],
+    '18C': ['15B'], '22C': ['16B'],
+};
+const neplants_sub_re = { '25C': ['26B'], '18C': ['19B'] };
 
 var promos = [
 { name: 'Flux-Generator', val: 6, card: '33P' },
@@ -631,6 +638,13 @@ function is_vs_trust() {
     return has_option(15) !== 0;
 }
 
+function set_recharged(v) {
+    set_option(17, v ? 1 : 0);
+}
+function is_recharged() {
+    return has_option(17) !== 0;
+}
+
 function random_regions_ex() {
     var tochoose = regionsno[players];
     var total = maps[map].regions.names.length;
@@ -672,14 +686,14 @@ function random_regions() {
         set_region(i, r & (1<<i) ? 1 : 0);
 }
 
-function mixplants() {
+function mixplants(remove = [17,18]) {
     var tmp = plants.concat(newplants);
     var ret = [];
     var have = {};
     tmp.shuffle();
     for(var i = 0; i < tmp.length; i++) {
         var val = plant_val(tmp[i]);
-        if (!have[val] && val != 17 && val != 18) {
+        if (!have[val] && !remove.includes(val)) {
             ret.push(tmp[i]);
         }
         have[val] = 1;
@@ -688,29 +702,49 @@ function mixplants() {
     return ret;
 }
 
+function remove_n(s, n) {
+    let save;
+    if (n <= 0) return;
+    if ('BRA' == map_id()) save = s.extract(gasplants);
+    if ('QUE' == map_id()) save = s.extract(ecoplants);
+    s.shuffle();
+    s.splice(-n);
+    if (save) s.push(...save);
+}
 function init_deck() {
     var p = plants;
-    var remove = toremove[is_vs_trust()?0:players];
-    var removelow;
-    var save;
+    const recharged_setup = is_recharged() || 'D' === deck_id();
+    const low = (recharged_setup ? lowplants_recharged : lowplants).slice(0);
+    var removelow = recharged_setup ? toremovelow[is_vs_trust()?0:players] : 0;
+    var remove = toremove[is_vs_trust()?0:players] - removelow;
     var topdeck = [];
     var bottomdeck = [];
     marketsize = 4; // for Russia
     if ('N' == deck_id()) p = newplants;
-    if ('M' == deck_id()) p = mixplants();
+    if ('M' == deck_id()) {
+        p = mixplants(recharged_setup ? [1,2,16,17,18] : [17, 18]);
+        if (recharged_setup) {
+            removelow = 0;
+            remove = toremovemix_re[is_vs_trust()?0:players];
+        } else {
+            low.extract(['09A', '10A', '13A', '11B']);
+        }
+    }
     if ('B' == deck_id()) {
         p = p.concat(bigplants, newplants.slice(-2));
-        remove = toremovebig[is_vs_trust()?0:players];
+        const toremovetab = recharged_setup ? toremovebig_re : toremovebig;
+        remove = toremovetab[is_vs_trust()?0:players] - removelow;
     }
-    if ('D' == deck_id()) {
-        p = dxhplants;
-        removelow = toremovelow[is_vs_trust()?0:players];
-        remove -= removelow;
-    }
+    if ('D' == deck_id()) p = dxplants;
 
     stack = p.slice(0);
-    if ('RUS' == map_id()) {
+    if ('FRA' == map_id()) {
+        stack.extract(['13A','11B']);
+        if (!recharged_setup) low.push('11A','19B');
+    } else if ('RUS' == map_id()) {
         stack.extract(['06A','14A','06B','21B'])
+        remove += removelow;
+        removelow = 0;
         marketsize = 3;
     } else if ('CHN' == map_id()) {
         stack.extract(['03A','04A','33A','01B','02B','32B']);
@@ -734,67 +768,63 @@ function init_deck() {
         return;
     } else if ('NEU' == map_id()) {
         for (var i = 0; i < 6; i++) if (has_region(i)) {
-            stack.extract(neplants[i][0]);
-            stack = stack.concat(neplants[i][1]);
+            neplants[i].forEach(plant => {
+                const sub = recharged_setup ? neplants_sub_re[plant] : neplants_sub[plant];
+                if (!sub || !stack.extract(sub)) statck = stack.filter(p => plant_val(p) != plant_val(plan));
+            });
+            stack = stack.concat(neplants[i]);
         }
         stack.sort();
     } else if ('AUS' == map_id()) {
         stack.extract(['17A','19B']);
     } else if ('IND' == map_id()) {
         stack.extract(['11A','08B']);
+        low.push('09B');
     }
-    if ('D' == deck_id()) {
-        market = dxlplants.slice(0);
-        market.shuffle();
-        if (removelow) market.splice(-removelow);
-        topdeck = market.splice(-1);
-        save = market.splice(8); // NOTE save is overwritten in BRA and QUE
-        market.sort();
-    } else {
-        market = stack.splice(0,marketsize * 2);
+    let lowstack = stack.extract(low);
+    if (recharged_setup) {
+        lowstack.shuffle();
+        if ('FRA' === map_id()) lowstack.unshift(...lowstack.extract(['11A', '08B']));
+        if ('BRA' === map_id()) lowstack.unshift(...lowstack.extract(gasplants));
+        if ('QUE' === map_id()) lowstack.unshift(...lowstack.extract(['13A', '11B', '15B', '16B']));
     }
+    market = lowstack.splice(0,marketsize * 2 + ('DXE' == map_id() ? 1 : 0));
+    market.sort();
+    if ('M' != deck_id()) topdeck = lowstack.splice(-1);
+    // assert(recharged_setup || lowstack.length == ('RUS' == map_id() ? 1 : 0))
     dxa_discountplant = 'DXA' == map_id() ? market[0] : undefined;
 
     if ('M' != deck_id()) {
-        topdeck = topdeck.concat(stack.extract(topdeckplants));
-        if ('FRA' == map_id()) {
-            topdeck = stack.extract(['11A','19B']);
-        } else if ('BRA' == map_id()) {
-            topdeck = topdeck.concat(stack.extract(['14A','21B']));
+        if ('BRA' == map_id()) {
+            if (!recharged_setup) topdeck = topdeck.concat(stack.extract(['14A','21B']));
         } else if ('IBE' == map_id()) {
             step2plants = stack.extract(['18A','22A','27A','15B','16B','26B']);
         } else if ('RUS' == map_id()) {
-            var tmp = stack.extract(['10A','11A','08B','09B']);
-            stack.shuffle();    
-            tmp = tmp.concat(stack.splice(-3));
-            tmp.shuffle();
-            topdeck = topdeck.concat(tmp);
+            if (!recharged_setup) {
+                lowstack = lowstack.concat(stack.extract(['11A','09B']));
+                stack.shuffle();
+                lowstack = lowstack.concat(stack.splice(-3));
+                lowstack.shuffle();
+            }
+            topdeck = topdeck.concat(lowstack);
+            lowstack = [];
         } else if ('QUE' == map_id()) {
-            topdeck = topdeck.concat(stack.extract(['18A','22A','15B','16B']));
+            if (recharged_setup) topdeck = stack.extract(['18A','22A']).concat(topdeck); // TODO verify order
+            else topdeck = topdeck.concat(stack.extract(['18A','22A','15B','16B']));
         }
     }
+    remove_n(lowstack, removelow);
+    remove_n(stack, remove);
+    if (lowstack.length) stack = stack.concat(lowstack);
     if ('GBR' == map_id()) {
         stack.shuffle();
         bottomdeck = stack.splice(-2);
-    }
-    if (remove) {
-        if ('BRA' == map_id()) save = stack.extract(gasplants);
-        if ('QUE' == map_id()) save = stack.extract(ecoplants);
-        stack.shuffle();
-        stack.splice(-remove);
-        if (save) {
-            stack = stack.concat(save);
-        }
     }
     for (var i = 0; i < promos.length; i++) if (has_option(promos[i].val) && promos[i].card) {
         stack.push(promos[i].card);
     }
     stack.shuffle();
     stack = topdeck.concat(stack,[step3],bottomdeck);
-    if ('DXE' == map_id()) {
-        market.push(stack.shift());
-        market.sort();
-    }
 }
 
 function init_game(state) {
@@ -1018,7 +1048,7 @@ function draw() {
         draw();
     }
     if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
-    if(houses >= plant_val(market[0])) {
+    if(!is_recharged() && houses >= plant_val(market[0])) {
         market_shift();
         draw();
     }
@@ -1104,7 +1134,7 @@ function do_build() {
     log_append('B');
     houses++;
     if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
-    while(houses >= plant_val(market[0])) {
+    while(!is_recharged() && houses >= plant_val(market[0])) {
         market_shift();
         draw();
     }
@@ -1358,13 +1388,16 @@ function ui_card(name,forsale) {
     ret += '</div>';
     return ret;
 }
+function get_card_back(name) {
+    if (is_recharged()) return lowplants_recharged.includes(name) ? 'DELR' : 'DECR';
+    return lowplants.includes(name) ? 'DEL' : 'DEC';
+}
 function ui_stack(name) {
     var px = 10 + 198 * 4;
     var py = 10 + 198 * 1;
     var ret ='';
-    const isLow = topdeckplants.includes(name);
     ret += '<div class="card0" style="'
-    ret += 'background: url(img/'+(isLow ? 'DEL' : 'DEC')+'.jpg);';
+    ret += 'background: url(img/'+get_card_back(name)+'.jpg);';
     ret += 'background-size: cover;'
     ret += 'z-index:2;';
     ret += 'top:'+py+'px;left:'+px+'px;"';
@@ -1618,6 +1651,14 @@ function display() {
             if (i == deck) tmp += ' selected';
             tmp += '>'+t(decks[i].name)+'</option>';
         }
+        tmp += '</select>';
+        tmp += '<select id="rechargedsel" onChange="set_recharged(this.value === \'R\');display();">';
+        tmp += '<option value="C"';
+        if (!is_recharged()) tmp += ' selected';
+        tmp += '>'+t('Classic')+'</option>';
+        tmp += '<option value="R"';
+        if (is_recharged()) tmp += ' selected';
+        tmp += '>'+t('Recharged')+'</option>';
         tmp += '</select>';
         tmp += '</div><div class="panel" style="height:320px">';
         tmp += '<div class="market" style="position:absolute;top:0px;left:700px;text-align:left;height:250px;width:296px;">';
