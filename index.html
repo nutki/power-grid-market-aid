@@ -744,8 +744,8 @@ function init_deck() {
     stack = p.slice(0);
     const step3 = stack.pop();
     if ('FRA' == map_id()) {
-        stack.extract(['13A','11B']);
-        if (!recharged_setup) low.push('11A','19B');
+        stack.extract(['13A',recharged_setup?'10B':'11B','11D']);
+        if (!recharged_setup) low.push('11A','19B','13D');
         if (recharged_setup && removelow) removelow--;
     } else if ('RUS' == map_id()) {
         stack.extract(['06A','14A','06B','21B'])
@@ -790,7 +790,7 @@ function init_deck() {
     let lowstack = stack.extract(low);
     if (recharged_setup) {
         lowstack.shuffle();
-        if ('FRA' === map_id()) lowstack.unshift(...lowstack.extract(['11A', '08B']));
+        if ('FRA' === map_id()) lowstack.unshift(...lowstack.extract(['11A', '08B', '13D']));
         if ('BRA' === map_id()) lowstack.unshift(...lowstack.extract(gasplants));
         if ('QUE' === map_id()) lowstack.unshift(...lowstack.extract(['13A', '11B', '15B', '16B']));
     }
