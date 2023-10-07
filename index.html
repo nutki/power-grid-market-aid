@@ -753,15 +753,15 @@ function init_deck() {
         removelow = 0;
         marketsize = 3;
     } else if ('CHN' == map_id()) {
-        stack.extract(['03A','04A','33A','01B','02B','32B']);
+        stack.extract(['03A','04A','33A','01B','02B','32B','03D','06D','31D']);
         if (players < 5)
-            stack.extract(['11A','18A','24A','46A','08B','15B','27B','36B']);
+            stack.extract(['11A','18A','24A','46A','08B','15B','27B','36B','13D','17D','26D','35D']);
         if (players < 4)
-            stack.extract(['09A','16A','20A','30A','12B','22B','28B','42B']);
+            stack.extract(['09A','16A','20A','30A','12B','22B','28B','42B','10D','18D','25D','34D']);
         market = stack.splice(0,players);
-        var pos = stack.indexOf('S' == deck_id()?'31A':'30B');
+        var pos = stack.findIndex(p => plant_val(p) >= (!recharged_setup && 'N' == deck_id() ? 30 : 31));
         var tmp1 = stack.splice(pos);
-        pos = tmp1.indexOf('S' == deck_id()?'36A':'35B');
+        pos = tmp1.findIndex(p => plant_val(p) >= (!recharged_setup && 'N' == deck_id() ? 35 : 36));
         var tmp2 = tmp1.splice(pos);
         tmp1.push(step3);
         if (has_option(promos[0].val)) tmp1.push(promos[0].card); // Flux generator
@@ -845,6 +845,7 @@ function init_game(state) {
     sold = 0;
     taxes_triggered = false;
     step2plants = undefined; // for Spain & Portugal
+    dxa_discountplant = undefined;
     nuclear_phaseout = false;
     log_clear();
     if (state) {
