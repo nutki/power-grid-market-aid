@@ -646,7 +646,7 @@ function is_recharged() {
     return has_option(17) !== 0;
 }
 function use_discount() {
-    return 'DXA' == map_id() || (is_recharged() && 'CHN' != map_id() && 'RUS' != map_id()) ;
+    return 'DXA' == map_id() || (is_recharged() && 'CHN' != map_id() && 'RUS' != map_id() && 'BAD' != map_id()) ;
 }
 
 function random_regions_ex() {
