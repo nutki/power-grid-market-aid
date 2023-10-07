@@ -717,7 +717,7 @@ function remove_n(s, n) {
 }
 function init_deck() {
     var p = plants;
-    const recharged_setup = is_recharged() || 'D' === deck_id();
+    const recharged_setup = is_recharged() || 'DXA' === map_id() || 'DXE' == map_id();
     const low = (recharged_setup ? lowplants_recharged : lowplants).slice(0);
     var removelow = recharged_setup ? toremovelow[is_vs_trust()?0:players] : 0;
     var remove = toremove[is_vs_trust()?0:players] - removelow;
