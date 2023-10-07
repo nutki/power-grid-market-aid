@@ -646,7 +646,7 @@ function is_recharged() {
     return has_option(17) !== 0;
 }
 function use_discount() {
-    return 'DXA' == map_id() || is_recharged();
+    return 'DXA' == map_id() || (is_recharged() && 'CHN' != map_id() && 'RUS' != map_id()) ;
 }
 
 function random_regions_ex() {
@@ -746,6 +746,7 @@ function init_deck() {
     if ('FRA' == map_id()) {
         stack.extract(['13A','11B']);
         if (!recharged_setup) low.push('11A','19B');
+        if (recharged_setup && removelow) removelow--;
     } else if ('RUS' == map_id()) {
         stack.extract(['06A','14A','06B','21B'])
         remove += removelow;
@@ -1092,7 +1093,7 @@ function test_step3() {
 
 function check_playerleft() {
     if (!playersleft) {
-        const discard_lowest = use_discount() ? dxa_discountplant == market[0] : !sold;
+        discard_lowest = use_discount() ? dxa_discountplant == market[0] : !sold;
         if (discard_lowest && 'RUS' != map_id() && 'CHN' != map_id()) {
             market_shift();
             draw();
@@ -1193,8 +1194,10 @@ function do_endturn() {
             draw();
         } else if ('BNX' == map_id()) {
             market_to_stack(-1);
-            market_shift();
-            draw();
+            if (!is_recharged() || !discard_lowest) {
+                market_shift();
+                draw();
+            }
             draw();
         } else {
             market_to_stack(-1);
