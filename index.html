@@ -1017,8 +1017,8 @@ function draw() {
     if (is_step3(plant) && 'CHN' != map_id()) {
         stack.shuffle();
     }
-    if (dxa_discountplant && dxa_discountplant > plant)
-        dxa_discountplant = undefined;
+    const drop_discount = dxa_discountplant && dxa_discountplant > plant;
+    if (drop_discount) dxa_discountplant = undefined;
     market.push(plant);
     market.sort();
     // DISPLAYEVENT
@@ -1054,7 +1054,7 @@ function draw() {
         draw();
     }
     if ('BAD' != map_id() && 'RUS' != map_id() && 'CHN' != map_id())
-    if(!is_recharged() && houses >= plant_val(market[0])) {
+    if(is_recharged() ? drop_discount : houses >= plant_val(market[0])) {
         market_shift();
         draw();
     }
