@@ -644,6 +644,9 @@ function set_recharged(v) {
 function is_recharged() {
     return has_option(17) !== 0;
 }
+function use_discount() {
+    return 'DXA' == map_id() || is_recharged();
+}
 
 function random_regions_ex() {
     var tochoose = regionsno[players];
@@ -793,7 +796,7 @@ function init_deck() {
     market.sort();
     if ('M' != deck_id()) topdeck = lowstack.splice(-1);
     // assert(recharged_setup || lowstack.length == ('RUS' == map_id() ? 1 : 0))
-    dxa_discountplant = 'DXA' == map_id() ? market[0] : undefined;
+    dxa_discountplant = use_discount() ? market[0] : undefined;
 
     if ('M' != deck_id()) {
         if ('BRA' == map_id()) {
@@ -1014,6 +1017,8 @@ function draw() {
     if (is_step3(plant) && 'CHN' != map_id()) {
         stack.shuffle();
     }
+    if (dxa_discountplant && dxa_discountplant > plant)
+        dxa_discountplant = undefined;
     market.push(plant);
     market.sort();
     // DISPLAYEVENT
@@ -1087,7 +1092,8 @@ function test_step3() {
 
 function check_playerleft() {
     if (!playersleft) {
-        if (!sold && 'RUS' != map_id() && 'CHN' != map_id()) {
+        const discard_lowest = use_discount() ? dxa_discountplant == market[0] : !sold;
+        if (discard_lowest && 'RUS' != map_id() && 'CHN' != map_id()) {
             market_shift();
             draw();
             if ('BAD' == map_id()) {
@@ -1103,8 +1109,7 @@ function check_playerleft() {
 function do_buy(i) {
     log_append(i);
     playersleft--;
-    if ('DXA' != map_id() || i == 0 || dxa_discountplant != market[0])
-        sold = 1;
+    sold = 1;
     market_remove(i);
     if ('CHN' != map_id() || step == 3)
         draw();
@@ -1203,7 +1208,7 @@ function do_endturn() {
     phase = 2;
     sold = 0;
     playersleft = players;
-    if (dxa_discountplant)
+    if (use_discount())
         dxa_discountplant = market[0];
 }
 
