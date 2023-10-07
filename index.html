@@ -506,6 +506,7 @@ const neplants_sub = {
     '18C': ['15B'], '22C': ['16B'],
 };
 const neplants_sub_re = { '25C': ['26B'], '18C': ['19B'] };
+const nuclear_phaseout_plants = ['39A', '38B', '37D'];
 
 var promos = [
 { name: 'Flux-Generator', val: 6, card: '33P' },
@@ -843,6 +844,7 @@ function init_game(state) {
     sold = 0;
     taxes_triggered = false;
     step2plants = undefined; // for Spain & Portugal
+    nuclear_phaseout = false;
     log_clear();
     if (state) {
         state = state.split('|');
@@ -1106,6 +1108,7 @@ function check_playerleft() {
 
 function do_buy(i) {
     log_append(i);
+    if (is_recharged() && nuclear_phaseout_plants.includes(market[i]) && ['GER', 'ITA'].includes(map_id())) nuclear_phaseout = true;
     playersleft--;
     sold = 1;
     market_remove(i);
@@ -1450,6 +1453,7 @@ function ui_step() {
                 var fgcol = (i%2?'white':'black');
                 var cost = maps[map].refill[resource_order[i-1]-1][s-1+(players-2)*3];
                 if (cost < 0 && s == step) bgcol = 'ef7c6a';
+                if (i == 4 && nuclear_phaseout && s >= step) bgcol = 'd0312d', cost = '0';
                 if (rows > 1) cost = j ? cost % 10 : Math.floor(cost / 10);
                 ret += '<td width="28" height="'+h+'" style="font-size:'+fh+'px;background-color:#'+bgcol+';color:'+fgcol+';">';
                 ret += '<div style="max-height:'+h+'px;line-height:'+h+'px;">'
