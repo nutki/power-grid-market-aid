@@ -453,8 +453,8 @@ var dxerefill = [[2,5,2,2,6,2,3,7,4,3,8,4,5,10,5],[2,2,3,2,2,3,3,3,4,4,3,5,4,5,6
 var dxarefill = [[2,4,2,2,5,2,3,6,3,4,7,4,5,8,5],[2,1,3,3,1,3,3,2,4,4,2,5,5,3,6],[2,2,4,2,2,4,3,3,5,3,3,6,4,4,7],[2,1,2,2,1,2,2,1,2,3,2,3,3,2,4]];
 
 var maps = [
-{ id: 'GER', name: 'Germany', regions: gerregions, startcost: [1,3,7,14], refill: stdrefill},
-{ id: 'USA', name: 'USA', regions: usaregions, startcost: [1,3,7,14], refill: stdrefill },
+{ id: 'GER', name: 'Germany', regions: gerregions, startcost: [1,3,7,14], refill: stdrefill, startcost_re: [1,3,6,14]},
+{ id: 'USA', name: 'USA', regions: usaregions, startcost: [1,3,7,14], refill: stdrefill, startcost_re: [1,3,6,14] },
 { id: 'ITA', name: 'Italy', regions: itaregions, startcost: [3,4,5,14], refill: stdrefill },
 { id: 'FRA', name: 'France', regions: fraregions, startcost: [1,3,7,5], refill: stdrefill },
 { id: 'CEU', name: 'Central Europe', regions: ceuregions, startcost: [1,3,7,8], refill: ceurefill },
@@ -1701,7 +1701,7 @@ function display() {
         tmp += '</div>';
         tmp += '<div class="market" style="position:absolute;left:350px;height:250px;width:296px;"><table>';
 //	tmp += ui_info('',[1,2,3,4].map(function (a) {return '<img height="30" src="img/R'+a+'.png"/>'}));
-        tmp += ui_info('Initial resource costs',maps[map].startcost);
+        tmp += ui_info('Initial resource costs',(is_recharged() && maps[map].startcost_re) || maps[map].startcost);
         if (deck_id() == 'B') {
             tmp += ui_info('Number of cities chosen on map',[bigcitiesno[players]]);
         } else {
