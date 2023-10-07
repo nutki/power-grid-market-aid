@@ -495,7 +495,8 @@ var topdeckplants = [ '13A', '11B' ];
 var ecoplants = [ '13A','18A','22A','27A','33A','37A','44A',
                   '10B','11B','15B','16B','26B','32B','39B' ];
 var gasplants = [ '06A','14A','19A','24A','30A','38A',
-                  '06B','21B','27B','33B','42B','52B' ];
+                  '06B','21B','27B','33B','42B','52B',
+                  '05D','14D','16D','19D','26D','40D' ];
 var neplants = [[ '19C', '26C' ], [ '07C', '46C' ], [ '10C', '39C' ], [ '21C', '25C' ], [ '32C', '44C' ], [ '18C', '22C' ]];
 const neplants_sub = {
     '19C': ['22B'], '26C': ['27B'],
@@ -802,7 +803,7 @@ function init_deck() {
 
     if ('M' != deck_id()) {
         if ('BRA' == map_id()) {
-            if (!recharged_setup) topdeck = topdeck.concat(stack.extract(['14A','21B']));
+            if (!recharged_setup) topdeck = topdeck.concat(stack.extract(['14A','21B','14D']));
         } else if ('IBE' == map_id()) {
             step2plants = stack.extract(['18A','22A','27A','15B','16B','26B']);
         } else if ('RUS' == map_id()) {
