@@ -749,7 +749,7 @@ function init_deck() {
         if (!recharged_setup) low.push('11A','19B','13D');
         if (recharged_setup && removelow) removelow--;
     } else if ('RUS' == map_id()) {
-        stack.extract(['06A','14A','06B','21B'])
+        stack.extract(['06A','14A','06B','21B','05D','14D']);
         remove += removelow;
         removelow = 0;
         marketsize = 3;
@@ -808,7 +808,7 @@ function init_deck() {
             step2plants = stack.extract(['18A','22A','27A','15B','16B','26B','17D','24D','28D']);
         } else if ('RUS' == map_id()) {
             if (!recharged_setup) {
-                lowstack = lowstack.concat(stack.extract(['11A','09B']));
+                lowstack = lowstack.concat(stack.extract(['11A','09B','12D']));
                 stack.shuffle();
                 lowstack = lowstack.concat(stack.splice(-3));
                 lowstack.shuffle();
