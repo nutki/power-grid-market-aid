@@ -487,11 +487,11 @@ var dxplants  = [ '03D','04D','05D','06D','07D','08D','09D','10D','11D','12D','1
                   '16D','17D','18D','19D','20D','21D','22D','23D','24D','25D','26D','27D','28D',
                   '29D','30D','31D','32D','33D','34D','35D','36D','37D','38D','39D','40D',
                   '42D','44D','46D','50D','99D' ];
+var topdeckplants = [ '13A', '11B', '11D' ];
 
 const lowplants_recharged = [...[plants, newplants, dxplants].flatMap(d => d.slice(0, 13)), '07C', '10C', '14B', '15B', '16B'];
-const lowplants = [...[plants, newplants, dxplants].flatMap(d => d.slice(0, 8)), '13A', '11B', '11D', '07C', '10C' ];
+const lowplants = [...[plants, newplants, dxplants].flatMap(d => d.slice(0, 8)), ...topdeckplants, '07C', '10C' ];
 
-var topdeckplants = [ '13A', '11B' ];
 var ecoplants = [ '13A','18A','22A','27A','33A','37A','44A',
                   '10B','11B','15B','16B','26B','32B','39B',
                   '11D','17D','24D','28D','31D','36D','44D' ];
@@ -794,7 +794,7 @@ function init_deck() {
         lowstack.shuffle();
         if ('FRA' === map_id()) lowstack.unshift(...lowstack.extract(['11A', '08B', '13D']));
         if ('BRA' === map_id()) lowstack.unshift(...lowstack.extract(gasplants));
-        if ('QUE' === map_id()) lowstack.unshift(...lowstack.extract(['13A', '11B', '15B', '16B', '11D']));
+        if ('QUE' === map_id()) lowstack.unshift(...lowstack.extract(['13A', '11B', '15B', '16B', '11D'])); // TODO 13A should go to topdeck by the official rules
     }
     market = lowstack.splice(0,marketsize * 2 + ('DXE' == map_id() ? 1 : 0));
     market.sort();
@@ -817,7 +817,7 @@ function init_deck() {
             topdeck = topdeck.concat(lowstack);
             lowstack = [];
         } else if ('QUE' == map_id()) {
-            if (recharged_setup) topdeck = stack.extract(['18A','22A','17D','24D']).concat(topdeck); // TODO verify order
+            if (recharged_setup) topdeck = stack.extract(['18A','22A','17D','24D']).concat(topdeck);
             else topdeck = topdeck.concat(stack.extract(['18A','22A','15B','16B','17D','24D']));
         }
     }
