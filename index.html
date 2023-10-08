@@ -493,7 +493,8 @@ const lowplants = [...[plants, newplants, dxplants].flatMap(d => d.slice(0, 8)),
 
 var topdeckplants = [ '13A', '11B' ];
 var ecoplants = [ '13A','18A','22A','27A','33A','37A','44A',
-                  '10B','11B','15B','16B','26B','32B','39B' ];
+                  '10B','11B','15B','16B','26B','32B','39B',
+                  '11D','17D','24D','28D','31D','36D','44D' ];
 var gasplants = [ '06A','14A','19A','24A','30A','38A',
                   '06B','21B','27B','33B','42B','52B',
                   '05D','14D','16D','19D','26D','40D' ];
@@ -793,7 +794,7 @@ function init_deck() {
         lowstack.shuffle();
         if ('FRA' === map_id()) lowstack.unshift(...lowstack.extract(['11A', '08B', '13D']));
         if ('BRA' === map_id()) lowstack.unshift(...lowstack.extract(gasplants));
-        if ('QUE' === map_id()) lowstack.unshift(...lowstack.extract(['13A', '11B', '15B', '16B']));
+        if ('QUE' === map_id()) lowstack.unshift(...lowstack.extract(['13A', '11B', '15B', '16B', '11D']));
     }
     market = lowstack.splice(0,marketsize * 2 + ('DXE' == map_id() ? 1 : 0));
     market.sort();
@@ -816,8 +817,8 @@ function init_deck() {
             topdeck = topdeck.concat(lowstack);
             lowstack = [];
         } else if ('QUE' == map_id()) {
-            if (recharged_setup) topdeck = stack.extract(['18A','22A']).concat(topdeck); // TODO verify order
-            else topdeck = topdeck.concat(stack.extract(['18A','22A','15B','16B']));
+            if (recharged_setup) topdeck = stack.extract(['18A','22A','17D','24D']).concat(topdeck); // TODO verify order
+            else topdeck = topdeck.concat(stack.extract(['18A','22A','15B','16B','17D','24D']));
         }
     }
     remove_n(lowstack, removelow);
