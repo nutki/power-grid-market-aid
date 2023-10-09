@@ -991,7 +991,7 @@ function market_remove(i) {
     mea_cycle_plant();
 }
 function market_shift() {
-    market_remove(0);
+    if (market.length) market_remove(0);
 }
 function market_pop() {
     market_remove(market.length - 1);
