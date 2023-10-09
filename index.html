@@ -343,6 +343,8 @@ var dict = {
 'Indian Subcontinent':{de:'Indischer Subkontinent',pl:'Subkontynent Indyjski'},
 'Europe':{de:'Europa',pl:'Europa'},
 'North America':{de:'Nordamerika',pl:'Ameryka Północna'},
+'Middle East':{de:'Mittlerer Osten',pl:'Azja Zachodnia'},
+'South Afrika':{de:'Südafrika',pl:'RPA'},
 
 //Promo names:
 'Flux-Generator':{},
@@ -434,6 +436,10 @@ var dxeregions = { colors:'1360854', con: [3,5,9,6,12,20,24,40,72,48,96],
     names: [ 'West', 'North West', 'Central', 'South', 'North East', 'East', 'South East']};
 var dxaregions = { colors:'0436815', con: [3,9,6,10,12,20,24,40,48,96],
     names: [ 'North West', 'Pacific', 'Mexico', 'Central', 'South', 'East Central', 'North East']};
+var mearegions = { colors: '102768', bad: 'MUeiq\\ltx]muy|}',
+    names: [ 'North West', 'Central', 'South West', 'North East', 'Central East', 'South East' ] };
+var safregions = { colors: '68021', bad: 'SV',
+    names: [ 'Central East', 'North East', 'South East', 'North West', 'South West' ] };
 
 var std0 = [3,4,3,4,5,3,5,6,4,5,7,5,7,9,6];
 var std1 = [2,2,4,2,3,4,3,4,5,4,5,6,5,6,7];
@@ -454,6 +460,8 @@ var ausrefill = [[3,5,4,4,6,4,4,7,5,5,9,6,7,10,7],std2,std2,[-1,-2,-3,-1,-2,-3,-
 var indrefill = [[4,5,4,5,6,4,6,7,5,7,8,6,8,10,7],[1,2,2,2,2,2,2,3,3,3,4,4,4,5,5],[1,3,4,1,3,4,3,4,6,4,5,7,4,7,9],[1,1,1,1,1,1,1,2,1,2,2,2,2,3,2]];
 var dxerefill = [[2,5,2,2,6,2,3,7,4,3,8,4,5,10,5],[2,2,3,2,2,3,3,3,4,4,3,5,4,5,6],[2,2,4,2,3,5,3,4,5,3,5,7,4,6,8],[1,1,2,1,1,2,1,2,2,2,3,3,2,3,4]];
 var dxarefill = [[2,4,2,2,5,2,3,6,3,4,7,4,5,8,5],[2,1,3,3,1,3,3,2,4,4,2,5,5,3,6],[2,2,4,2,2,4,3,3,5,3,3,6,4,4,7],[2,1,2,2,1,2,2,1,2,3,2,3,3,2,4]];
+var mearefill = [[2,1,1,2,1,1,3,2,2,4,3,2,5,4,3],[4,3,2,5,3,2,6,3,2,8,4,3,9,5,4],[1,3,4,1,3,4,1,4,6,1,4,8,1,6,9],[0,2,2,0,2,2,0,3,3,0,3,4,0,4,5]];
+var safrefill = [[4,6,4,4,7,5,5,8,6,6,9,7,7,10,8],[1,2,1,1,2,1,2,3,2,2,4,3,4,5,4],[1,3,3,1,3,3,2,4,4,3,4,5,3,6,6],[1,1,2,1,1,2,2,2,3,2,3,3,2,3,4]];
 
 var maps = [
 { id: 'GER', name: 'Germany', regions: gerregions, startcost: [1,3,7,14], refill: stdrefill, startcost_re: [1,3,6,14]},
@@ -476,6 +484,8 @@ var maps = [
 { id: 'IND', name: 'Indian Subcontinent', regions: indregions, startcost: [1,2,2,6], refill: indrefill },
 { id: 'DXE', name: 'Europe', startcost: [2,3,3,8], regions: dxeregions, refill: dxerefill },
 { id: 'DXA', name: 'North America', startcost: [2,3,4,9], regions: dxaregions, refill: dxarefill },
+{ id: 'MEA', name: 'Middle East', startcost: [2,2,8,12], regions: mearegions, refill: mearefill },
+{ id: 'SAF', name: 'South Afrika', startcost: [1,4,5,12], regions: safregions, refill: safrefill },
 ];
 var plants =    [ '03A','04A','05A','06A','07A','08A','09A','10A','11A','12A','13A','14A','15A',
                   '16A','17A','18A','19A','20A','21A','22A','23A','24A','25A','26A','27A','28A',
@@ -496,11 +506,14 @@ const lowplants_recharged = [...[plants, newplants, dxplants].flatMap(d => d.sli
 const lowplants = [...[plants, newplants, dxplants].flatMap(d => d.slice(0, 8)), ...topdeckplants, '07C', '10C' ];
 
 var ecoplants = [ '13A','18A','22A','27A','33A','37A','44A',
-                  '10B','11B','15B','16B','26B','32B','39B',
+                  '10B','11B','15B','16B','26B','32B','39B','60B',
                   '11D','17D','24D','28D','31D','36D','44D' ];
 var gasplants = [ '06A','14A','19A','24A','30A','38A',
                   '06B','21B','27B','33B','42B','52B',
                   '05D','14D','16D','19D','26D','40D' ];
+var meaplants = [ '06A','11A','14A','17A','19A','23A','24A','28A','30A','34A','38A','39A',
+                  '06B','08B','19B','21B','24B','27B','31B','33B','38B','42B','50B','52B',
+                  '05D','13D','14D','16D','19D','21D','26D','32D','34D','37D','39D','46D','50D'];
 var neplants = [[ '19C', '26C' ], [ '07C', '46C' ], [ '10C', '39C' ], [ '21C', '25C' ], [ '32C', '44C' ], [ '18C', '22C' ]];
 const neplants_sub = {
     '19C': ['22B'], '26C': ['27B'],
@@ -616,6 +629,7 @@ function get_limits() {
         }
         return [limits[2][0],c];
     }
+    if ('MEA' == map_id()) return ['-', limits[idx][1]];
     return limits[idx];
 }
 function has_option(v) {
@@ -791,6 +805,9 @@ function init_deck() {
     } else if ('IND' == map_id()) {
         stack.extract(['11A','08B','13D']);
         low.push('09B');
+    } else if ('SAF' == map_id()) {
+        stack.extract(['07A','07B','10D']);
+        if (!recharged_setup) low.push('11A','09B','12D');
     }
     let lowstack = stack.extract(low);
     if (recharged_setup) {
@@ -836,6 +853,7 @@ function init_deck() {
     }
     stack.shuffle();
     stack = topdeck.concat(stack,[step3],bottomdeck);
+    mea_cycle_plant();
 }
 
 function init_game(state) {
@@ -852,6 +870,7 @@ function init_game(state) {
     step2plants = undefined; // for Spain & Portugal
     dxa_discountplant = undefined;
     nuclear_phaseout = false;
+    mea_step2_triggered = false;
     log_clear();
     if (state) {
         state = state.split('|');
@@ -952,6 +971,14 @@ function replay(inlog) {
     }
 }
 
+function mea_cycle_plant() {
+    if ('MEA' != map_id() || step > 1) return;
+    const pos =  market.findIndex((p, i) => i < 4 && meaplants.includes(p));
+    if (pos < 0) return;
+    if (!stack.some(p => !meaplants.includes(p))) return;
+    lowplants_recharged.includes(market[pos]) ? market_remove(pos) : market_to_stack(pos);
+    draw();
+}
 
 // Market/stack manipulation:
 function market_remove(i) {
@@ -961,6 +988,7 @@ function market_remove(i) {
     mvqueue.push(ev);
     }
     market.splice(i,1);
+    mea_cycle_plant();
 }
 function market_shift() {
     market_remove(0);
@@ -985,6 +1013,7 @@ function market_to_stack(i) {
     mvqueue.push(ev);	
     }
     stack.push(market.splice(i,1)[0]);
+    mea_cycle_plant();
 }
 function stack_reveal(p) {
     if (!stack.length) return;
@@ -1065,6 +1094,12 @@ function draw() {
         market_shift();
         draw();
     }
+    if (is_step3(plant) && 'MEA' == map_id() && !mea_step2_triggered) {
+        market_to_stack(-1);
+        draw();
+        mea_step2_triggered = true;
+    }
+    mea_cycle_plant();
 }
 
 function step2() {
@@ -1077,11 +1112,19 @@ function step2() {
         else
             draw();
     }
+    if (market.length && 'MEA' == map_id()) {
+        market_shift();
+        draw();
+    }
     step = 2;
     test_step3();
 }
 
 function test_step3() {
+    if (mea_step2_triggered && step == 1) {
+        step2();
+        return;
+    }
     if (!market.find(is_step3)) return;
     if (step == 1 && 'D' == deck_id() && market.length > 1) {
         // TODO: Perform start of step 2 actions for other maps
@@ -1157,7 +1200,7 @@ function do_endbuild() {
     var lim = get_limits();
     log_append('E');
     test_step3();
-    if (houses >= lim[0] && step == 1) {
+    if (houses >= lim[0] && step == 1 && 'MEA' != map_id()) {
         step2();
     }
     if (houses >= lim[1]) {
@@ -1205,6 +1248,13 @@ function do_endturn() {
                 draw();
             }
             draw();
+        } else if ('MEA' == map_id()) {
+            market_to_stack(-1);
+            draw();
+            if (step == 2 && !market.some(is_step3)) {
+                market_to_stack(-1);
+                draw();
+            }
         } else {
             market_to_stack(-1);
             draw();
