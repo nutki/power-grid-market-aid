@@ -1454,6 +1454,7 @@ function ui_card(name,forsale) {
     return ret;
 }
 function get_card_back(name) {
+    if ('D' == deck_id()) return lowplants_recharged.includes(name) ? 'DELD' : 'DECD';
     if (is_recharged()) return lowplants_recharged.includes(name) ? 'DELR' : 'DECR';
     return lowplants.includes(name) ? 'DEL' : 'DEC';
 }
