@@ -1834,7 +1834,7 @@ function event_cards() {
                 r.push(c);
     return r;
 }
-fetch('build.txt').then(res => res.text().then(v => {
+fetch('build.txt', {cache: "reload"}).then(res => res.text().then(v => {
     if (v.startsWith('---')) return;
     gitRevision = v;
     display();
