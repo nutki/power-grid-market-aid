@@ -551,7 +551,7 @@ var options = 0; // bitmask: 0-5, regions for GBR, NEU; 6+ promos
 // UI state
 
 var debugmode = 0;
-var alttable = 0;
+var alttable = 0; // unused
 var lang = 'en';
 var ui_calc = 0;
 var ui_calc_state = [];
@@ -1474,54 +1474,45 @@ function ui_stack(name) {
     return ret;
 }
 
-function ui_alttable() {
-    alttable = 1 - alttable;
-    save_state();
-    display();
-}
-
 function ui_step() {
     var pos = ui_market_width() > 4 ? [3,1] : [4,0];
     var px = 10 + 198 * pos[0];
-    var py = 10 + 198 * pos[1]+10;
-    var alt = alttable;
+    var py = 10 + 198 * pos[1];
     var ret ='';
     ret += '<div style="position:absolute;width:188px;height:188px;'
     ret += 'border:0px solid black;text-align:center;';
-    ret += 'top:'+py+'px;left:'+px+'px;" onClick="ui_alttable()">';
-    if (!alt) ret += '<div style="font-size:44px">'+(step?t('Step')+' '+step:t('Game over'))+'</div>';
+    ret += 'top:'+py+'px;left:'+px+'px;">';
     ret += '<table align="center">';
+    ret += '<tr><td></td><td colspan=3 style="font-size:26px">'+(step?t('Step')+' '+step:t('Game over'))+'</td></tr>';
     const resource_order = 'D' == deck_id() ? [1, 3, 2, 4] : [1, 2, 3, 4];
-    if (!alt) {
-    ret += '<tr>';
-    for (const i of resource_order) {
-        var j = i + ('D' == deck_id() ? 'D' : '');
-        ret += '<td width="28" height="50">';
-        ret += '<img src="img/R'+j+'.png" style="max-width:100%;max-height:35px">';
+    for (var i = 1; i <= 4; i++) {
+        var bgcol = (i%2?'4e4e4e':'a8a8a8');
+        ret += '<tr>';
+        var kd = resource_order[i - 1] + ('D' == deck_id() ? 'D' : '');
+        ret += '<td width="30" height="33" style="background-color2:#'+bgcol+'">';
+        ret += '<img src="img/R'+kd+'.png" style="max-width:100%;max-height:25px;vertical-align:middle">';
         ret += '</td>';
-    }
-    ret += '</tr>';
-    }
-    for (var s = 1; s <= 3; s++) if (s == step || alt) {
-        var rows = 'KOR' == map_id() ? 2:1;
-        var h = rows == 2 ? 24 : 50;
-        var fh = rows == 2 ? 24 : 30;
+        for (var s = 1; s <= 3; s++) {
+        var rows = 1;
+        var h = 33;
+        var fh = 26;
         for (var j = 0; j < rows; j++) {
-            ret += '</tr>';
-            for (var i = 1; i <= 4; i++) {
+            for (var s = 1; s <= 3; s++) {
                 var bgcol = s == step ? (i%2?'3e6e3e':'a7bc95') : (i%2?'4e4e4e':'a8a8a8');
                 var fgcol = (i%2?'white':'black');
-                var cost = maps[map].refill[resource_order[i-1]-1][s-1+(players-2)*3];
+                var cost = maps[map].refill[resource_order[i-1]-1][s-1+(players-2)*3].toString();
                 if (cost < 0 && s == step) bgcol = 'ef7c6a';
+                if ('KOR' == map_id()) cost = cost.padStart(2, '0').replace(/\B/, '/');
                 if (i == 4 && nuclear_phaseout && s >= step) bgcol = 'd0312d', cost = '0';
                 if (rows > 1) cost = j ? cost % 10 : Math.floor(cost / 10);
-                ret += '<td width="28" height="'+h+'" style="font-size:'+fh+'px;background-color:#'+bgcol+';color:'+fgcol+';">';
+                ret += '<td width="40" height="'+h+'" style="font-size:'+fh+'px;background-color:#'+bgcol+';color:'+fgcol+';">';
                 ret += '<div style="max-height:'+h+'px;line-height:'+h+'px;">'
                 ret += cost;
                 ret += '</div></td>';
             }
-            ret += '</tr>';
         }
+        }
+        ret += '</tr>';
     }
     ret += '</table>';
     ret += '</div>';
