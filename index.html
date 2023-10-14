@@ -1771,7 +1771,8 @@ function display() {
         tmp += ui_button(790,273,120,30,chosen_regions()?'Clear regions':'Random regions','B' != deck_id() ? 'random_regions();display' : '');
         tmp += '</div>';
     }
-    tmp += '<div class="copyright">Images ©2F-Spiele. This website is not created by nor affiliated with 2F-Spiele. '+gitRevision.substring(0, 7)+'</div>'
+    const gitRevText = gitRevision ? `ver. <a href="https://github.com/nutki/power-grid-market-aid/tree/${gitRevision}" target="_blank">${gitRevision.substring(0, 7)}</a>`: '';
+    tmp += '<div class="copyright">Images ©2F-Spiele. This website is not created by nor affiliated with 2F-Spiele. '+gitRevText+'</div>'
     document.getElementById("buttons").innerHTML=tmp;
 }
 function ui_info(name,value) {
