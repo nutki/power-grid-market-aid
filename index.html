@@ -254,8 +254,12 @@ var dict = {
 
 'Standard Deck':{pl:'Talia podstawowa'},
 'New Deck':{pl:'Nowa talia'},
-'Mixed Deck':{pl:'Talia mieszana'},
+'Mixed Deck Set 1':{pl:'Talia mieszana Set 1'},
+'Mixed Deck Set 2':{pl:'Talia mieszana Set 2'},
+'Mixed Deck Set 1+2':{pl:'Talia mieszana Set 1 i 2'},
+'Mixed Deck All':{pl:'Talia mieszana wszystko'},
 'Big Game Deck':{pl:'Duża talia'},
+'Big Game Deck Set 2':{pl:'Duża talia Set 2'},
 'Set 2 (Deluxe) Deck':{pl:'Talia Set 2 (deluxe)'},
 
 //Region names:
@@ -383,9 +387,13 @@ var limitsbad = [ [6,18], null, [9,21], [6,17], [6,17], [6,15], [5,14]];
 var decks = [
 { id: 'S', name: 'Standard Deck' },
 { id: 'N', name: 'New Deck' },
-{ id: 'M', name: 'Mixed Deck'},
-{ id: 'B', name: 'Big Game Deck' },
+{ id: 'M', name: 'Mixed Deck Set 1', source: 'SN'},
+{ id: 'B', name: 'Big Game Deck', source: 'S' },
 { id: 'D', name: 'Set 2 (Deluxe) Deck' },
+{ id: 'M', name: 'Mixed Deck Set 2', source: 'SD' },
+{ id: 'M', name: 'Mixed Deck Set 1+2', source: 'ND' },
+{ id: 'M', name: 'Mixed Deck All', source: 'SND' },
+{ id: 'B', name: 'Big Game Deck Set 2', source: 'D' },
 ];
 var regionchoice = {
 6:{3:'GKScMUeYiqNVfZjr\\ltx',4:'OWg[ks]muy^nvz|',5:'_ow{}~'},
@@ -610,6 +618,7 @@ function save_state() {
 }
 
 function deck_id() { return decks[deck].id; }
+function deck_source() { return decks[deck].source; }
 function map_id() { return maps[map].id; }
 function plant_val(a) { return parseInt(a,10); }
 function is_step3(a) { return plant_val(a) === 99; }
@@ -707,7 +716,9 @@ function random_regions() {
 }
 
 function mixplants(remove = [17,18]) {
-    var tmp = plants.concat(newplants);
+    const decks = { S: plants, N: newplants, D: dxplants };
+    const src = deck_source();
+    var tmp = [].concat(...Array.from(src).map(d => decks[d]));
     var ret = [];
     var have = {};
     tmp.shuffle();
@@ -742,16 +753,20 @@ function init_deck() {
     marketsize = 4; // for Russia
     if ('N' == deck_id()) p = newplants;
     if ('M' == deck_id()) {
-        p = mixplants(recharged_setup ? [1,2,16,17,18] : [17, 18]);
+        const hasSet1 = deck_source().includes('N');
+        p = mixplants(!hasSet1 ? [] : recharged_setup ? [1,2,16,17,18] : [17, 18]);
         if (recharged_setup) {
-            removelow = 0;
-            remove = toremovemix_re[is_vs_trust()?0:players];
+            if (hasSet1) {
+                removelow = 0;
+                remove = toremovemix_re[is_vs_trust()?0:players];
+            }
         } else {
-            low.extract(['09A', '10A', '13A', '11B']);
+            if (hasSet1) low.extract(['09A', '10A', '09D', '10D' ]);
+            low.extract(['13A', '11B', '11D']);
         }
     }
     if ('B' == deck_id()) {
-        p = p.concat(bigplants);
+        p = ('D' == deck_source() ? dxplants : plants).concat(bigplants);
         const toremovetab = recharged_setup ? toremovebig_re : toremovebig;
         remove = toremovetab[is_vs_trust()?0:players] - removelow;
     }
